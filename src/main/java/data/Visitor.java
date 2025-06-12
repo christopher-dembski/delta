@@ -1,5 +1,5 @@
 package data;
 
-public interface Visitor {
-    DatabaseRecord visitStudent(Student student);
+public interface Visitor<T> {
+    T visitStudent(Student student);
 }

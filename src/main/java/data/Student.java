@@ -26,7 +26,7 @@ public class Student implements DatabaseModel {
         return name;
     }
 
-    public DatabaseRecord accept(Visitor visitor) {
+    public <T> T accept(Visitor<? extends T> visitor) {
         return visitor.visitStudent(this);
     }
 }

@@ -1,7 +1,6 @@
 package data;
 
-public interface DatabaseModel {
+public interface DatabaseModel extends Visitable {
     public Integer getId();
     public String getTableName();
-    public DatabaseRecord accept(Visitor visitor);
 }

@@ -3,7 +3,7 @@ package data;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DatabaseRecordVisitor implements Visitor {
+public class DatabaseRecordVisitor implements Visitor<DatabaseRecord> {
     static DatabaseRecordVisitor instance;
 
     public static DatabaseRecordVisitor instance() {
