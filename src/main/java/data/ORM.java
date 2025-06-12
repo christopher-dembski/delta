@@ -21,7 +21,7 @@ public class ORM {
     }
 
     public static boolean insert(DatabaseModel instance) {
-        return driver.insert(instance.getTableName(), instance.convertToDatabaseRecord());
+        return driver.insert(instance.getTableName(), instance.accept(DatabaseRecordVisitor.instance()));
     }
 
     public static boolean delete(DatabaseModel instance) {
@@ -29,6 +29,7 @@ public class ORM {
     }
 
     public static void main(String[] args) {
+        // Example script showing how to use the ORM
         Student chris = new Student(1, "Chris");
         ORM.delete(chris);
         ORM.insert(chris);

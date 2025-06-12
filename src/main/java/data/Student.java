@@ -1,7 +1,5 @@
 package data;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class Student implements DatabaseModel {
     private static String TABLE_NAME = "students";
@@ -15,20 +13,20 @@ public class Student implements DatabaseModel {
     }
 
     @Override
-    public Integer getId() {
-        return id;
-    }
-
-    @Override
     public String getTableName() {
         return TABLE_NAME;
     }
 
     @Override
-    public DatabaseRecord convertToDatabaseRecord() {
-        List<DatabaseValue> values = new ArrayList<>();
-        values.add(new DatabaseValue("id", DatabaseValueType.INTEGER, 1));
-        values.add(new DatabaseValue("name", DatabaseValueType.VARCHAR, "Chris"));
-        return new DatabaseRecord(values);
+    public Integer getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public DatabaseRecord accept(Visitor visitor) {
+        return visitor.visitStudent(this);
     }
 }

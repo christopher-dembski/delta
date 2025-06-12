@@ -60,23 +60,4 @@ public class MySQLDriver implements IDatabaseDriver {
         }
         return true;
     }
-
-    public static void main(String[] args) {
-        // Example script showing how to use the MySQLDriver class
-        System.out.println("Testing MySQL driver");
-        List<DatabaseValue> values = new ArrayList<>();
-        values.add(new DatabaseValue("id", DatabaseValueType.INTEGER, 1));
-        values.add(new DatabaseValue("name", DatabaseValueType.VARCHAR, "Chris"));
-        DatabaseRecord record = new DatabaseRecord(values);
-        MySQLDriver instance;
-        try {
-            // we would define these constants in our App class
-            // and have one instance for the App following the Singleton pattern
-            instance = new MySQLDriver("delta_database", "delta-service-account", "password");
-            instance.delete("students", 1);
-            instance.insert("students", record);
-        } catch (SQLException e) {
-            System.out.println("Database Error: " + e.getMessage());
-        }
-    }
 }
