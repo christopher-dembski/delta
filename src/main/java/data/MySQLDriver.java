@@ -14,7 +14,7 @@ public class MySQLDriver implements IDatabaseDriver {
 
     private final Connection connection;
 
-    private MySQLDriver(String databaseName, String serviceAccount, String password) throws SQLException {
+    public MySQLDriver(String databaseName, String serviceAccount, String password) throws SQLException {
         connection = DriverManager.getConnection(
                 CONNECTION_STRING.formatted(databaseName, serviceAccount, password)
         );
@@ -28,8 +28,7 @@ public class MySQLDriver implements IDatabaseDriver {
         try {
             connection.createStatement().execute(insertStatement);
         } catch (SQLException e) {
-            // TO DO: implement logging to make errors easier to debug
-            return false;
+           return false;
         }
         return true;
     }
