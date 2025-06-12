@@ -21,7 +21,7 @@ public class ORM {
     }
 
     public static boolean insert(DatabaseModel instance) {
-        return driver.insert(instance.getTableName(), instance.accept(DatabaseRecordVisitor.instance()));
+        return driver.insert(instance.getTableName(), instance.accept(ToDatabaseRecordVisitor.instance()));
     }
 
     public static boolean delete(DatabaseModel instance) {

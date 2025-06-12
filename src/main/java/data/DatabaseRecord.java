@@ -1,15 +1,15 @@
 package data;
 
-import java.util.List;
+import java.util.HashMap;
 
 public class DatabaseRecord {
-    private List<DatabaseValue> values;
+    private HashMap<String, DatabaseValue> values;
 
-    public DatabaseRecord(List<DatabaseValue> values) {
+    public DatabaseRecord(HashMap<String, DatabaseValue> values) {
         this.values = values;
     }
 
-    public List<DatabaseValue> getValues() {
+    public HashMap<String, DatabaseValue> getValues() {
         return values;
     }
 }
