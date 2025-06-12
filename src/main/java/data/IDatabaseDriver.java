@@ -1,5 +1,6 @@
 package data;
 
 public interface IDatabaseDriver {
-    void insert(String tableName, DatabaseRecord record);
+    boolean insert(String tableName, DatabaseRecord record);
+    boolean delete(String tableName, Integer id);
 }
