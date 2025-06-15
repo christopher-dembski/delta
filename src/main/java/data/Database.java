@@ -2,7 +2,7 @@ package data;
 
 import java.sql.SQLException;
 
-public class ORM {
+public class Database {
     public static IDatabaseDriver driver;
 
     private static final String DATABASE_NAME = "delta_database";
@@ -20,18 +20,24 @@ public class ORM {
         }
     }
 
-    public static boolean insert(DatabaseModel instance) {
-        return driver.insert(instance.getTableName(), instance.accept(ToDatabaseRecordVisitor.instance()));
+    public static <T extends DatabaseModel> boolean insert(T instance) {
+        Query<T> query = new Query<>(Query.QueryType.INSERT, instance);
+        T result =  driver.executeQuery(query);
+        return result == null;
     }
 
     public static boolean delete(DatabaseModel instance) {
         return driver.delete(instance.getTableName(), instance.getId());
     }
 
+    private <T extends DatabaseModel> T executeQuery(Query<T> query) {
+        return driver.executeQuery(query);
+    }
+
     public static void main(String[] args) {
         // Example script showing how to use the ORM
         Student chris = new Student(1, "Chris");
-        ORM.delete(chris);
-        ORM.insert(chris);
+        // Database.delete(chris);
+        Database.insert(chris);
     }
 }

@@ -58,6 +58,7 @@ public class MySQLDriver implements IDatabaseDriver {
         return new ColumnNamesAndValues(formattedColumns, formattedValues);
     }
 
+    // TO DO: delete
     @Override
     public boolean delete(String tableName, Integer id) {
         String deleteStatement = DELETE_STATEMENT_TEMPLATE.formatted(tableName, id);
@@ -67,5 +68,26 @@ public class MySQLDriver implements IDatabaseDriver {
             return false;
         }
         return true;
+    }
+
+    public <T extends DatabaseModel> T executeQuery(Query<T> query) {
+        switch (query.getQueryType()) {
+            case INSERT -> {
+                // TO DO: alter signature to pass instance rather than record
+                insert(query.tableName(), query.getInstance().toDatabaseRecord());
+                // TO DO: modify insert signature to return instance and null on failure
+                return null;
+            }
+            case SELECT -> {
+                return null;
+            }
+            case UPDATE -> {
+                return null;
+            }
+            case DELETE -> {
+                return null;
+            }
+        }
+        return null;
     }
 }

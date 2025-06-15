@@ -1,6 +1,8 @@
 package data;
 
 
+import java.util.HashMap;
+
 public class Student implements DatabaseModel {
     private static String TABLE_NAME = "students";
 
@@ -28,5 +30,12 @@ public class Student implements DatabaseModel {
 
     public <T> T accept(Visitor<? extends T> visitor) {
         return visitor.visitStudent(this);
+    }
+
+    public DatabaseRecord toDatabaseRecord() {
+        HashMap<String, DatabaseValue> values = new HashMap<>();
+        values.put("id", new DatabaseValue("id", DatabaseValueType.INTEGER, this.getId()));
+        values.put("name", new DatabaseValue("name", DatabaseValueType.VARCHAR, this.getName()));
+        return new DatabaseRecord(values);
     }
 }
