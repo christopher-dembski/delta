@@ -69,6 +69,11 @@ public class MySQLDriver implements IDatabaseDriver {
         return true;
     }
 
+    public <T extends DatabaseModel> List<T> executeQuery(SelectQuery<T> query) {
+        // TO DO: implement
+        return null;
+    }
+
     public <T extends DatabaseModel> boolean executeQuery(UpdateQuery<T> query) {
         T instance = query.getInstance();
         // build string to set columns to specific values

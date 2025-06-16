@@ -1,6 +1,7 @@
 package data;
 
 import java.sql.SQLException;
+import java.util.List;
 
 public class Database {
     public static IDatabaseDriver driver;
@@ -42,11 +43,15 @@ public class Database {
         return driver.executeQuery(query);
     }
 
-    protected static <T extends DatabaseModel> boolean executeQuery(DeleteQuery<T> query) {
+    protected static <T extends DatabaseModel> List<T> executeQuery(SelectQuery<T> query) {
         return driver.executeQuery(query);
     }
 
     protected static <T extends DatabaseModel> boolean executeQuery(UpdateQuery<T> query) {
+        return driver.executeQuery(query);
+    }
+
+    protected static <T extends DatabaseModel> boolean executeQuery(DeleteQuery<T> query) {
         return driver.executeQuery(query);
     }
 
