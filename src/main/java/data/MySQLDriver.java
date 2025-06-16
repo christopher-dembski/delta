@@ -16,7 +16,8 @@ public class MySQLDriver implements IDatabaseDriver {
 
     private final Connection connection;
 
-    private record ColumnNamesAndValues(List<String> columnNames, List<String> columnValues) {}
+    private record ColumnNamesAndValues(List<String> columnNames, List<String> columnValues) {
+    }
 
     public MySQLDriver(String databaseName, String serviceAccount, String password) throws SQLException {
         connection = DriverManager.getConnection(
@@ -24,8 +25,7 @@ public class MySQLDriver implements IDatabaseDriver {
         );
     }
 
-    @Override
-    public boolean insert(String tableName, DatabaseRecord record) {
+    private boolean insert(String tableName, DatabaseRecord record) {
         // TO DO: prevent SQL injection attacks
         ColumnNamesAndValues columnNamesAndValues = MySQLDriver.getColumnNamesAndFormattedValues(record);
         String columnNames = "(%s)".formatted(String.join(", ", columnNamesAndValues.columnNames));
@@ -34,7 +34,7 @@ public class MySQLDriver implements IDatabaseDriver {
         try {
             connection.createStatement().execute(insertStatement);
         } catch (SQLException e) {
-           return false;
+            return false;
         }
         return true;
     }
@@ -59,9 +59,7 @@ public class MySQLDriver implements IDatabaseDriver {
         return new ColumnNamesAndValues(formattedColumns, formattedValues);
     }
 
-    // TO DO: delete
-    @Override
-    public boolean delete(String tableName, Integer id) {
+    private boolean delete(String tableName, Integer id) {
         String deleteStatement = DELETE_STATEMENT_TEMPLATE.formatted(tableName, id);
         try {
             connection.createStatement().execute(deleteStatement);
@@ -77,29 +75,17 @@ public class MySQLDriver implements IDatabaseDriver {
         Class[] parameters = {DatabaseRecord.class};
         try {
             return klass.getDeclaredConstructor(parameters).newInstance(record);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                 NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public <T extends DatabaseModel> T executeQuery(Query<T> query) {
-        switch (query.getQueryType()) {
-            case INSERT -> {
-                // TO DO: alter signature to pass instance rather than record
-                insert(query.tableName(), query.getInstance().toDatabaseRecord());
-                // TO DO: modify insert signature to return instance and null on failure
-                return null;
-            }
-            case SELECT -> {
-                return null;
-            }
-            case UPDATE -> {
-                return null;
-            }
-            case DELETE -> {
-                return null;
-            }
-        }
-        return null;
+    public <T extends DatabaseModel> boolean executeQuery(InsertQuery<T> query) {
+        T instance = query.getInstance();
+        return this.insert(
+                DatabaseConfig.instance().getTableName(instance.getClass()),
+                instance.toDatabaseRecord()
+        );
     }
 }

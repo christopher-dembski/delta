@@ -21,24 +21,18 @@ public class Database {
     }
 
     public static <T extends DatabaseModel> boolean insert(T instance) {
-        Query<T> query = new Query<>(Query.QueryType.INSERT, instance);
-        T result =  driver.executeQuery(query);
-        return result == null;
+        return executeQuery(new InsertQuery<T>(instance));
     }
 
-    public static boolean delete(DatabaseModel instance) {
-        return driver.delete(instance.getTableName(), instance.getId());
-    }
-
-    private <T extends DatabaseModel> T executeQuery(Query<T> query) {
+    protected static <T extends DatabaseModel> boolean executeQuery(InsertQuery<T> query) {
         return driver.executeQuery(query);
     }
 
     public static void main(String[] args) {
         // Example script showing how to use the ORM
-        // Student chris = new Student(1, "Chris");
+        Student chris = new Student(1, "Chris");
         // Database.delete(chris);
-        // Database.insert(chris);
+        Database.insert(chris);
         // Student chris = MySQLDriver.foo(Student.class);
         // System.out.println(chris.name);
     }
