@@ -29,6 +29,7 @@ public class Student implements DatabaseModel {
         return new DatabaseRecord(values);
     }
 
+    @SuppressWarnings("unused")
     public static Student fromDatabaseRecord(DatabaseRecord record) {
         HashMap<String, DatabaseValue> values = record.getValues();
         // TO DO: simplify database record object and move parsing database value from String into MySQL driver
