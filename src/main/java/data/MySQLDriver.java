@@ -37,15 +37,7 @@ public class MySQLDriver implements IDatabaseDriver {
         for (String columnName : columnValues.keySet()) {
             formattedColumns.add(columnName);
             DatabaseValue columnValue = columnValues.get(columnName);
-            switch (columnValue.getType()) {
-                case VARCHAR -> {
-                    // need to wrap strings in single quotes
-                    formattedValues.add("'%s'".formatted(columnValue.getObject().toString()));
-                }
-                default -> {
-                    formattedValues.add("%s".formatted(columnValue.getObject().toString()));
-                }
-            }
+            formattedValues.add(formatSQLValue(columnValue.getObject()));
         }
         return new ColumnNamesAndValues(formattedColumns, formattedValues);
     }
@@ -111,7 +103,7 @@ public class MySQLDriver implements IDatabaseDriver {
             deleteStatement.append(template.formatted(
                     filter.field(),
                     comparisonOperatorToString(filter.comparisonOperator()),
-                    formatFilterValue(filter.value())
+                    formatSQLValue(filter.value())
             ));
         }
         deleteStatement.append(STATEMENT_TERMINATION_CHARACTER);
@@ -123,7 +115,7 @@ public class MySQLDriver implements IDatabaseDriver {
         return true;
     }
 
-    private static String formatFilterValue(Object value) {
+    private static String formatSQLValue(Object value) {
         if (value instanceof String) {
             return "'%s'".formatted(value);
         }

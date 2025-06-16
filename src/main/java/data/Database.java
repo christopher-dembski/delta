@@ -54,9 +54,9 @@ public class Database {
         // Example script showing how to use the ORM
         Student chris = new Student(1, "Chris");
         // Database.updateInstance(chris);
-        // boolean success = Database.deleteInstance(chris);
+        // Database.deleteInstance(chris);
         // Database.delete(Student.class).filter("id", ComparisonOperator.EQUAL, 1).execute();
-        Database.insertInstance(chris);
+        // Database.insertInstance(chris);
         // Student chris = MySQLDriver.foo(Student.class);
         // System.out.println(chris.name);
     }
