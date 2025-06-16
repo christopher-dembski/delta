@@ -20,8 +20,12 @@ public class Database {
         }
     }
 
-    public static <T extends DatabaseModel> boolean insert(T instance) {
+    public static <T extends DatabaseModel> boolean insertInstance(T instance) {
         return executeQuery(new InsertQuery<>(instance));
+    }
+
+    public static <T extends DatabaseModel> boolean updateInstance(T instance) {
+        return executeQuery(new UpdateQuery<T>(instance));
     }
 
     public static <T extends DatabaseModel> DeleteQuery<T> delete(Class<T> klass) {
@@ -42,12 +46,17 @@ public class Database {
         return driver.executeQuery(query);
     }
 
+    protected static <T extends DatabaseModel> boolean executeQuery(UpdateQuery<T> query) {
+        return driver.executeQuery(query);
+    }
+
     public static void main(String[] args) {
         // Example script showing how to use the ORM
         Student chris = new Student(1, "Chris");
+        // Database.updateInstance(chris);
         // boolean success = Database.deleteInstance(chris);
         // Database.delete(Student.class).filter("id", ComparisonOperator.EQUAL, 1).execute();
-        Database.insert(chris);
+        Database.insertInstance(chris);
         // Student chris = MySQLDriver.foo(Student.class);
         // System.out.println(chris.name);
     }

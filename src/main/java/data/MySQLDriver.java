@@ -12,6 +12,7 @@ import java.sql.SQLException;
 public class MySQLDriver implements IDatabaseDriver {
     private static final String CONNECTION_STRING = "jdbc:mysql://localhost/%s?user=%s&password=%s";
     private static final String INSERT_STATEMENT_TEMPLATE = "INSERT INTO %s %s VALUES %s;";
+    private static final String UPDATE_STATEMENT_TEMPLATE = "UPDATE %s SET %s";
     private static final String DELETE_STATEMENT_TEMPLATE = "DELETE FROM %s";
     private static final String WHERE_CLAUSE_TEMPLATE = " WHERE %s %s %s";
     private static final String AND_CLAUSE_TEMPLATE = " AND %s %s %s";
@@ -28,7 +29,8 @@ public class MySQLDriver implements IDatabaseDriver {
         );
     }
 
-    private static ColumnNamesAndValues getColumnNamesAndFormattedValues(DatabaseRecord record) {
+    private static <T extends DatabaseModel> ColumnNamesAndValues getColumnNamesAndFormattedValues(T instance) {
+        DatabaseRecord record = instance.toDatabaseRecord();
         List<String> formattedColumns = new ArrayList<>();
         List<String> formattedValues = new ArrayList<>();
         HashMap<String, DatabaseValue> columnValues = record.getValues();
@@ -62,7 +64,7 @@ public class MySQLDriver implements IDatabaseDriver {
 
     public <T extends DatabaseModel> boolean executeQuery(InsertQuery<T> query) {
         T instance = query.getInstance();
-        ColumnNamesAndValues columnNamesAndValues = MySQLDriver.getColumnNamesAndFormattedValues(instance.toDatabaseRecord());
+        ColumnNamesAndValues columnNamesAndValues = MySQLDriver.getColumnNamesAndFormattedValues(instance);
         String columnNames = "(%s)".formatted(String.join(", ", columnNamesAndValues.columnNames));
         String columnValues = "(%s)".formatted(String.join(", ", columnNamesAndValues.columnValues));
         String tableName = DatabaseConfig.instance().getTableName(instance.getClass());
@@ -75,11 +77,34 @@ public class MySQLDriver implements IDatabaseDriver {
         return true;
     }
 
+    public <T extends DatabaseModel> boolean executeQuery(UpdateQuery<T> query) {
+        T instance = query.getInstance();
+        // build string to set columns to specific values
+        ColumnNamesAndValues columnNamesAndValues = MySQLDriver.getColumnNamesAndFormattedValues(instance);
+        List<String> columnNameValuePairs = new ArrayList<>();
+        List<String> columnNames = columnNamesAndValues.columnNames;
+        List<String> columnValues = columnNamesAndValues.columnValues;
+        for (int i = 0; i < columnNames.size(); i++) {
+            columnNameValuePairs.add("%s = %s".formatted(columnNames.get(i), columnValues.get(i)));
+        }
+        StringBuilder updateStatement = new StringBuilder(UPDATE_STATEMENT_TEMPLATE.formatted(
+                DatabaseConfig.instance().getTableName(instance.getClass()),
+                String.join(", ", columnNameValuePairs)
+        ));
+        updateStatement.append(WHERE_CLAUSE_TEMPLATE.formatted("id", "=", instance.getId()));
+        try {
+            connection.createStatement().execute(updateStatement.toString());
+        } catch (SQLException e) {
+            return false;
+        }
+        return true;
+    }
+
     public <T extends DatabaseModel> boolean executeQuery(DeleteQuery<T> query) {
         String tableName = DatabaseConfig.instance().getTableName(query.getKlass());
         StringBuilder deleteStatement = new StringBuilder();
         deleteStatement.append(DELETE_STATEMENT_TEMPLATE.formatted(tableName));
-        List<QueryFilter> filters = query.filters;
+        List<QueryFilter> filters = query.getFilters();
         for (int i = 0; i < filters.size(); i++) {
             QueryFilter filter = filters.get(i);
             String template = i == 0 ? WHERE_CLAUSE_TEMPLATE : AND_CLAUSE_TEMPLATE;
