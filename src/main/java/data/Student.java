@@ -13,9 +13,12 @@ public class Student implements DatabaseModel {
     }
 
     public Student(DatabaseRecord record) {
-        // TO DO: instantiate from record
-        this.name = "Chris";
-        this.id = 1;
+        HashMap<String, DatabaseValue> values = record.getValues();
+        // TO DO: simplify database record object and move parsing database value from String into MySQL driver
+        id = Integer.parseInt((String) values.get("id").getObject());
+        name = (String) values.get("name").getObject();
+        // id = (Integer) values.get("id").getObject();
+        // name = (String) values.get("name").getObject();
     }
 
     @Override

@@ -1,17 +1,16 @@
 package data;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-
 public class MySQLDriver implements IDatabaseDriver {
     private static final String CONNECTION_STRING = "jdbc:mysql://localhost/%s?user=%s&password=%s";
     private static final String INSERT_STATEMENT_TEMPLATE = "INSERT INTO %s %s VALUES %s;";
+    private static final String SELECT_STATEMENT_TEMPLATE = "SELECT * FROM %s";
     private static final String UPDATE_STATEMENT_TEMPLATE = "UPDATE %s SET %s";
     private static final String DELETE_STATEMENT_TEMPLATE = "DELETE FROM %s";
     private static final String WHERE_CLAUSE_TEMPLATE = " WHERE %s %s %s";
@@ -42,18 +41,6 @@ public class MySQLDriver implements IDatabaseDriver {
         return new ColumnNamesAndValues(formattedColumns, formattedValues);
     }
 
-    // TO DO: remove, just for testing reflection
-    public static <T extends DatabaseModel> T foo(Class<T> klass) {
-        DatabaseRecord record = new DatabaseRecord(new HashMap<>());
-        Class[] parameters = {DatabaseRecord.class};
-        try {
-            return klass.getDeclaredConstructor(parameters).newInstance(record);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-                 NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public <T extends DatabaseModel> boolean executeQuery(InsertQuery<T> query) {
         T instance = query.getInstance();
         ColumnNamesAndValues columnNamesAndValues = MySQLDriver.getColumnNamesAndFormattedValues(instance);
@@ -70,8 +57,32 @@ public class MySQLDriver implements IDatabaseDriver {
     }
 
     public <T extends DatabaseModel> List<T> executeQuery(SelectQuery<T> query) {
-        // TO DO: implement
-        return null;
+        List<T> instances = new ArrayList<>();
+        Class<?>[] parameters = {DatabaseRecord.class};
+        Class<T> klass = query.getKlass();
+        String tableName = DatabaseConfig.instance().getTableName(klass);
+        StringBuilder selectStatement = new StringBuilder(SELECT_STATEMENT_TEMPLATE.formatted(tableName));
+        selectStatement.append(buildWhereClause(query.getFilters()));
+        selectStatement.append(STATEMENT_TERMINATION_CHARACTER);
+        try {
+            ResultSet resultSet = connection.createStatement().executeQuery(selectStatement.toString());
+            ResultSetMetaData metadata = resultSet.getMetaData();
+            while (resultSet.next()) {
+                HashMap<String, DatabaseValue> databaseValues = new HashMap<>();
+                for (int i = 1; i <= metadata.getColumnCount(); i++) {
+                    String columnName = metadata.getColumnLabel(i);
+                    String columnValue = resultSet.getString(columnName);
+                    // TO DO: correctly identify type or remove unused DatabaseValueType
+                    databaseValues.put(columnName, new DatabaseValue(columnName, DatabaseValueType.INTEGER, columnValue));
+                }
+                DatabaseRecord record = new DatabaseRecord(databaseValues);
+                instances.add(klass.getDeclaredConstructor(parameters).newInstance(record));
+            }
+            return instances;
+        } catch (SQLException | NoSuchMethodException | InstantiationException | IllegalAccessException |
+                 InvocationTargetException e) {
+            return null;
+        }
     }
 
     public <T extends DatabaseModel> boolean executeQuery(UpdateQuery<T> query) {
@@ -101,16 +112,7 @@ public class MySQLDriver implements IDatabaseDriver {
         String tableName = DatabaseConfig.instance().getTableName(query.getKlass());
         StringBuilder deleteStatement = new StringBuilder();
         deleteStatement.append(DELETE_STATEMENT_TEMPLATE.formatted(tableName));
-        List<QueryFilter> filters = query.getFilters();
-        for (int i = 0; i < filters.size(); i++) {
-            QueryFilter filter = filters.get(i);
-            String template = i == 0 ? WHERE_CLAUSE_TEMPLATE : AND_CLAUSE_TEMPLATE;
-            deleteStatement.append(template.formatted(
-                    filter.field(),
-                    comparisonOperatorToString(filter.comparisonOperator()),
-                    formatSQLValue(filter.value())
-            ));
-        }
+        deleteStatement.append(buildWhereClause(query.getFilters()));
         deleteStatement.append(STATEMENT_TERMINATION_CHARACTER);
         try {
             connection.createStatement().execute(deleteStatement.toString());
@@ -118,6 +120,20 @@ public class MySQLDriver implements IDatabaseDriver {
             return false;
         }
         return true;
+    }
+
+    private String buildWhereClause(List<QueryFilter> filters) {
+        StringBuilder whereClause = new StringBuilder();
+        for (int i = 0; i < filters.size(); i++) {
+            QueryFilter filter = filters.get(i);
+            String template = i == 0 ? WHERE_CLAUSE_TEMPLATE : AND_CLAUSE_TEMPLATE;
+            whereClause.append(template.formatted(
+                    filter.field(),
+                    comparisonOperatorToString(filter.comparisonOperator()),
+                    formatSQLValue(filter.value())
+            ));
+        }
+        return whereClause.toString();
     }
 
     private static String formatSQLValue(Object value) {
