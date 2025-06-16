@@ -12,7 +12,10 @@ import java.sql.SQLException;
 public class MySQLDriver implements IDatabaseDriver {
     private static final String CONNECTION_STRING = "jdbc:mysql://localhost/%s?user=%s&password=%s";
     private static final String INSERT_STATEMENT_TEMPLATE = "INSERT INTO %s %s VALUES %s;";
-    private static final String DELETE_STATEMENT_TEMPLATE = "DELETE FROM %s WHERE id = %d;";
+    private static final String DELETE_STATEMENT_TEMPLATE = "DELETE FROM %s";
+    private static final String WHERE_CLAUSE_TEMPLATE = " WHERE %s %s %s";
+    private static final String AND_CLAUSE_TEMPLATE = " AND %s %s %s";
+    private static final String STATEMENT_TERMINATION_CHARACTER = ";";
 
     private final Connection connection;
 
@@ -23,20 +26,6 @@ public class MySQLDriver implements IDatabaseDriver {
         connection = DriverManager.getConnection(
                 CONNECTION_STRING.formatted(databaseName, serviceAccount, password)
         );
-    }
-
-    private boolean insert(String tableName, DatabaseRecord record) {
-        // TO DO: prevent SQL injection attacks
-        ColumnNamesAndValues columnNamesAndValues = MySQLDriver.getColumnNamesAndFormattedValues(record);
-        String columnNames = "(%s)".formatted(String.join(", ", columnNamesAndValues.columnNames));
-        String columnValues = "(%s)".formatted(String.join(", ", columnNamesAndValues.columnValues));
-        String insertStatement = INSERT_STATEMENT_TEMPLATE.formatted(tableName, columnNames, columnValues);
-        try {
-            connection.createStatement().execute(insertStatement);
-        } catch (SQLException e) {
-            return false;
-        }
-        return true;
     }
 
     private static ColumnNamesAndValues getColumnNamesAndFormattedValues(DatabaseRecord record) {
@@ -59,16 +48,6 @@ public class MySQLDriver implements IDatabaseDriver {
         return new ColumnNamesAndValues(formattedColumns, formattedValues);
     }
 
-    private boolean delete(String tableName, Integer id) {
-        String deleteStatement = DELETE_STATEMENT_TEMPLATE.formatted(tableName, id);
-        try {
-            connection.createStatement().execute(deleteStatement);
-        } catch (SQLException e) {
-            return false;
-        }
-        return true;
-    }
-
     // TO DO: remove, just for testing reflection
     public static <T extends DatabaseModel> T foo(Class<T> klass) {
         DatabaseRecord record = new DatabaseRecord(new HashMap<>());
@@ -83,9 +62,72 @@ public class MySQLDriver implements IDatabaseDriver {
 
     public <T extends DatabaseModel> boolean executeQuery(InsertQuery<T> query) {
         T instance = query.getInstance();
-        return this.insert(
-                DatabaseConfig.instance().getTableName(instance.getClass()),
-                instance.toDatabaseRecord()
-        );
+        ColumnNamesAndValues columnNamesAndValues = MySQLDriver.getColumnNamesAndFormattedValues(instance.toDatabaseRecord());
+        String columnNames = "(%s)".formatted(String.join(", ", columnNamesAndValues.columnNames));
+        String columnValues = "(%s)".formatted(String.join(", ", columnNamesAndValues.columnValues));
+        String tableName = DatabaseConfig.instance().getTableName(instance.getClass());
+        String insertStatement = INSERT_STATEMENT_TEMPLATE.formatted(tableName, columnNames, columnValues);
+        try {
+            connection.createStatement().execute(insertStatement);
+        } catch (SQLException e) {
+            return false;
+        }
+        return true;
+    }
+
+    public <T extends DatabaseModel> boolean executeQuery(DeleteQuery<T> query) {
+        String tableName = DatabaseConfig.instance().getTableName(query.getKlass());
+        StringBuilder deleteStatement = new StringBuilder();
+        deleteStatement.append(DELETE_STATEMENT_TEMPLATE.formatted(tableName));
+        List<QueryFilter> filters = query.filters;
+        for (int i = 0; i < filters.size(); i++) {
+            QueryFilter filter = filters.get(i);
+            String template = i == 0 ? WHERE_CLAUSE_TEMPLATE : AND_CLAUSE_TEMPLATE;
+            deleteStatement.append(template.formatted(
+                    filter.field(),
+                    comparisonOperatorToString(filter.comparisonOperator()),
+                    formatFilterValue(filter.value())
+            ));
+        }
+        deleteStatement.append(STATEMENT_TERMINATION_CHARACTER);
+        try {
+            connection.createStatement().execute(deleteStatement.toString());
+        } catch (SQLException e) {
+            return false;
+        }
+        return true;
+    }
+
+    private static String formatFilterValue(Object value) {
+        if (value instanceof String) {
+            return "'%s'".formatted(value);
+        }
+        return value.toString();
+    }
+
+    private String comparisonOperatorToString(ComparisonOperator operator) {
+        switch (operator) {
+            case EQUAL -> {
+                return "=";
+            }
+            case NOT_EQUAL -> {
+                return "!=";
+            }
+            case GREATER_THAN -> {
+                return ">";
+            }
+            case LESS_THAN -> {
+                return "<";
+            }
+            case GREATER_THAN_EQUAL -> {
+                return ">=";
+            }
+            case LESS_THAN_EQUAL -> {
+                return "<=";
+            }
+            default -> {
+                return "This Comparison Operator is not supported by MySQL Driver";
+            }
+        }
     }
 }

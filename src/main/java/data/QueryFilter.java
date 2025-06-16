@@ -1,8 +1,8 @@
 package data;
 
 public record QueryFilter(
-        String field1,
+        String field,
         ComparisonOperator comparisonOperator,
-        Object field2
+        Object value
 ) {
 }
