@@ -5,7 +5,7 @@ import java.util.List;
 
 public class SelectQuery<T extends DatabaseModel> {
     private final Class<T> klass;
-    private List<QueryFilter> filters;
+    private final List<QueryFilter> filters;
 
     protected SelectQuery(Class<T> klass) {
         this.klass = klass;

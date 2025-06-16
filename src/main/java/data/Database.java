@@ -61,7 +61,7 @@ public class Database {
         // Database.updateInstance(chris);
         // Database.deleteInstance(chris);
         // Database.delete(Student.class).filter("id", ComparisonOperator.EQUAL, 1).execute();
-        // Database.insertInstance(chris);
+        Database.insertInstance(chris);
         // Student chris = MySQLDriver.foo(Student.class);
         // System.out.println(chris.name);
     }
