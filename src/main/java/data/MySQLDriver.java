@@ -76,10 +76,10 @@ public class MySQLDriver implements IDatabaseDriver {
                     databaseValues.put(columnName, new DatabaseValue(columnName, DatabaseValueType.INTEGER, columnValue));
                 }
                 DatabaseRecord record = new DatabaseRecord(databaseValues);
-                instances.add(klass.getDeclaredConstructor(parameters).newInstance(record));
+                instances.add((T) klass.getMethod("fromDatabaseRecord", parameters).invoke(klass, record));
             }
             return instances;
-        } catch (SQLException | NoSuchMethodException | InstantiationException | IllegalAccessException |
+        } catch (SQLException | NoSuchMethodException | IllegalAccessException |
                  InvocationTargetException e) {
             return null;
         }

@@ -12,15 +12,6 @@ public class Student implements DatabaseModel {
         this.name = name;
     }
 
-    public Student(DatabaseRecord record) {
-        HashMap<String, DatabaseValue> values = record.getValues();
-        // TO DO: simplify database record object and move parsing database value from String into MySQL driver
-        id = Integer.parseInt((String) values.get("id").getObject());
-        name = (String) values.get("name").getObject();
-        // id = (Integer) values.get("id").getObject();
-        // name = (String) values.get("name").getObject();
-    }
-
     @Override
     public Integer getId() {
         return id;
@@ -36,5 +27,14 @@ public class Student implements DatabaseModel {
         values.put("id", new DatabaseValue("id", DatabaseValueType.INTEGER, this.getId()));
         values.put("name", new DatabaseValue("name", DatabaseValueType.VARCHAR, this.getName()));
         return new DatabaseRecord(values);
+    }
+
+    public static Student fromDatabaseRecord(DatabaseRecord record) {
+        HashMap<String, DatabaseValue> values = record.getValues();
+        // TO DO: simplify database record object and move parsing database value from String into MySQL driver
+        return new Student(
+                Integer.parseInt((String) values.get("id").getObject()),
+                (String) values.get("name").getObject()
+        );
     }
 }
