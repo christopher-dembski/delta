@@ -36,8 +36,10 @@ public class Database {
 
     public static void main(String[] args) {
         // Example script showing how to use the ORM
-        Student chris = new Student(1, "Chris");
+        // Student chris = new Student(1, "Chris");
         // Database.delete(chris);
-        Database.insert(chris);
+        // Database.insert(chris);
+        // Student chris = MySQLDriver.foo(Student.class);
+        // System.out.println(chris.name);
     }
 }

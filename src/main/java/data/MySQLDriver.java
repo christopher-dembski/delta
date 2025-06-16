@@ -1,5 +1,6 @@
 package data;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -68,6 +69,17 @@ public class MySQLDriver implements IDatabaseDriver {
             return false;
         }
         return true;
+    }
+
+    // TO DO: remove, just for testing reflection
+    public static <T extends DatabaseModel> T foo(Class<T> klass) {
+        DatabaseRecord record = new DatabaseRecord(new HashMap<>());
+        Class[] parameters = {DatabaseRecord.class};
+        try {
+            return klass.getDeclaredConstructor(parameters).newInstance(record);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public <T extends DatabaseModel> T executeQuery(Query<T> query) {

@@ -14,6 +14,12 @@ public class Student implements DatabaseModel {
         this.name = name;
     }
 
+    public Student(DatabaseRecord record) {
+        // TO DO: instantiate from record
+        this.name = "Chris";
+        this.id = 1;
+    }
+
     @Override
     public String getTableName() {
         return TABLE_NAME;
