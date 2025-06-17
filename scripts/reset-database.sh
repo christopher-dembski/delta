@@ -1,1 +1,1 @@
-mysql -uroot -p ${password} < "$(pwd)/src/main/java/data/reset-database.sql"
+mysql -uroot -p < "$(pwd)/src/main/java/data/reset-database.sql"
