@@ -4,13 +4,13 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class Database {
-    public static IDatabaseDriver driver;
+    public IDatabaseDriver driver;
 
     private static final String DATABASE_NAME = "delta_database";
     private static final String DATABASE_SERVICE_ACCOUNT = "delta-service-account";
     private static final String DATABASE_SERVICE_ACCOUNT_PASSWORD = "password";
 
-    static {
+    public Database() {
         try {
             driver = new MySQLDriver(DATABASE_NAME, DATABASE_SERVICE_ACCOUNT, DATABASE_SERVICE_ACCOUNT_PASSWORD);
         } catch (SQLException e) {
@@ -21,57 +21,58 @@ public class Database {
         }
     }
 
-    public static <T extends DatabaseModel> boolean insertInstance(T instance) {
-        return executeQuery(new InsertQuery<>(instance));
+    public <T extends DatabaseModel> boolean insertInstance(T instance) {
+        return new InsertQuery<>(this, instance).execute();
     }
 
-    public static <T extends DatabaseModel> boolean updateInstance(T instance) {
-        return executeQuery(new UpdateQuery<T>(instance));
+    public <T extends DatabaseModel> boolean updateInstance(T instance) {
+        return new UpdateQuery<T>(this, instance).execute();
     }
 
-    public static <T extends DatabaseModel> SelectQuery<T> select(Class<T> klass) {
-        return new SelectQuery<>(klass);
+    public <T extends DatabaseModel> SelectQuery<T> select(Class<T> klass) {
+        return new SelectQuery<>(this, klass);
     }
 
-    public static <T extends DatabaseModel> List<T> selectAll(Class<T> klass) {
-        return new SelectQuery<>(klass).execute();
+    public <T extends DatabaseModel> List<T> selectAll(Class<T> klass) {
+        return new SelectQuery<>(this, klass).execute();
     }
 
-    public static <T extends DatabaseModel> DeleteQuery<T> delete(Class<T> klass) {
-        return new DeleteQuery<>(klass);
+    public <T extends DatabaseModel> DeleteQuery<T> delete(Class<T> klass) {
+        return new DeleteQuery<>(this, klass);
     }
 
-    public static <T extends DatabaseModel> boolean deleteInstance(T instance) {
-        DeleteQuery<T> query = new DeleteQuery<>((Class<T>) instance.getClass());
+    public <T extends DatabaseModel> boolean deleteInstance(T instance) {
+        DeleteQuery<T> query = new DeleteQuery<>(this, (Class<T>) instance.getClass());
         query = query.filter("id", ComparisonOperator.EQUAL, instance.getId());
         return query.execute();
     }
 
-    protected static <T extends DatabaseModel> boolean executeQuery(InsertQuery<T> query) {
+    protected <T extends DatabaseModel> boolean executeQuery(InsertQuery<T> query) {
         return driver.executeQuery(query);
     }
 
-    protected static <T extends DatabaseModel> List<T> executeQuery(SelectQuery<T> query) {
+    protected <T extends DatabaseModel> List<T> executeQuery(SelectQuery<T> query) {
         return driver.executeQuery(query);
     }
 
-    protected static <T extends DatabaseModel> boolean executeQuery(UpdateQuery<T> query) {
+    protected <T extends DatabaseModel> boolean executeQuery(UpdateQuery<T> query) {
         return driver.executeQuery(query);
     }
 
-    protected static <T extends DatabaseModel> boolean executeQuery(DeleteQuery<T> query) {
+    protected <T extends DatabaseModel> boolean executeQuery(DeleteQuery<T> query) {
         return driver.executeQuery(query);
     }
 
     public static void main(String[] args) {
         // Example script showing how to use the ORM
+        Database db = new Database();
         Student chris = new Student(1, "Chris");
-        Database.updateInstance(chris);
-        Database.deleteInstance(chris);
-        Database.delete(Student.class).filter("id", ComparisonOperator.EQUAL, 1).execute();
-        Database.insertInstance(chris);
+        db.updateInstance(chris);
+        db.deleteInstance(chris);
+        db.delete(Student.class).filter("id", ComparisonOperator.EQUAL, 1).execute();
+        db.insertInstance(chris);
         System.out.println(chris.getName());
-        List<Student> students = Database.selectAll(Student.class);
+        List<Student> students = db.selectAll(Student.class);
         for (Student student : students) {
             System.out.println(student.getName());
         }

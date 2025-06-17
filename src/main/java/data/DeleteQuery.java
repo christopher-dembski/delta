@@ -6,8 +6,8 @@ import java.util.List;
 public class DeleteQuery<T extends DatabaseModel> extends Query<T> {
     private final List<QueryFilter> filters;
 
-    protected DeleteQuery(Class<T> klass) {
-        super(klass);
+    protected DeleteQuery(Database db, Class<T> klass) {
+        super(db, klass);
         filters = new ArrayList<>();
     }
 
@@ -21,6 +21,6 @@ public class DeleteQuery<T extends DatabaseModel> extends Query<T> {
     }
 
     public boolean execute() {
-        return Database.executeQuery(this);
+        return getDatabase().executeQuery(this);
     }
 }

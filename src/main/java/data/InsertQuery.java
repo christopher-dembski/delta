@@ -3,8 +3,8 @@ package data;
 public class InsertQuery<T extends DatabaseModel> extends Query<T> {
     private final T instance;
 
-    protected InsertQuery(T instance) {
-        super((Class<T>) instance.getClass());
+    protected InsertQuery(Database db, T instance) {
+        super(db, (Class<T>) instance.getClass());
         this.instance = instance;
     }
 
@@ -13,6 +13,6 @@ public class InsertQuery<T extends DatabaseModel> extends Query<T> {
     }
 
     public boolean execute() {
-        return Database.executeQuery(this);
+        return getDatabase().executeQuery(this);
     }
 }

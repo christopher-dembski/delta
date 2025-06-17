@@ -7,8 +7,8 @@ public class UpdateQuery<T extends DatabaseModel> extends Query<T> {
     private final T instance;
     private final List<QueryFilter> filters;
 
-    protected UpdateQuery(T instance) {
-        super((Class<T>) instance.getClass());
+    protected UpdateQuery(Database db, T instance) {
+        super(db, (Class<T>) instance.getClass());
         this.instance = instance;
         filters = new ArrayList<>();
     }
@@ -23,6 +23,6 @@ public class UpdateQuery<T extends DatabaseModel> extends Query<T> {
     }
 
     public boolean execute() {
-        return Database.executeQuery(this);
+        return getDatabase().executeQuery(this);
     }
 }

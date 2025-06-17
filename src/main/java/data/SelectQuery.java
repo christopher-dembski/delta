@@ -6,8 +6,8 @@ import java.util.List;
 public class SelectQuery<T extends DatabaseModel> extends Query<T> {
     private final List<QueryFilter> filters;
 
-    protected SelectQuery(Class<T> klass) {
-        super(klass);
+    protected SelectQuery( Database db, Class<T> klass) {
+        super(db, klass);
         filters = new ArrayList<>();
     }
 
@@ -21,6 +21,6 @@ public class SelectQuery<T extends DatabaseModel> extends Query<T> {
     }
 
     public List<T> execute() {
-        return Database.executeQuery(this);
+        return getDatabase().executeQuery(this);
     }
 }
