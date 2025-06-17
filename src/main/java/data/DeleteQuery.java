@@ -3,17 +3,12 @@ package data;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DeleteQuery<T extends DatabaseModel> {
-    private final Class<T> klass;
+public class DeleteQuery<T extends DatabaseModel> extends Query<T> {
     private final List<QueryFilter> filters;
 
     protected DeleteQuery(Class<T> klass) {
-        this.klass = klass;
+        super(klass);
         filters = new ArrayList<>();
-    }
-
-    protected Class<T> getKlass() {
-        return klass;
     }
 
     protected DeleteQuery<T> filter(String field, ComparisonOperator comparisonOperator, Object value) {
@@ -25,7 +20,7 @@ public class DeleteQuery<T extends DatabaseModel> {
         return filters;
     }
 
-    protected boolean execute() {
+    public boolean execute() {
         return Database.executeQuery(this);
     }
 }

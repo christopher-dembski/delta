@@ -29,11 +29,11 @@ public class Database {
         return executeQuery(new UpdateQuery<T>(instance));
     }
 
-    public static  <T extends DatabaseModel> SelectQuery<T> select(Class<T> klass) {
+    public static <T extends DatabaseModel> SelectQuery<T> select(Class<T> klass) {
         return new SelectQuery<>(klass);
     }
 
-    public static  <T extends DatabaseModel> List<T> selectAll(Class<T> klass) {
+    public static <T extends DatabaseModel> List<T> selectAll(Class<T> klass) {
         return new SelectQuery<>(klass).execute();
     }
 
@@ -65,13 +65,12 @@ public class Database {
 
     public static void main(String[] args) {
         // Example script showing how to use the ORM
-        // Student chris = new Student(1, "Chris");
-        // Database.updateInstance(chris);
-        // Database.deleteInstance(chris);
-        // Database.delete(Student.class).filter("id", ComparisonOperator.EQUAL, 1).execute();
-        // Database.insertInstance(chris);
-        // Student chris = MySQLDriver.foo(Student.class);
-        // System.out.println(chris.name);
+        Student chris = new Student(1, "Chris");
+        Database.updateInstance(chris);
+        Database.deleteInstance(chris);
+        Database.delete(Student.class).filter("id", ComparisonOperator.EQUAL, 1).execute();
+        Database.insertInstance(chris);
+        System.out.println(chris.getName());
         List<Student> students = Database.selectAll(Student.class);
         for (Student student : students) {
             System.out.println(student.getName());
