@@ -17,11 +17,13 @@ public class MySQLDriver implements IDatabaseDriver {
     private static final String STATEMENT_TERMINATION_CHARACTER = ";";
 
     private final Connection connection;
+    private final MySQLConfig config;
 
     private record ColumnNamesAndValues(List<String> columnNames, List<String> columnValues) {
     }
 
     public MySQLDriver(String databaseName, String serviceAccount, String password) throws SQLException {
+        config = new MySQLConfig();
         connection = DriverManager.getConnection(
                 CONNECTION_STRING.formatted(databaseName, serviceAccount, password)
         );
@@ -43,7 +45,7 @@ public class MySQLDriver implements IDatabaseDriver {
         ColumnNamesAndValues columnNamesAndValues = MySQLDriver.getColumnNamesAndFormattedValues(instance);
         String columnNames = "(%s)".formatted(String.join(", ", columnNamesAndValues.columnNames));
         String columnValues = "(%s)".formatted(String.join(", ", columnNamesAndValues.columnValues));
-        String tableName = DatabaseConfig.instance().getTableName(instance.getClass());
+        String tableName = config.getTableName(instance.getClass());
         String insertStatement = INSERT_STATEMENT_TEMPLATE.formatted(tableName, columnNames, columnValues);
         try {
             connection.createStatement().execute(insertStatement);
@@ -57,7 +59,7 @@ public class MySQLDriver implements IDatabaseDriver {
         List<T> instances = new ArrayList<>();
         Class<?>[] parameters = {DatabaseRecord.class};
         Class<T> klass = query.getKlass();
-        String tableName = DatabaseConfig.instance().getTableName(klass);
+        String tableName = config.getTableName(klass);
         StringBuilder selectStatement = new StringBuilder(SELECT_STATEMENT_TEMPLATE.formatted(tableName));
         selectStatement.append(buildWhereClause(query.getFilters()));
         selectStatement.append(STATEMENT_TERMINATION_CHARACTER);
@@ -93,7 +95,7 @@ public class MySQLDriver implements IDatabaseDriver {
             columnNameValuePairs.add("%s = %s".formatted(columnNames.get(i), columnValues.get(i)));
         }
         StringBuilder updateStatement = new StringBuilder(UPDATE_STATEMENT_TEMPLATE.formatted(
-                DatabaseConfig.instance().getTableName(instance.getClass()),
+                config.getTableName(instance.getClass()),
                 String.join(", ", columnNameValuePairs)
         ));
         updateStatement.append(WHERE_CLAUSE_TEMPLATE.formatted("id", "=", instance.getId()));
@@ -106,7 +108,7 @@ public class MySQLDriver implements IDatabaseDriver {
     }
 
     public <T extends DataAccessObject> boolean executeQuery(DeleteQuery<T> query) {
-        String tableName = DatabaseConfig.instance().getTableName(query.getKlass());
+        String tableName = config.getTableName(query.getKlass());
         StringBuilder deleteStatement = new StringBuilder();
         deleteStatement.append(DELETE_STATEMENT_TEMPLATE.formatted(tableName));
         deleteStatement.append(buildWhereClause(query.getFilters()));
