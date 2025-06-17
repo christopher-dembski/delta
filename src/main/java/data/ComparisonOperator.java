@@ -1,5 +1,8 @@
 package data;
 
+/**
+ * The operator to use when comparing two values in a database query.
+ */
 public enum ComparisonOperator {
     EQUAL,
     NOT_EQUAL,

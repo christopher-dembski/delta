@@ -3,6 +3,9 @@ package data;
 
 import java.util.HashMap;
 
+/**
+ * Example class demonstrating how to create Data Access Object classes.
+ */
 public class Student implements DataAccessObject {
     private final Integer id;
     private final String name;

@@ -1,17 +1,17 @@
--- Drop/create database
+-- drop/create database
 DROP DATABASE IF EXISTS delta_database;
 CREATE DATABASE delta_database;
 
--- Drop service account user and create new user for service account
--- The service account is the user that represents the app
+-- drop service account user and create new user for service account
+-- the service account is the user that represents the app
 DROP USER IF EXISTS 'delta-service-account'@'localhost';
 CREATE USER 'delta-service-account'@'localhost' IDENTIFIED BY 'password';
 GRANT ALL PRIVILEGES ON *.* TO 'delta-service-account'@'localhost';
 
--- Execute SQL statements on this database
+-- execute SQL statements on this database
 USE delta_database;
 
--- Create tables
+-- create tables
 
 -- example tables for testing
 CREATE TABLE Students (
@@ -24,7 +24,7 @@ CREATE TABLE Courses (
     description varchar(255)
 );
 
--- Seed database
+-- seed database
 
 -- seed example tables for testing
 INSERT INTO Students VALUES (1, 'Chris');

@@ -6,40 +6,101 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * An opinionated database driver for MySQL.
+ * This class is a wrapper around the jdbc driver.
+ * All operations on the MySQL database should go through this class.
+ */
 public class MySQLDriver implements IDatabaseDriver {
-    private static final String CONNECTION_STRING = "jdbc:mysql://localhost/%s?user=%s&password=%s";
+    /**
+     * Template for establishing a database connection.
+     */
+    private static final String CONNECTION_STRING_TEMPLATE = "jdbc:mysql://localhost/%s?user=%s&password=%s";
+    /**
+     * Template for INSERT statements.
+     */
     private static final String INSERT_STATEMENT_TEMPLATE = "INSERT INTO %s %s VALUES %s";
+    /**
+     * Template for SELECT statements.
+     */
     private static final String SELECT_STATEMENT_TEMPLATE = "SELECT * FROM %s";
+    /**
+     * Template for UPDATE statements.
+     */
     private static final String UPDATE_STATEMENT_TEMPLATE = "UPDATE %s SET %s";
+    /**
+     * Template for DELETE statements.
+     */
     private static final String DELETE_STATEMENT_TEMPLATE = "DELETE FROM %s";
+    /**
+     * Template for WHERE clause.
+     */
     private static final String WHERE_CLAUSE_TEMPLATE = " WHERE %s %s %s";
+    /**
+     * Template for AND clauses.
+     */
     private static final String AND_CLAUSE_TEMPLATE = " AND %s %s %s";
+    /**
+     * Constant representing a semicolon used to terminate SQL statements.
+     */
     private static final String SEMICOLON = ";";
 
+    /**
+     * The connection to the database.
+     */
     private final Connection connection;
+    /**
+     * The configuration for the MySQL database.
+     */
     private final MySQLConfig config;
 
+    /**
+     * Return type consisting of a list of columns and their values formatted correctly to be executed in MySQL.
+     *
+     * @param columnNames  The column names.
+     * @param columnValues The column values formatted correctly to be executed in MySQL.
+     */
     private record ColumnNamesAndValues(List<String> columnNames, List<String> columnValues) {
     }
 
+    /**
+     * @param databaseName   The name of the database to execute queries against.
+     * @param serviceAccount The named of the MySQL user to execute queries as.
+     * @param password       The password for the MySQL database.
+     * @throws SQLException Thrown if a connection to the database cannot be established.
+     */
     public MySQLDriver(String databaseName, String serviceAccount, String password) throws SQLException {
         config = new MySQLConfig();
         connection = DriverManager.getConnection(
-                CONNECTION_STRING.formatted(databaseName, serviceAccount, password)
+                CONNECTION_STRING_TEMPLATE.formatted(databaseName, serviceAccount, password)
         );
     }
 
+    /**
+     * Gets the column names and values formatted so that they can be executed in MySQL query.
+     *
+     * @param instance The instance to get the column names and values for.
+     * @param <T>      The type of object to retrieve the column names and values for.
+     * @return Returns the column names and their corresponding values formatted correctly for MySQL.
+     */
     private static <T extends DataAccessObject> ColumnNamesAndValues getColumnNamesAndFormattedValues(T instance) {
         DatabaseRecord record = instance.toDatabaseRecord();
         List<String> formattedColumns = new ArrayList<>();
         List<String> formattedValues = new ArrayList<>();
-        for (String columnName: record.getColumnNames()) {
+        for (String columnName : record.getColumnNames()) {
             formattedColumns.add(columnName);
             formattedValues.add(formatSQLValue(record.getValue(columnName)));
         }
         return new ColumnNamesAndValues(formattedColumns, formattedValues);
     }
 
+    /**
+     * Executes the provided query to insert values into the database.
+     *
+     * @param query The query to execute.
+     * @param <T>   The type of object to delete from the database.
+     * @return Returns true if the operation succeeded and false if the operation failed.
+     */
     public <T extends DataAccessObject> boolean executeQuery(InsertQuery<T> query) {
         T instance = query.getInstance();
         ColumnNamesAndValues columnNamesAndValues = MySQLDriver.getColumnNamesAndFormattedValues(instance);
@@ -56,6 +117,13 @@ public class MySQLDriver implements IDatabaseDriver {
         return true;
     }
 
+    /**
+     * Executes the provided query to select values into the database.
+     *
+     * @param query The query to execute.
+     * @param <T>   The type of object to select from the database.
+     * @return Returns true if the operation succeeded and false if the operation failed.
+     */
     public <T extends FrozenDataAccessObject> List<T> executeQuery(SelectQuery<T> query) {
         List<T> instances = new ArrayList<>();
         Class<?>[] parameters = {DatabaseRecord.class};
@@ -86,6 +154,13 @@ public class MySQLDriver implements IDatabaseDriver {
         }
     }
 
+    /**
+     * Executes the provided query to update records in the database.
+     *
+     * @param query The query to execute.
+     * @param <T>   The type of object to update.
+     * @return Returns true if the operation succeeded and false if the operation failed.
+     */
     public <T extends DataAccessObject> boolean executeQuery(UpdateQuery<T> query) {
         T instance = query.getInstance();
         ColumnNamesAndValues columnNamesAndValues = MySQLDriver.getColumnNamesAndFormattedValues(instance);
@@ -108,6 +183,13 @@ public class MySQLDriver implements IDatabaseDriver {
         return true;
     }
 
+    /**
+     * Executes the provided query to delete records from the database.
+     *
+     * @param query The query to execute.
+     * @param <T>   The type of object to delete.
+     * @return Returns true if the operation succeeded and false if the operation failed.
+     */
     public <T extends DataAccessObject> boolean executeQuery(DeleteQuery<T> query) {
         String tableName = config.getTableName(query.getKlass());
         StringBuilder deleteStatement = new StringBuilder();
@@ -122,6 +204,12 @@ public class MySQLDriver implements IDatabaseDriver {
         return true;
     }
 
+    /**
+     * Builds a String representation of the WHERE / AND clauses given the filters.
+     *
+     * @param filters The filters applied to the query.
+     * @return A String representation of the WHERE / AND clauses.
+     */
     private String buildWhereClause(List<QueryFilter> filters) {
         StringBuilder whereClause = new StringBuilder();
         for (int i = 0; i < filters.size(); i++) {
@@ -136,6 +224,13 @@ public class MySQLDriver implements IDatabaseDriver {
         return whereClause.toString();
     }
 
+    /**
+     * Formats an object as a String, so it can be used in a MySQL query.
+     * ex. String values need to wrapped in single quotes.
+     *
+     * @param value The value to format.
+     * @return The object formatted as a String, so it can be used in a MySQL query.
+     */
     private static String formatSQLValue(Object value) {
         if (value instanceof String) {
             return "'%s'".formatted(value);
@@ -143,6 +238,12 @@ public class MySQLDriver implements IDatabaseDriver {
         return value.toString();
     }
 
+    /**
+     * Gets a String representation of a comparison operator to insert into queries.
+     *
+     * @param operator The comparison operator to get a String representation of.
+     * @return The String representation of the comparison operator.
+     */
     private String comparisonOperatorToString(ComparisonOperator operator) {
         switch (operator) {
             case EQUAL -> {
@@ -164,7 +265,7 @@ public class MySQLDriver implements IDatabaseDriver {
                 return "<=";
             }
             default -> {
-                return "This Comparison Operator is not supported by MySQL Driver";
+                throw new RuntimeException("This operator is not supported by the MySQL driver.");
             }
         }
     }
