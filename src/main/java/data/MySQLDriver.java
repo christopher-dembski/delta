@@ -31,11 +31,9 @@ public class MySQLDriver implements IDatabaseDriver {
         DatabaseRecord record = instance.toDatabaseRecord();
         List<String> formattedColumns = new ArrayList<>();
         List<String> formattedValues = new ArrayList<>();
-        HashMap<String, DatabaseValue> columnValues = record.getValues();
-        for (String columnName : columnValues.keySet()) {
+        for (String columnName: record.getColumnNames()) {
             formattedColumns.add(columnName);
-            DatabaseValue columnValue = columnValues.get(columnName);
-            formattedValues.add(formatSQLValue(columnValue.getObject()));
+            formattedValues.add(formatSQLValue(record.getValue(columnName)));
         }
         return new ColumnNamesAndValues(formattedColumns, formattedValues);
     }
@@ -67,14 +65,15 @@ public class MySQLDriver implements IDatabaseDriver {
             ResultSet resultSet = connection.createStatement().executeQuery(selectStatement.toString());
             ResultSetMetaData metadata = resultSet.getMetaData();
             while (resultSet.next()) {
-                HashMap<String, DatabaseValue> databaseValues = new HashMap<>();
+                HashMap<String, Object> databaseValues = new HashMap<>();
                 for (int i = 1; i <= metadata.getColumnCount(); i++) {
                     String columnName = metadata.getColumnLabel(i);
-                    String columnValue = resultSet.getString(columnName);
-                    // TO DO: correctly identify type or remove unused DatabaseValueType
-                    databaseValues.put(columnName, new DatabaseValue(columnName, DatabaseValueType.INTEGER, columnValue));
+                    Object columnValue = resultSet.getObject(columnName);
+                    databaseValues.put(columnName, columnValue);
                 }
                 DatabaseRecord record = new DatabaseRecord(databaseValues);
+                // we do not know the class at compile time,
+                // so we must use reflection to get the "fromDatabaseRecord" method at runtime
                 instances.add((T) klass.getMethod("fromDatabaseRecord", parameters).invoke(klass, record));
             }
             return instances;
@@ -86,7 +85,6 @@ public class MySQLDriver implements IDatabaseDriver {
 
     public <T extends DataAccessObject> boolean executeQuery(UpdateQuery<T> query) {
         T instance = query.getInstance();
-        // build string to set columns to specific values
         ColumnNamesAndValues columnNamesAndValues = MySQLDriver.getColumnNamesAndFormattedValues(instance);
         List<String> columnNameValuePairs = new ArrayList<>();
         List<String> columnNames = columnNamesAndValues.columnNames;

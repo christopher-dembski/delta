@@ -1,15 +1,20 @@
 package data;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 public class DatabaseRecord {
-    private HashMap<String, DatabaseValue> values;
+    private final HashMap<String, Object> values;
 
-    public DatabaseRecord(HashMap<String, DatabaseValue> values) {
+    public DatabaseRecord(HashMap<String, Object> values) {
         this.values = values;
     }
 
-    public HashMap<String, DatabaseValue> getValues() {
-        return values;
+    public Object getValue(String columnName) {
+        return values.get(columnName);
+    }
+
+    public Collection<String> getColumnNames() {
+        return values.keySet();
     }
 }

@@ -66,12 +66,11 @@ public class Database {
     public static void main(String[] args) {
         // Example script showing how to use the ORM
         Database db = new Database();
-        Student chris = new Student(1, "Kris");
+        Student chris = new Student(1, "Chris");
         db.updateInstance(chris);
         db.deleteInstance(chris);
         db.delete(Student.class).filter("id", ComparisonOperator.EQUAL, 1).execute();
         db.insertInstance(chris);
-        System.out.println(chris.getName());
         List<Student> students = db.selectAll(Student.class);
         for (Student student : students) {
             System.out.println(student.getName());
