@@ -8,13 +8,13 @@ import java.util.List;
 
 public class MySQLDriver implements IDatabaseDriver {
     private static final String CONNECTION_STRING = "jdbc:mysql://localhost/%s?user=%s&password=%s";
-    private static final String INSERT_STATEMENT_TEMPLATE = "INSERT INTO %s %s VALUES %s;";
+    private static final String INSERT_STATEMENT_TEMPLATE = "INSERT INTO %s %s VALUES %s";
     private static final String SELECT_STATEMENT_TEMPLATE = "SELECT * FROM %s";
     private static final String UPDATE_STATEMENT_TEMPLATE = "UPDATE %s SET %s";
     private static final String DELETE_STATEMENT_TEMPLATE = "DELETE FROM %s";
     private static final String WHERE_CLAUSE_TEMPLATE = " WHERE %s %s %s";
     private static final String AND_CLAUSE_TEMPLATE = " AND %s %s %s";
-    private static final String STATEMENT_TERMINATION_CHARACTER = ";";
+    private static final String SEMICOLON = ";";
 
     private final Connection connection;
     private final MySQLConfig config;
@@ -46,7 +46,8 @@ public class MySQLDriver implements IDatabaseDriver {
         String columnNames = "(%s)".formatted(String.join(", ", columnNamesAndValues.columnNames));
         String columnValues = "(%s)".formatted(String.join(", ", columnNamesAndValues.columnValues));
         String tableName = config.getTableName(instance.getClass());
-        String insertStatement = INSERT_STATEMENT_TEMPLATE.formatted(tableName, columnNames, columnValues);
+        String insertStatement = INSERT_STATEMENT_TEMPLATE.formatted(tableName, columnNames, columnValues) + SEMICOLON;
+
         try {
             connection.createStatement().execute(insertStatement);
         } catch (SQLException e) {
@@ -62,7 +63,7 @@ public class MySQLDriver implements IDatabaseDriver {
         String tableName = config.getTableName(klass);
         StringBuilder selectStatement = new StringBuilder(SELECT_STATEMENT_TEMPLATE.formatted(tableName));
         selectStatement.append(buildWhereClause(query.getFilters()));
-        selectStatement.append(STATEMENT_TERMINATION_CHARACTER);
+        selectStatement.append(SEMICOLON);
         try {
             ResultSet resultSet = connection.createStatement().executeQuery(selectStatement.toString());
             ResultSetMetaData metadata = resultSet.getMetaData();
@@ -112,7 +113,7 @@ public class MySQLDriver implements IDatabaseDriver {
         StringBuilder deleteStatement = new StringBuilder();
         deleteStatement.append(DELETE_STATEMENT_TEMPLATE.formatted(tableName));
         deleteStatement.append(buildWhereClause(query.getFilters()));
-        deleteStatement.append(STATEMENT_TERMINATION_CHARACTER);
+        deleteStatement.append(SEMICOLON);
         try {
             connection.createStatement().execute(deleteStatement.toString());
         } catch (SQLException e) {
