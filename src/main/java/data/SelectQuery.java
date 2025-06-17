@@ -11,7 +11,7 @@ public class SelectQuery<T extends DatabaseModel> extends Query<T> {
         filters = new ArrayList<>();
     }
 
-    protected SelectQuery<T> filter(String field, ComparisonOperator comparisonOperator, Object value) {
+    public SelectQuery<T> filter(String field, ComparisonOperator comparisonOperator, Object value) {
         filters.add(new QueryFilter(field, comparisonOperator, value));
         return this;
     }

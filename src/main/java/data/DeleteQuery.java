@@ -11,7 +11,7 @@ public class DeleteQuery<T extends DatabaseModel> extends Query<T> {
         filters = new ArrayList<>();
     }
 
-    protected DeleteQuery<T> filter(String field, ComparisonOperator comparisonOperator, Object value) {
+    public DeleteQuery<T> filter(String field, ComparisonOperator comparisonOperator, Object value) {
         filters.add(new QueryFilter(field, comparisonOperator, value));
         return this;
     }

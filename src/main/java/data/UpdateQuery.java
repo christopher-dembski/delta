@@ -13,7 +13,7 @@ public class UpdateQuery<T extends DatabaseModel> extends Query<T> {
         filters = new ArrayList<>();
     }
 
-    protected UpdateQuery<T> filter(String field, ComparisonOperator comparisonOperator, Object value) {
+    public UpdateQuery<T> filter(String field, ComparisonOperator comparisonOperator, Object value) {
         filters.add(new QueryFilter(field, comparisonOperator, value));
         return this;
     }
