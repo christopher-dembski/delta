@@ -1,6 +1,6 @@
 package data;
 
-public abstract class Query<T extends DatabaseModel> {
+public abstract class Query<T extends FrozenDataAccessObject> {
     protected final Database db;
     protected final Class<T> klass;
 

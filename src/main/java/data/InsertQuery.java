@@ -1,6 +1,6 @@
 package data;
 
-public class InsertQuery<T extends DatabaseModel> extends Query<T> {
+public class InsertQuery<T extends DataAccessObject> extends Query<T> {
     private final T instance;
 
     protected InsertQuery(Database db, T instance) {

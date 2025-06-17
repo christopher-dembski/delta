@@ -27,7 +27,7 @@ public class MySQLDriver implements IDatabaseDriver {
         );
     }
 
-    private static <T extends DatabaseModel> ColumnNamesAndValues getColumnNamesAndFormattedValues(T instance) {
+    private static <T extends DataAccessObject> ColumnNamesAndValues getColumnNamesAndFormattedValues(T instance) {
         DatabaseRecord record = instance.toDatabaseRecord();
         List<String> formattedColumns = new ArrayList<>();
         List<String> formattedValues = new ArrayList<>();
@@ -40,7 +40,7 @@ public class MySQLDriver implements IDatabaseDriver {
         return new ColumnNamesAndValues(formattedColumns, formattedValues);
     }
 
-    public <T extends DatabaseModel> boolean executeQuery(InsertQuery<T> query) {
+    public <T extends DataAccessObject> boolean executeQuery(InsertQuery<T> query) {
         T instance = query.getInstance();
         ColumnNamesAndValues columnNamesAndValues = MySQLDriver.getColumnNamesAndFormattedValues(instance);
         String columnNames = "(%s)".formatted(String.join(", ", columnNamesAndValues.columnNames));
@@ -55,7 +55,7 @@ public class MySQLDriver implements IDatabaseDriver {
         return true;
     }
 
-    public <T extends DatabaseModel> List<T> executeQuery(SelectQuery<T> query) {
+    public <T extends FrozenDataAccessObject> List<T> executeQuery(SelectQuery<T> query) {
         List<T> instances = new ArrayList<>();
         Class<?>[] parameters = {DatabaseRecord.class};
         Class<T> klass = query.getKlass();
@@ -84,7 +84,7 @@ public class MySQLDriver implements IDatabaseDriver {
         }
     }
 
-    public <T extends DatabaseModel> boolean executeQuery(UpdateQuery<T> query) {
+    public <T extends DataAccessObject> boolean executeQuery(UpdateQuery<T> query) {
         T instance = query.getInstance();
         // build string to set columns to specific values
         ColumnNamesAndValues columnNamesAndValues = MySQLDriver.getColumnNamesAndFormattedValues(instance);
@@ -107,7 +107,7 @@ public class MySQLDriver implements IDatabaseDriver {
         return true;
     }
 
-    public <T extends DatabaseModel> boolean executeQuery(DeleteQuery<T> query) {
+    public <T extends DataAccessObject> boolean executeQuery(DeleteQuery<T> query) {
         String tableName = DatabaseConfig.instance().getTableName(query.getKlass());
         StringBuilder deleteStatement = new StringBuilder();
         deleteStatement.append(DELETE_STATEMENT_TEMPLATE.formatted(tableName));

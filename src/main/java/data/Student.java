@@ -3,7 +3,7 @@ package data;
 
 import java.util.HashMap;
 
-public class Student implements DatabaseModel {
+public class Student implements DataAccessObject {
     private final Integer id;
     private final String name;
 

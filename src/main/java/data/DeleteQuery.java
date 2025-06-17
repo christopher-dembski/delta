@@ -3,7 +3,7 @@ package data;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DeleteQuery<T extends DatabaseModel> extends Query<T> {
+public class DeleteQuery<T extends DataAccessObject> extends Query<T> {
     private final List<QueryFilter> filters;
 
     protected DeleteQuery(Database db, Class<T> klass) {

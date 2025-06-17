@@ -3,7 +3,7 @@ package data;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UpdateQuery<T extends DatabaseModel> extends Query<T> {
+public class UpdateQuery<T extends DataAccessObject> extends Query<T> {
     private final T instance;
     private final List<QueryFilter> filters;
 

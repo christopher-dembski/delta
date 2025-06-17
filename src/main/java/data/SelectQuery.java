@@ -3,10 +3,10 @@ package data;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SelectQuery<T extends DatabaseModel> extends Query<T> {
+public class SelectQuery<T extends FrozenDataAccessObject> extends Query<T> {
     private final List<QueryFilter> filters;
 
-    protected SelectQuery( Database db, Class<T> klass) {
+    protected SelectQuery(Database db, Class<T> klass) {
         super(db, klass);
         filters = new ArrayList<>();
     }

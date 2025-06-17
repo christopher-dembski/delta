@@ -21,52 +21,52 @@ public class Database {
         }
     }
 
-    public <T extends DatabaseModel> boolean insertInstance(T instance) {
+    public <T extends DataAccessObject> boolean insertInstance(T instance) {
         return new InsertQuery<>(this, instance).execute();
     }
 
-    public <T extends DatabaseModel> boolean updateInstance(T instance) {
+    public <T extends DataAccessObject> boolean updateInstance(T instance) {
         return new UpdateQuery<T>(this, instance).execute();
     }
 
-    public <T extends DatabaseModel> SelectQuery<T> select(Class<T> klass) {
+    public <T extends FrozenDataAccessObject> SelectQuery<T> select(Class<T> klass) {
         return new SelectQuery<>(this, klass);
     }
 
-    public <T extends DatabaseModel> List<T> selectAll(Class<T> klass) {
+    public <T extends FrozenDataAccessObject> List<T> selectAll(Class<T> klass) {
         return new SelectQuery<>(this, klass).execute();
     }
 
-    public <T extends DatabaseModel> DeleteQuery<T> delete(Class<T> klass) {
+    public <T extends DataAccessObject> DeleteQuery<T> delete(Class<T> klass) {
         return new DeleteQuery<>(this, klass);
     }
 
-    public <T extends DatabaseModel> boolean deleteInstance(T instance) {
+    public <T extends DataAccessObject> boolean deleteInstance(T instance) {
         DeleteQuery<T> query = new DeleteQuery<>(this, (Class<T>) instance.getClass());
         query = query.filter("id", ComparisonOperator.EQUAL, instance.getId());
         return query.execute();
     }
 
-    protected <T extends DatabaseModel> boolean executeQuery(InsertQuery<T> query) {
+    protected <T extends DataAccessObject> boolean executeQuery(InsertQuery<T> query) {
         return driver.executeQuery(query);
     }
 
-    protected <T extends DatabaseModel> List<T> executeQuery(SelectQuery<T> query) {
+    protected <T extends FrozenDataAccessObject> List<T> executeQuery(SelectQuery<T> query) {
         return driver.executeQuery(query);
     }
 
-    protected <T extends DatabaseModel> boolean executeQuery(UpdateQuery<T> query) {
+    protected <T extends DataAccessObject> boolean executeQuery(UpdateQuery<T> query) {
         return driver.executeQuery(query);
     }
 
-    protected <T extends DatabaseModel> boolean executeQuery(DeleteQuery<T> query) {
+    protected <T extends DataAccessObject> boolean executeQuery(DeleteQuery<T> query) {
         return driver.executeQuery(query);
     }
 
     public static void main(String[] args) {
         // Example script showing how to use the ORM
         Database db = new Database();
-        Student chris = new Student(1, "Chris");
+        Student chris = new Student(1, "Kris");
         db.updateInstance(chris);
         db.deleteInstance(chris);
         db.delete(Student.class).filter("id", ComparisonOperator.EQUAL, 1).execute();
