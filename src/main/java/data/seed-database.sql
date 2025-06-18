@@ -4,11 +4,11 @@ USE delta_database;
 -- seed database
 
 -- seed example tables for testing
-INSERT INTO Students
+INSERT INTO students
 VALUES (1, 'Chris');
-INSERT INTO Students
+INSERT INTO students
 VALUES (2, 'Nam');
-INSERT INTO Students
+INSERT INTO students
 VALUES (3, 'Jae');
-INSERT INTO Students
+INSERT INTO students
 VALUES (4, 'Abdullah');

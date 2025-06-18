@@ -14,12 +14,12 @@ USE delta_database;
 -- create tables
 
 -- example tables for testing
-CREATE TABLE Students
+CREATE TABLE students
 (
     id   int PRIMARY KEY,
     name varchar(255)
 );
-CREATE TABLE Courses
+CREATE TABLE courses
 (
     id          int,
     name        varchar(255),
