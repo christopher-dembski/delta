@@ -71,7 +71,7 @@ public class MySQLDriver implements IDatabaseDriver {
      */
     public MySQLDriver(String databaseName, String serviceAccount, String password) throws SQLException {
         config = new MySQLConfig();
-        System.out.println(CONNECTION_STRING_TEMPLATE.formatted(databaseName,serviceAccount, password));
+        System.out.println(CONNECTION_STRING_TEMPLATE.formatted(databaseName, serviceAccount, password));
         connection = DriverManager.getConnection(
                 CONNECTION_STRING_TEMPLATE.formatted(databaseName, serviceAccount, password)
         );

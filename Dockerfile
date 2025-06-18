@@ -19,4 +19,4 @@ COPY lib/mysql-connector-j-9.3.0.jar ./lib/mysql-connector-j-9.3.0.jar
 RUN mvn clean install
 
 # run the database main method
-ENTRYPOINT ["java", "-classpath", "target/classes:lib/mysql-connector-j-9.3.0.jar", "data.Database"]
+ENTRYPOINT ["maven", "test"]
