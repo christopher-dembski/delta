@@ -159,9 +159,15 @@ public class Database {
     public static void main(String[] args) {
         // Example script showing how to use the ORM
         System.out.println("Running Database main method.");
+        // need to wait for MySQL to initialize in Docker container
+        try {
+            Thread.sleep(10 * 1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         Database db = new Database();
-        Student chris = new Student(1, "Chris");
-        db.insertInstance(chris);
+        // Student chris = new Student(1, "Chris");
+        //db.insertInstance(chris);
 //        db.updateInstance(chris);
 //        db.deleteInstance(chris);
 //        db.delete(Student.class).filter("id", ComparisonOperator.EQUAL, 1).execute();

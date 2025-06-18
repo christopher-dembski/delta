@@ -15,7 +15,7 @@ public class MySQLDriver implements IDatabaseDriver {
     /**
      * Template for establishing a database connection.
      */
-    private static final String CONNECTION_STRING_TEMPLATE = "jdbc:mysql://localhost/%s?user=%s&password=%s";
+    private static final String CONNECTION_STRING_TEMPLATE = "jdbc:mysql://db:3306/%s?user=%s&password=%s";
     /**
      * Template for INSERT statements.
      */
@@ -71,6 +71,7 @@ public class MySQLDriver implements IDatabaseDriver {
      */
     public MySQLDriver(String databaseName, String serviceAccount, String password) throws SQLException {
         config = new MySQLConfig();
+        System.out.println(CONNECTION_STRING_TEMPLATE.formatted(databaseName,serviceAccount, password));
         connection = DriverManager.getConnection(
                 CONNECTION_STRING_TEMPLATE.formatted(databaseName, serviceAccount, password)
         );
