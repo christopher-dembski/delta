@@ -46,6 +46,10 @@ public class MySQLDriver implements IDatabaseDriver {
     private static final String SEMICOLON = ";";
 
     /**
+     * The configuration for the database.
+     */
+    private final MySQLConfig config;
+    /**
      * The connection to the database.
      */
     private final Connection connection;
@@ -62,8 +66,8 @@ public class MySQLDriver implements IDatabaseDriver {
     /**
      * @throws DatabaseException Thrown if a connection to the database cannot be established.
      */
-    public MySQLDriver() throws DatabaseException {
-        MySQLConfig config = MySQLConfig.instance();
+    public MySQLDriver(MySQLConfig config) throws DatabaseException {
+        this.config = config;
         String connectionString = CONNECTION_STRING_TEMPLATE.formatted(
                 config.getDatabaseName(),
                 config.getServiceAccount(),
@@ -74,6 +78,11 @@ public class MySQLDriver implements IDatabaseDriver {
         } catch (SQLException e) {
             throw new DatabaseException("Failed to connect to the database:\n" + e.getMessage());
         }
+    }
+
+    @Override
+    public IDatabaseConfig config() {
+        return config;
     }
 
     @Override
@@ -244,7 +253,7 @@ public class MySQLDriver implements IDatabaseDriver {
      */
     public static void main(String[] args) throws DatabaseException {
         // Instantiate Driver
-        IDatabaseDriver driver = new MySQLDriver();
+        IDatabaseDriver driver = new MySQLDriver(MySQLConfig.instance());
         // Table names are stored in the MySQL config,
         // but the students table is just an example table and is not stored in the config
         String studentsTable = "students";

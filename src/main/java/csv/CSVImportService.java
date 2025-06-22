@@ -58,7 +58,7 @@ public class CSVImportService implements ICSVImportService {
      * @throws IOException       Thrown if an error occurs while reading the CSV file.
      */
     public static void main(String[] args) throws DatabaseException, IOException {
-        CSVImportService csvImporter = new CSVImportService(new MySQLDriver());
+        CSVImportService csvImporter = new CSVImportService(new MySQLDriver(MySQLConfig.instance()));
         // example for testing
         csvImporter.load("src/main/java/csv/students.csv", "students");
     }
