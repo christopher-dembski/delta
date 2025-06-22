@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * Represents the configuration for the MySQL database.
  */
-public class MySQLConfig {
+public class MySQLConfig implements IDatabaseConfig {
     /**
      * A MySQLConfig instance representing the MySQL configuration for the app.
      */
@@ -30,11 +30,10 @@ public class MySQLConfig {
      */
     private final Map<String, String> tableNames;
 
-
     /**
      * @return Returns the MySQL instance representing the MySQL configuration for the app.
      */
-    protected static MySQLConfig instance() {
+    public static MySQLConfig instance() {
         if (instance == null) {
             instance = new MySQLConfig();
         }
@@ -62,7 +61,7 @@ public class MySQLConfig {
      * @param <T>   The type of the class.
      * @return The name of the table for the class.
      */
-    public <T> String lookupTableName(Class<T> klass) {
+    public <T> String lookupCollection(Class<T> klass) {
         return tableNames.get(klass.getSimpleName());
     }
 

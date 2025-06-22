@@ -9,6 +9,11 @@ import java.util.List;
  */
 public interface IDatabaseDriver {
     /**
+     * Returns a configuration object mapping classes to the corresponding collection in the database.
+     */
+    IDatabaseConfig config();
+
+    /**
      * Executes a query to insert a record in the database.
      *
      * @param query The query to execute.
