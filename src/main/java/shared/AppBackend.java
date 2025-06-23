@@ -11,19 +11,26 @@ import data.DatabaseException;
  */
 public class AppBackend {
     /**
+     * Name of the environment variable for the app's execution environment.
+     */
+    public static final String APP_ENV = "APP_ENV";
+    /**
+     * Constant denoting our CI environment.
+     */
+    public static final String CI = "CI";
+    /**
+     * The singleton instance of the app backend.
+     */
+    private static AppBackend instance;
+    /**
      * The database driver to use to execute queries.
      */
     private IDatabaseDriver db;
 
     /**
-     * The singleton instance of the app backend.
-     */
-    private static AppBackend instance;
-
-    /**
      * @return The instance representing the backend of the application.
      */
-    private static AppBackend instance() {
+    public static AppBackend instance() {
         if (instance == null) {
             instance = new AppBackend();
         }
@@ -47,7 +54,7 @@ public class AppBackend {
     /**
      * @return The database driver used to execute database queries for the app.
      */
-    public IDatabaseDriver db() {
-        return db;
+    public static IDatabaseDriver db() {
+        return instance().db;
     }
 }
