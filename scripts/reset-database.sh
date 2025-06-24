@@ -1,3 +1,5 @@
+#!/bin/bash
+
 echo "Step 1: Create Database"
 mysql -uroot -p < "$(pwd)/src/main/java/data/create-database.sql"
 if [ $? -eq 0 ]; then
@@ -7,7 +9,16 @@ else
   exit 1
 fi
 
-echo "Step 2: Seed Database"
+echo "Step 2: Create Service Account"
+mysql -uroot -p < "$(pwd)/src/main/java/data/create-service-account.sql"
+if [ $? -eq 0 ]; then
+  echo "Database created successfully!"
+else
+  echo "An error occurred while creating the service account."
+  exit 1
+fi
+
+echo "Step 3: Seed Database"
 mysql -uroot -p < "$(pwd)/src/main/java/data/seed-database.sql"
 if [ $? -eq 0 ]; then
   echo "Database seeded successfully!"

@@ -1,5 +1,7 @@
 package data;
 
+import shared.AppBackend;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,6 +14,14 @@ public class MySQLConfig implements IDatabaseConfig {
      */
     private static MySQLConfig instance;
 
+    /**
+     * The name of the host for the database connection.
+     */
+    private final String hostName;
+    /**
+     * The port number for the connection.
+     */
+    private final Integer portNumber;
     /**
      * The name of the database used for the application.
      */
@@ -45,6 +55,10 @@ public class MySQLConfig implements IDatabaseConfig {
      */
     private MySQLConfig() {
         // general setup
+        hostName = AppBackend.CI.equals(System.getenv(AppBackend.APP_ENV))
+                ? "db"
+                : "localhost";
+        portNumber = 3306;
         databaseName = "delta_database";
         serviceAccount = "delta-service-account";
         serviceAccountPassword = "password";
@@ -63,6 +77,20 @@ public class MySQLConfig implements IDatabaseConfig {
      */
     public <T> String lookupCollection(Class<T> klass) {
         return tableNames.get(klass.getSimpleName());
+    }
+
+    /**
+     * @return The host name for the database connection.
+     */
+    public String getHostName() {
+        return hostName;
+    }
+
+    /**
+     * @return The port number of the app.
+     */
+    public Integer getPortNumber() {
+        return portNumber;
     }
 
     /**
