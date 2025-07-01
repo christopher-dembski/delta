@@ -14,8 +14,5 @@ COPY pom.xml .
 # copy source code
 COPY src ./src
 
-# copy docker entrypoint script
-COPY scripts/docker-entrypoint.sh .
-
 # run tests
-ENTRYPOINT ["./docker-entrypoint.sh"]
+ENTRYPOINT ["mvn", "clean", "test"]
