@@ -11,7 +11,7 @@ class MySQLDriverTest {
     @Test
     public void testAlwaysTrue() {
         // test to verify Docker is working
-        assertEquals(1 + 1, 2, "Always true.");
+        assertEquals(1 + 1, 5, "Always true.");
     }
 
     @Test
