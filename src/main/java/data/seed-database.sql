@@ -1,7 +1,4 @@
--- execute SQL statements on this database
 USE delta_database;
-
--- seed database
 
 -- seed example table for testing
 INSERT INTO students
