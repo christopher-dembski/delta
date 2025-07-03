@@ -14,5 +14,5 @@ COPY pom.xml .
 # copy source code
 COPY src ./src
 
-# run tests
-ENTRYPOINT ["mvn", "clean", "test"]
+# keep container running indefinitely so can execute commands
+CMD ["sleep", "infinity"]

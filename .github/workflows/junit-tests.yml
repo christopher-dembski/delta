@@ -8,5 +8,12 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+      - name: Build container images for app and MySQL
+        run: docker compose build
+      - name: Start containers
+        run: docker compose up -d
       - name: Run tests
-        run: docker compose up --exit-code-from app
+        run: docker compose exec app mvn test
+      - name: Shut down containers
+        if: always()
+        run: docker compose down -v
