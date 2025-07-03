@@ -9,5 +9,4 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
       - name: Run tests
-        run: |
-          docker compose up --exit-code-from app
+        run: docker compose up --exit-code-from app
