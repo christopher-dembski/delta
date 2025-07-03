@@ -10,4 +10,4 @@ jobs:
         uses: actions/checkout@v4
       - name: Run tests
         run: |
-          docker compose up
+          docker compose up --exit-code-from app
