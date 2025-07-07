@@ -1,5 +1,7 @@
 package data;
 
+import java.util.List;
+
 /**
  * Represents a query to insert records into the database.
  */
@@ -7,27 +9,35 @@ public class InsertQuery extends Query {
     /**
      * The instance to persist in the database.
      */
-    private final IRecord record;
+    private final List<IRecord> records;
+
+    /**
+     * @param collectionName The name of the database collection to insert the records into.
+     * @param records        The records to persist in the database.
+     */
+    public InsertQuery(String collectionName, List<IRecord> records) {
+        super(collectionName);
+        this.records = records;
+    }
 
     /**
      * @param collectionName The name of the database collection to insert the record into.
      * @param record         The record to persist in the database.
      */
     public InsertQuery(String collectionName, IRecord record) {
-        super(collectionName);
-        this.record = record;
+        this(collectionName, List.of(record));
     }
 
     /**
-     * @return Returns the record to insert in the database.
+     * @return Returns the records to insert in the database.
      */
-    public IRecord getRecord() {
-        return record;
+    public List<IRecord> getRecords() {
+        return records;
     }
 
     @Override
     public String toString() {
-        return "InsertQuery(collectionName: %s, record: %s)"
-                .formatted(getCollectionName(), getRecord());
+        return "InsertQuery(collectionName: %s, records: %s)"
+                .formatted(getCollectionName(), getRecords());
     }
 }
