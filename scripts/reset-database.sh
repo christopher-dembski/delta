@@ -12,14 +12,23 @@ fi
 echo "Step 2: Create Service Account"
 mysql -uroot -p < "$(pwd)/src/main/java/data/create-service-account.sql"
 if [ $? -eq 0 ]; then
-  echo "Database created successfully!"
+  echo "Service account created successfully!"
 else
   echo "An error occurred while creating the service account."
   exit 1
 fi
 
-echo "Step 3: Seed Database"
-mysql -uroot -p < "$(pwd)/src/main/java/data/seed-database.sql"
+echo "Step 3: Create Database Tables"
+mysql delta_database -uroot -p < "$(pwd)/src/main/java/data/create-tables.sql"
+if [ $? -eq 0 ]; then
+  echo "Database tables created successfully!"
+else
+  echo "An error occurred while creating the database tables."
+  exit 1
+fi
+
+echo "Step 4: Seeding Database"
+mysql delta_database -uroot -p < "$(pwd)/src/main/java/data/seed-database.sql"
 if [ $? -eq 0 ]; then
   echo "Database seeded successfully!"
 else
