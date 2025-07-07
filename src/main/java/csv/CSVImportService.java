@@ -7,11 +7,19 @@ import org.apache.commons.csv.CSVRecord;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * Defines a job that imports the CSV files.
  */
 public class CSVImportService implements ICSVImportService {
+    /**
+     * Default number of records to batch before inserting them into the database.
+     */
+    private static final int DEFAULT_BATCH_SIZE = 100;
+
     /**
      * The database driver to use to import the CSVs.
      */
@@ -43,23 +51,17 @@ public class CSVImportService implements ICSVImportService {
      */
     public void load(String filePath, String collectionName) throws DatabaseException, IOException {
         Reader reader = new FileReader(filePath);
-        Iterable<CSVRecord> records = parser.parse(reader);
-        for (CSVRecord record : records) {
-            IRecord csvRecordAdapter = new CSVRecordAdapter(record);
-            driver.execute(new InsertQuery(collectionName, csvRecordAdapter));
+        Iterable<CSVRecord> rows = parser.parse(reader);
+        List<IRecord> batch = new ArrayList<>();
+        for (CSVRecord row : rows) {
+            batch.add(new CSVRecordAdapter(row));
+            if (batch.size() == DEFAULT_BATCH_SIZE) {
+                driver.execute(new InsertQuery(collectionName, batch));
+                batch.clear();
+            }
         }
-    }
-
-    /**
-     * Example script to show teh CSV import functionality.
-     *
-     * @param args Command line args (unused).
-     * @throws DatabaseException Thrown if an error occurs while accessing the database.
-     * @throws IOException       Thrown if an error occurs while reading the CSV file.
-     */
-    public static void main(String[] args) throws DatabaseException, IOException {
-        CSVImportService csvImporter = new CSVImportService(new MySQLDriver(MySQLConfig.instance()));
-        // example for testing
-        csvImporter.load("src/main/java/csv/students.csv", "students");
+        if (!batch.isEmpty()) {
+            driver.execute(new InsertQuery(collectionName, batch));
+        }
     }
 }
