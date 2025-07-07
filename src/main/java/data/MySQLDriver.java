@@ -207,6 +207,12 @@ public class MySQLDriver implements IDatabaseDriver {
     private static String formatSQLValue(Object value) {
         if (value instanceof String) {
             return "'%s'".formatted(value);
+        } else if (value instanceof java.sql.Date) {
+            // Format date as 'YYYY-MM-DD' for MySQL
+            return "'%s'".formatted(value.toString());
+        } else if (value instanceof java.sql.Timestamp) {
+            // Format timestamp for MySQL
+            return "'%s'".formatted(value.toString());
         }
         return value.toString();
     }
