@@ -1,7 +1,6 @@
 package helpers;
 
 import data.MySQLConfig;
-import shared.AppBackend;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -40,7 +39,8 @@ public class DatabaseTestHelpers {
         String serviceAccount = config.getServiceAccount();
         String password = config.getServiceAccountPassword();
         String database = config.getDatabaseName();
-        processBuilder.command("mysql", "-u", serviceAccount, "-p" + password, database);
+        String host = config.getHostName();
+        processBuilder.command("mysql", "-u", serviceAccount, "-p" + password, "-h", host, database);
         processBuilder.redirectInput(new File(path.toString()));
         return execute(processBuilder);
     }
@@ -60,10 +60,5 @@ public class DatabaseTestHelpers {
                 continue;
             System.out.println(line);
         }
-    }
-
-    public static void main(String[] args)  {
-        System.setProperty(AppBackend.APP_ENV, AppBackend.LOCAL_TEST);
-        resetTestDatabase();
     }
 }
