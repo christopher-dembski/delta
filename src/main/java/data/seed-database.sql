@@ -1,5 +1,3 @@
-USE delta_database;
-
 -- seed example table for testing
 INSERT INTO students
 VALUES (1, 'Chris');

@@ -14,5 +14,8 @@ COPY pom.xml .
 # copy source code
 COPY src ./src
 
+# install MySQL client
+RUN apt-get update && apt-get install -y mysql-client
+
 # run tests
 ENTRYPOINT ["mvn", "clean", "test"]
