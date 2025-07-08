@@ -1,0 +1,15 @@
+name: Tests
+
+on: [ push ]
+
+jobs:
+  junit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Run tests
+        run: docker compose up --exit-code-from app
+      - name: Stop containers
+        if: always()
+        run: docker compose down -v
