@@ -19,6 +19,14 @@ public class AppBackend {
      */
     public static final String CI = "CI";
     /**
+     * Constant denoting our local test environment.
+     */
+    public static final String LOCAL_TEST = "LOCAL_TEST";
+    /**
+     * Constant denoting our local development environment.
+     */
+    public static final String LOCAL_DEV = "LOCAL_DEV";
+    /**
      * The singleton instance of the app backend.
      */
     private static AppBackend instance;
@@ -57,4 +65,14 @@ public class AppBackend {
     public static IDatabaseDriver db() {
         return instance().db;
     }
+
+    /**
+     * @return The current execution environment for the app.
+     */
+   public static String environment() {
+       String environment = System.getenv(AppBackend.APP_ENV);
+       // default to local development environment
+       if(environment == null) environment = AppBackend.LOCAL_DEV;
+       return environment;
+   }
 }

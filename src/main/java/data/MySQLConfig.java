@@ -55,11 +55,14 @@ public class MySQLConfig implements IDatabaseConfig {
      */
     private MySQLConfig() {
         // general setup
-        hostName = AppBackend.CI.equals(System.getenv(AppBackend.APP_ENV))
+        String environment = AppBackend.environment();
+        hostName = environment.equals(AppBackend.CI)
                 ? "db"
                 : "localhost";
         portNumber = 3306;
-        databaseName = "delta_database";
+        databaseName = environment.equals(AppBackend.CI) || environment.equals(AppBackend.LOCAL_TEST)
+                ? "delta_test_database"
+                : "delta_database";
         serviceAccount = "delta-service-account";
         serviceAccountPassword = "password";
         // table config
