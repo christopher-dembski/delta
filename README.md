@@ -6,6 +6,6 @@ Course project for EECS-3311 (Software Design) at York University.
 To run the application, use the following Maven command:
 
 ```bash
-mvn exec:java -Dexec.mainClass="app.AppMain"
+mvn clean exec:java -Dexec.mainClass="app.AppMain" -e
 ```
 
