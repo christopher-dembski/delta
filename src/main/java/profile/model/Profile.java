@@ -1,4 +1,3 @@
-
 package profile.model;
 
 import java.time.LocalDate;
@@ -51,6 +50,22 @@ public final class Profile {
     public double     getWeight()      { return weight; }
     public UnitSystem getUnitSystem()  { return unitSystem; }
 
+ 
+
+    @Override
+    public String toString() {
+        return "Profile{" +
+               "id='" + id + '\'' +
+               ", name='" + name + '\'' +
+               ", age=" + age +
+               ", sex=" + sex +
+               ", dateOfBirth=" + dateOfBirth +
+               ", height=" + height +
+               ", weight=" + weight +
+               ", unitSystem=" + unitSystem +
+               '}';
+    }
+
     // ----- builder ---------------------------------------------------------
     public static class Builder {
         private String     id          = UUID.randomUUID().toString();
@@ -62,14 +77,14 @@ public final class Profile {
         private double     weight;
         private UnitSystem unitSystem  = UnitSystem.METRIC; // default
 
-        public Builder id(String id)                   { this.id = id; return this; }
+        public Builder id(String id)                   { this.id = (id != null) ? id : UUID.randomUUID().toString(); return this; }
         public Builder name(String name)               { this.name = name; return this; }
         public Builder age(int age)                    { this.age = age; return this; }
         public Builder sex(Sex sex)                    { this.sex = sex; return this; }
         public Builder dateOfBirth(LocalDate dob)      { this.dateOfBirth = dob; return this; }
         public Builder height(double height)           { this.height = height; return this; }
         public Builder weight(double weight)           { this.weight = weight; return this; }
-        public Builder unitSystem(UnitSystem unit)     { this.unitSystem = unit; return this; }
+        public Builder unitSystem(UnitSystem unit)     { this.unitSystem = (unit != null) ? unit : UnitSystem.METRIC; return this; }
 
         /** Builds a validated, immutable Profile */
         public Profile build() {
