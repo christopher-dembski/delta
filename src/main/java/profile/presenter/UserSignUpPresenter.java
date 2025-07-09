@@ -1,15 +1,16 @@
 package profile.presenter;
 
-import profile.view.ISignUpView;
-import profile.service.ProfileService;
-import profile.model.Profile;
-import profile.model.Sex;
-import profile.model.UnitSystem;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.UUID;
+
+import profile.model.Profile;
+import profile.model.Sex;
+import profile.model.UnitSystem;
+import profile.service.ProfileService;
+import profile.view.ISignUpView;
 
 public class UserSignUpPresenter {
     private final ISignUpView view;
@@ -33,11 +34,26 @@ public class UserSignUpPresenter {
      */
     private void handleFormSubmission() {
         try {
+            // First, validate UI input before processing
+            if (!validateUIInput()) {
+                return; // Stop submission if validation fails
+            }
+            
             // Get form data from view
             ISignUpView.RawInput rawInput = view.getFormInput();
 
             // Validate and convert the raw input
             Profile profile = validateAndCreateProfile(rawInput);
+
+            // Check if a profile with the same full name already exists
+            List<Profile> existingProfiles = profileService.listAll();
+            boolean nameExists = existingProfiles.stream()
+                    .anyMatch(p -> p.getName().equalsIgnoreCase(profile.getName()));
+            
+            if (nameExists) {
+                view.showError("A profile with the name '" + profile.getName() + "' already exists. Please use a different name.");
+                return;
+            }
 
             // Save the profile using the service
             profileService.add(profile);
@@ -102,11 +118,6 @@ public class UserSignUpPresenter {
         // Parse and validate date of birth
         LocalDate dateOfBirth;
         try {
-            // Debug logging to see what we're actually receiving
-            System.out.println("DEBUG: Raw DOB input received: '" + rawInput.dob() + "'");
-            System.out.println("DEBUG: DOB length: " + rawInput.dob().length());
-            System.out.println("DEBUG: DOB chars: " + java.util.Arrays.toString(rawInput.dob().toCharArray()));
-
             String dobString = rawInput.dob().trim();
 
             // Handle different date formats we might receive
@@ -115,7 +126,6 @@ public class UserSignUpPresenter {
                 dobString = dobString.substring(0, 4) + "-" +
                            dobString.substring(4, 6) + "-" +
                            dobString.substring(6, 8);
-                System.out.println("DEBUG: Converted to: '" + dobString + "'");
             }
 
             dateOfBirth = LocalDate.parse(dobString, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -123,7 +133,6 @@ public class UserSignUpPresenter {
                 throw new IllegalArgumentException("Date of birth cannot be in the future");
             }
         } catch (DateTimeParseException e) {
-            System.out.println("DEBUG: DateTimeParseException occurred: " + e.getMessage());
             throw new IllegalArgumentException("Invalid date format. Please use YYYY-MM-DD");
         }
 
@@ -177,5 +186,171 @@ public class UserSignUpPresenter {
                 .weight(weight)
                 .unitSystem(unitSystem)
                 .build();
+    }
+
+    /**
+     * Validate UI input before allowing form submission
+     */
+    private boolean validateUIInput() {
+        ISignUpView.RawInput rawInput = view.getFormInput();
+        
+        // Check for empty or null fields
+        if (rawInput.fullName() == null || rawInput.fullName().trim().isEmpty()) {
+            view.showError("Full name is required");
+            return false;
+        }
+        
+        if (rawInput.fullName().trim().length() < 2) {
+            view.showError("Full name must be at least 2 characters long");
+            return false;
+        }
+        
+        if (rawInput.age() == null || rawInput.age().trim().isEmpty()) {
+            view.showError("Age is required");
+            return false;
+        }
+        
+        // Validate age format and range
+        int age;
+        try {
+            age = Integer.parseInt(rawInput.age().trim());
+            if (age < 0 || age > 150) {
+                view.showError("Age must be between 0 and 150");
+                return false;
+            }
+        } catch (NumberFormatException e) {
+            view.showError("Age must be a valid number");
+            return false;
+        }
+        
+        if (rawInput.dob() == null || rawInput.dob().trim().isEmpty()) {
+            view.showError("Date of birth is required");
+            return false;
+        }
+        
+        // Validate date format
+        String dobString = rawInput.dob().trim();
+        if (dobString.length() < 8 || dobString.length() > 10) {
+            view.showError("Date of birth must be in YYYY-MM-DD format");
+            return false;
+        }
+        
+        // Basic date format validation
+        if (!dobString.matches("\\d{4}-\\d{2}-\\d{2}") && !dobString.matches("\\d{8}")) {
+            view.showError("Date of birth must be in YYYY-MM-DD format");
+            return false;
+        }
+        
+        // Additional date range validation
+        try {
+            String formattedDob = dobString;
+            if (dobString.length() == 8 && dobString.matches("\\d{8}")) {
+                formattedDob = dobString.substring(0, 4) + "-" +
+                              dobString.substring(4, 6) + "-" +
+                              dobString.substring(6, 8);
+            }
+            
+            java.time.LocalDate dateOfBirth = java.time.LocalDate.parse(formattedDob, 
+                java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            
+            if (dateOfBirth.isAfter(java.time.LocalDate.now())) {
+                view.showError("Date of birth cannot be in the future");
+                return false;
+            }
+            
+            if (dateOfBirth.isBefore(java.time.LocalDate.of(1900, 1, 1))) {
+                view.showError("Date of birth cannot be before 1900");
+                return false;
+            }
+            
+            // Check age consistency with date of birth
+            int calculatedAge = java.time.Period.between(dateOfBirth, java.time.LocalDate.now()).getYears();
+            if (Math.abs(calculatedAge - age) > 1) {
+                view.showError("Age (" + age + ") doesn't match date of birth (calculated age: " + calculatedAge + ")");
+                return false;
+            }
+        } catch (java.time.format.DateTimeParseException e) {
+            view.showError("Invalid date format. Please use YYYY-MM-DD");
+            return false;
+        }
+        
+        if (rawInput.height() == null || rawInput.height().trim().isEmpty()) {
+            view.showError("Height is required");
+            return false;
+        }
+        
+        // Validate height format and range based on unit system
+        try {
+            double height = Double.parseDouble(rawInput.height().trim());
+            if (height <= 0) {
+                view.showError("Height must be a positive number");
+                return false;
+            }
+            
+            // Unit-specific validation
+            String unitSystem = rawInput.unitSystem();
+            if ("METRIC".equalsIgnoreCase(unitSystem)) {
+                // Height in centimeters
+                if (height < 30 || height > 300) {
+                    view.showError("Height must be between 30 and 300 cm");
+                    return false;
+                }
+            } else if ("IMPERIAL".equalsIgnoreCase(unitSystem)) {
+                // Height in feet (can be decimal like 5.75)
+                if (height < 1 || height > 10) {
+                    view.showError("Height must be between 1 and 10 feet");
+                    return false;
+                }
+            }
+        } catch (NumberFormatException e) {
+            view.showError("Height must be a valid number");
+            return false;
+        }
+        
+        if (rawInput.weight() == null || rawInput.weight().trim().isEmpty()) {
+            view.showError("Weight is required");
+            return false;
+        }
+        
+        // Validate weight format and range based on unit system
+        try {
+            double weight = Double.parseDouble(rawInput.weight().trim());
+            if (weight <= 0) {
+                view.showError("Weight must be a positive number");
+                return false;
+            }
+            
+            // Unit-specific validation
+            String unitSystem = rawInput.unitSystem();
+            if ("METRIC".equalsIgnoreCase(unitSystem)) {
+                // Weight in kilograms
+                if (weight < 0.5 || weight > 1000) {
+                    view.showError("Weight must be between 0.5 and 1000 kg");
+                    return false;
+                }
+            } else if ("IMPERIAL".equalsIgnoreCase(unitSystem)) {
+                // Weight in pounds
+                if (weight < 1 || weight > 2200) {
+                    view.showError("Weight must be between 1 and 2200 pounds");
+                    return false;
+                }
+            }
+        } catch (NumberFormatException e) {
+            view.showError("Weight must be a valid number");
+            return false;
+        }
+        
+        // Sex and unit system should be valid since they're from combo boxes
+        if (rawInput.sex() == null || rawInput.sex().trim().isEmpty()) {
+            view.showError("Sex selection is required");
+            return false;
+        }
+        
+        if (rawInput.unitSystem() == null || rawInput.unitSystem().trim().isEmpty()) {
+            view.showError("Unit system selection is required");
+            return false;
+        }
+        
+        return true;
     }
 }
