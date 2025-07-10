@@ -2,7 +2,7 @@
 Course project for EECS-3311 (Software Design) at York University.
 
 ## Running the Application
-To run the unit test:
+To run the test suite:
 
 ```bash
 mvn test
