@@ -1,6 +1,8 @@
 package swaps.view;
 
 
+import swaps.model.goal.PreciseGoal;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -20,6 +22,7 @@ public class SwapsView extends JPanel {
     private JButton previousButton;
     // steps
     SelectGoalTypeView selectGoalTypeView; // step 1
+    CreatePreciseGoalView createPreciseGoalView; // step 2
 
     public SwapsView() {
         // one card is displayed at a time
@@ -27,13 +30,13 @@ public class SwapsView extends JPanel {
         swapsCardLayout = new CardLayout();
         swapSteps = new JPanel(swapsCardLayout);
 
-        // step 1
+        // Step 1: select a goal type (precise or imprecise)
         selectGoalTypeView = new SelectGoalTypeView();
         swapSteps.add(selectGoalTypeView, SwapWorkflowStep.SELECT_GOAL_TYPE.toString());
 
-        JPanel createPreciseGoal = new JPanel();
-        createPreciseGoal.add(new JLabel("Create Precise Goal"));
-        swapSteps.add(createPreciseGoal, SwapWorkflowStep.PRECISE_GOAL_DETAILS.toString());
+        // Step 2a: select a precise goal
+        createPreciseGoalView = new CreatePreciseGoalView();
+        swapSteps.add(createPreciseGoalView, SwapWorkflowStep.PRECISE_GOAL_DETAILS.toString());
 
         JPanel createImpreciseGoal = new JPanel();
         createImpreciseGoal.add(new JLabel("Create Imprecise Goal"));
