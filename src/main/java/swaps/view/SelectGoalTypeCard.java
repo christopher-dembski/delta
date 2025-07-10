@@ -17,6 +17,11 @@ public class SelectGoalTypeCard extends JPanel implements ISelectGoalTypeCard {
     }
 
     @Override
+    public void setSelectedGoalType(DropdownOptionGoalType goalIntensity) {
+        goalTypeDropDown.setSelectedItem(goalIntensity);
+    }
+
+    @Override
     public void addGoalTypeDropDownListener(Consumer<DropdownOptionGoalType> listener) {
         goalTypeDropDown.addActionListener(e -> {
             DropdownOptionGoalType selected = (DropdownOptionGoalType) goalTypeDropDown.getSelectedItem();
