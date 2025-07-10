@@ -40,31 +40,14 @@ public class SwapsView extends JPanel {
         createImpreciseGoal = new CreateImpreciseGoalCard();
         swapSteps.add(createImpreciseGoal, SwapWorkflowStep.IMPRECISE_GOAL_DETAILS.toString());
 
-        /* TO DO: extract buttons into separate method */
-
-        nextButton = new JButton("Next");
-        nextButton.addActionListener(e -> {
-            currentStep++;
-            handleStepChange();
-        });
-        nextButton.setPreferredSize(new Dimension(100, 30));
-
-        // previous button
-        previousButton = new JButton("Previous");
-        previousButton.setEnabled(false); // cannot navigate back from initial step
-        previousButton.addActionListener(e -> {
-            currentStep--;
-            handleStepChange();
-        });
-        previousButton.setPreferredSize(new Dimension(100, 30));
-
-        // wrap buttons in container
-        JPanel buttonContainer = new JPanel();
-        buttonContainer.setLayout(new FlowLayout());
+        // next and previous buttons
+        nextButton = buildNextButton();
+        previousButton = buildPreviousButton();
+        JPanel buttonContainer = new JPanel(new FlowLayout());
         buttonContainer.add(previousButton);
         buttonContainer.add(nextButton);
 
-        // layout
+        // main layout
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         this.add(swapSteps);
         this.add(buttonContainer);
@@ -86,6 +69,27 @@ public class SwapsView extends JPanel {
                 break;
             }
         }
+    }
+
+    private JButton buildNextButton() {
+        JButton button = new JButton("Next");
+        button.addActionListener(e -> {
+            currentStep++;
+            handleStepChange();
+        });
+        button.setPreferredSize(new Dimension(100, 30));
+        return button;
+    }
+
+    private JButton buildPreviousButton() {
+        JButton button = new JButton("Previous");
+        button.setEnabled(false); // cannot navigate back from initial step
+        button.addActionListener(e -> {
+            currentStep--;
+            handleStepChange();
+        });
+        button.setPreferredSize(new Dimension(100, 30));
+        return button;
     }
 
     public static void main(String[] args) {
