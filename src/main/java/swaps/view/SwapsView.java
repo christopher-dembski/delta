@@ -6,7 +6,7 @@ import java.awt.*;
 
 public class SwapsView extends JPanel {
     private int step = 1;
-    private GoalTypeOption selectedGoalType = GoalTypeOption.PRECISE;
+    private OptionGoalType selectedGoalType = OptionGoalType.PRECISE;
 
     private enum Step {
         SELECT_GOAL_TYPE("Select Goal Type"),
@@ -59,9 +59,9 @@ public class SwapsView extends JPanel {
 
         JPanel selectTypePanel = new JPanel();
         selectTypePanel.add(new JLabel("Select Goal Type"));
-        GoalTypeOption[] choices = {GoalTypeOption.PRECISE, GoalTypeOption.IMPRECISE};
+        OptionGoalType[] choices = {OptionGoalType.PRECISE, OptionGoalType.IMPRECISE};
         JComboBox goalTypeChoices = new JComboBox<>(choices);
-        goalTypeChoices.addActionListener(e -> selectedGoalType = (GoalTypeOption) goalTypeChoices.getSelectedItem());
+        goalTypeChoices.addActionListener(e -> selectedGoalType = (OptionGoalType) goalTypeChoices.getSelectedItem());
         selectTypePanel.add(goalTypeChoices);
         swapSteps.add(selectTypePanel, Step.SELECT_GOAL_TYPE.toString());
 
@@ -115,7 +115,7 @@ public class SwapsView extends JPanel {
                 break;
             }
             case 2: {
-                String newPanelId = selectedGoalType.equals(GoalTypeOption.PRECISE)
+                String newPanelId = selectedGoalType.equals(OptionGoalType.PRECISE)
                         ? Step.PRECISE_GOAL_DETAILS.toString()
                         : Step.IMPRECISE_GOAL_DETAILS.toString();
                 swapsCardLayout.show(swapSteps, newPanelId);
