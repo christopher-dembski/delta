@@ -13,3 +13,9 @@ To run the application:
 mvn clean compile exec:java -Dexec.mainClass="app.AppMain" -e
 ```
 
+To run test that simulate CI environment (headless mode) before pushing:
+
+```bash
+mvn clean test -B -Djava.awt.headless=true
+```
+

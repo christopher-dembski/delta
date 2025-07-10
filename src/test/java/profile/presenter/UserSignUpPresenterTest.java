@@ -70,8 +70,6 @@ class UserSignUpPresenterTest {
 
         // When
         testView.triggerSubmit();
-
-        // Then
         assertEquals(1, testService.size());
         assertTrue(testView.isClosed());
         assertNull(testView.getLastError());

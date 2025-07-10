@@ -98,4 +98,8 @@ public class TestProfileService implements ProfileService {
     public void addProfile(Profile profile) {
         profiles.put(profile.getId(), profile);
     }
+
+    public boolean getShouldThrowException() {
+        return shouldThrowException;
+    }
 }

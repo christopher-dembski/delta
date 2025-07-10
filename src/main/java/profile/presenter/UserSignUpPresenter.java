@@ -58,13 +58,15 @@ public class UserSignUpPresenter {
             // Save the profile using the service
             profileService.add(profile);
 
-            // Show success message
-            javax.swing.JOptionPane.showMessageDialog(
-                null,
-                "Profile created successfully for " + profile.getName() + "!",
-                "Success",
-                javax.swing.JOptionPane.INFORMATION_MESSAGE
-            );
+            // Show success message (only if not in headless mode)
+            if (!java.awt.GraphicsEnvironment.isHeadless()) {
+                javax.swing.JOptionPane.showMessageDialog(
+                    null,
+                    "Profile created successfully for " + profile.getName() + "!",
+                    "Success",
+                    javax.swing.JOptionPane.INFORMATION_MESSAGE
+                );
+            }
 
             // Close the signup window
             view.close();
