@@ -3,7 +3,7 @@ package swaps.view;
 import javax.swing.*;
 import java.util.function.Consumer;
 
-public class CreateImpreciseGoalCard extends JPanel {
+public class CreateImpreciseGoalCard extends JPanel implements ICreateImpreciseGoalCard {
     private JComboBox<DropdownOptionGoalIntensity> goalIntensityDropdown;
 
     protected CreateImpreciseGoalCard() {
@@ -17,6 +17,7 @@ public class CreateImpreciseGoalCard extends JPanel {
         this.add(goalIntensityDropdown);
     }
 
+    @Override
     public void addGoalIntensityDropdownListener(Consumer<DropdownOptionGoalIntensity> listener) {
         goalIntensityDropdown.addActionListener(e -> {
             DropdownOptionGoalIntensity selectedGoalIntensity =
@@ -25,6 +26,7 @@ public class CreateImpreciseGoalCard extends JPanel {
         });
     }
 
+    @Override
     public void setSelectedGoalIntensity(DropdownOptionGoalIntensity goalIntensity) {
         goalIntensityDropdown.setSelectedItem(goalIntensity);
     }
