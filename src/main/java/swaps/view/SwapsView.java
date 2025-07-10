@@ -87,7 +87,7 @@ public class SwapsView extends JPanel implements ISwapsView {
     }
 
     @Override
-    public SelectGoalTypeCard getSelectGoalTypeCard() {
+    public ISelectGoalTypeCard getSelectGoalTypeCard() {
         return selectGoalTypeView;
     }
 }
