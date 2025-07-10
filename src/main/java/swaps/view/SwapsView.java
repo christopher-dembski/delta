@@ -34,7 +34,7 @@ public class SwapsView extends JPanel {
 
         JPanel createImpreciseGoal = new JPanel();
         createImpreciseGoal.add(new JLabel("Create Imprecise Goal"));
-        DropdownOptionIntensity[] dropdownChoiceIntensityOptions = {DropdownOptionIntensity.HIGH, DropdownOptionIntensity.MEDIUM, DropdownOptionIntensity.LOW};
+        DropdownOptionGoalIntensity[] dropdownChoiceIntensityOptions = {DropdownOptionGoalIntensity.HIGH, DropdownOptionGoalIntensity.MEDIUM, DropdownOptionGoalIntensity.LOW};
         JComboBox intensityComboBox = new JComboBox<>(dropdownChoiceIntensityOptions);
         createImpreciseGoal.add(intensityComboBox);
         swapSteps.add(createImpreciseGoal, SwapWorkflowStep.IMPRECISE_GOAL_DETAILS.toString());
