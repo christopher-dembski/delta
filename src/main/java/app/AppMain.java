@@ -14,8 +14,6 @@ public class AppMain {
         javax.swing.SwingUtilities.invokeLater(() -> {
             try {
                 // Create the database driver and config
-                MySQLConfig config = MySQLConfig.instance();
-                MySQLDriver driver = new MySQLDriver(config);
 
                 // Create the repository and service layers
                 UserRepository repository = new UserRepositoryImplementor(driver);
