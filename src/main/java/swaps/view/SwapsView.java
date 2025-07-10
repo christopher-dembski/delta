@@ -1,10 +1,8 @@
 package swaps.view;
 
-
-import swaps.model.goal.PreciseGoal;
-
 import javax.swing.*;
 import java.awt.*;
+
 
 public class SwapsView extends JPanel {
     // constants
@@ -13,7 +11,6 @@ public class SwapsView extends JPanel {
 
     // application state
     private int currentStep = 1;
-    private DropdownOptionGoalType selectedGoalType = DropdownOptionGoalType.PRECISE;
 
     // general layout components
     protected CardLayout swapsCardLayout;
@@ -21,8 +18,9 @@ public class SwapsView extends JPanel {
     private JButton nextButton;
     private JButton previousButton;
     // steps
-    SelectGoalTypeView selectGoalTypeView; // step 1
-    CreatePreciseGoalView createPreciseGoalView; // step 2
+    protected final SelectGoalTypeView selectGoalTypeView; // step 1
+    protected final CreatePreciseGoalView createPreciseGoalView; // step 2
+    protected final CreateImpreciseGoalView createImpreciseGoal;
 
     public SwapsView() {
         // one card is displayed at a time
@@ -34,15 +32,12 @@ public class SwapsView extends JPanel {
         selectGoalTypeView = new SelectGoalTypeView();
         swapSteps.add(selectGoalTypeView, SwapWorkflowStep.SELECT_GOAL_TYPE.toString());
 
-        // Step 2a: select a precise goal
+        // Step 2a: create a precise goal
         createPreciseGoalView = new CreatePreciseGoalView();
         swapSteps.add(createPreciseGoalView, SwapWorkflowStep.PRECISE_GOAL_DETAILS.toString());
 
-        JPanel createImpreciseGoal = new JPanel();
-        createImpreciseGoal.add(new JLabel("Create Imprecise Goal"));
-        DropdownOptionGoalIntensity[] dropdownChoiceIntensityOptions = {DropdownOptionGoalIntensity.HIGH, DropdownOptionGoalIntensity.MEDIUM, DropdownOptionGoalIntensity.LOW};
-        JComboBox intensityComboBox = new JComboBox<>(dropdownChoiceIntensityOptions);
-        createImpreciseGoal.add(intensityComboBox);
+        // Step 2b: create an imprecise goal
+        createImpreciseGoal = new CreateImpreciseGoalView();
         swapSteps.add(createImpreciseGoal, SwapWorkflowStep.IMPRECISE_GOAL_DETAILS.toString());
 
         /* TO DO: extract buttons into separate method */
@@ -84,7 +79,7 @@ public class SwapsView extends JPanel {
                 break;
             }
             case 2: {
-                String newPanelId = selectedGoalType.equals(DropdownOptionGoalType.PRECISE)
+                String newPanelId = selectGoalTypeView.getSelectedGoalType().equals(DropdownOptionGoalType.PRECISE)
                         ? SwapWorkflowStep.PRECISE_GOAL_DETAILS.toString()
                         : SwapWorkflowStep.IMPRECISE_GOAL_DETAILS.toString();
                 swapsCardLayout.show(swapSteps, newPanelId);
