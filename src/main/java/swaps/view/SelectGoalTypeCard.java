@@ -3,7 +3,7 @@ package swaps.view;
 import javax.swing.*;
 import java.util.function.Consumer;
 
-public class SelectGoalTypeCard extends JPanel {
+public class SelectGoalTypeCard extends JPanel implements ISelectGoalTypeCard {
     private JComboBox goalTypeDropDown;
 
     protected SelectGoalTypeCard() {
@@ -16,6 +16,7 @@ public class SelectGoalTypeCard extends JPanel {
         this.add(goalTypeDropDown);
     }
 
+    @Override
     public void addGoalTypeDropDownListener(Consumer<DropdownOptionGoalType> listener) {
         goalTypeDropDown.addActionListener(e -> {
             DropdownOptionGoalType selected = (DropdownOptionGoalType) goalTypeDropDown.getSelectedItem();
