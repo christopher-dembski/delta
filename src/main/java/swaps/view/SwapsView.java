@@ -8,23 +8,6 @@ public class SwapsView extends JPanel {
     private int step = 1;
     private OptionGoalType selectedGoalType = OptionGoalType.PRECISE;
 
-    private enum Step {
-        SELECT_GOAL_TYPE("Select Goal Type"),
-        PRECISE_GOAL_DETAILS("Precise Goal Details"),
-        IMPRECISE_GOAL_DETAILS("Imprecise Goal Details");
-
-        private final String label;
-
-        Step(String label) {
-            this.label = label;
-        }
-
-        @Override
-        public String toString() {
-            return label;
-        }
-    }
-
     private enum IntensityChoices {
         HIGH("A lot"),
         MEDIUM("A moderate amount"),
@@ -51,9 +34,6 @@ public class SwapsView extends JPanel {
     private static final int LAST_STEP = 2;
 
     public SwapsView() {
-        setSize(1000, 1000);
-        setVisible(true);
-
         swapsCardLayout = new CardLayout();
         swapSteps = new JPanel(swapsCardLayout);
 
@@ -63,18 +43,18 @@ public class SwapsView extends JPanel {
         JComboBox goalTypeChoices = new JComboBox<>(choices);
         goalTypeChoices.addActionListener(e -> selectedGoalType = (OptionGoalType) goalTypeChoices.getSelectedItem());
         selectTypePanel.add(goalTypeChoices);
-        swapSteps.add(selectTypePanel, Step.SELECT_GOAL_TYPE.toString());
+        swapSteps.add(selectTypePanel, SwapWorkflowStep.SELECT_GOAL_TYPE.toString());
 
         JPanel createPreciseGoal = new JPanel();
         createPreciseGoal.add(new JLabel("Create Precise Goal"));
-        swapSteps.add(createPreciseGoal, Step.PRECISE_GOAL_DETAILS.toString());
+        swapSteps.add(createPreciseGoal, SwapWorkflowStep.PRECISE_GOAL_DETAILS.toString());
 
         JPanel createImpreciseGoal = new JPanel();
         createImpreciseGoal.add(new JLabel("Create Imprecise Goal"));
         IntensityChoices[] intensityChoices = {IntensityChoices.HIGH, IntensityChoices.MEDIUM, IntensityChoices.LOW};
         JComboBox intensityComboBox = new JComboBox<>(intensityChoices);
         createImpreciseGoal.add(intensityComboBox);
-        swapSteps.add(createImpreciseGoal, Step.IMPRECISE_GOAL_DETAILS.toString());
+        swapSteps.add(createImpreciseGoal, SwapWorkflowStep.IMPRECISE_GOAL_DETAILS.toString());
 
         /* TO DO: extract buttons into separate method */
 
@@ -111,13 +91,13 @@ public class SwapsView extends JPanel {
         nextButton.setEnabled(step != LAST_STEP);
         switch (step) {
             case 1: {
-                swapsCardLayout.show(swapSteps, Step.SELECT_GOAL_TYPE.toString());
+                swapsCardLayout.show(swapSteps, SwapWorkflowStep.SELECT_GOAL_TYPE.toString());
                 break;
             }
             case 2: {
                 String newPanelId = selectedGoalType.equals(OptionGoalType.PRECISE)
-                        ? Step.PRECISE_GOAL_DETAILS.toString()
-                        : Step.IMPRECISE_GOAL_DETAILS.toString();
+                        ? SwapWorkflowStep.PRECISE_GOAL_DETAILS.toString()
+                        : SwapWorkflowStep.IMPRECISE_GOAL_DETAILS.toString();
                 swapsCardLayout.show(swapSteps, newPanelId);
                 break;
             }
