@@ -1,13 +1,13 @@
 package swaps.view;
 
-public enum DropdownOptionIntensity {
+public enum DropdownOptionGoalIntensity {
     HIGH("A lot"),
     MEDIUM("A moderate amount"),
     LOW("A little");
 
     private final String label;
 
-    DropdownOptionIntensity(String label) {
+    DropdownOptionGoalIntensity(String label) {
         this.label = label;
     }
 
