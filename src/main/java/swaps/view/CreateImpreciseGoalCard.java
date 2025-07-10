@@ -2,8 +2,8 @@ package swaps.view;
 
 import javax.swing.*;
 
-public class CreateImpreciseGoalView extends JPanel {
-    protected CreateImpreciseGoalView() {
+public class CreateImpreciseGoalCard extends JPanel {
+    protected CreateImpreciseGoalCard() {
         this.add(new JLabel("Create Imprecise Goal"));
         DropdownOptionGoalIntensity[] dropdownChoiceIntensityOptions = {
                 DropdownOptionGoalIntensity.HIGH,
