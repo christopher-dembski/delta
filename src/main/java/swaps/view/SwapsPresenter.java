@@ -14,8 +14,13 @@ public class SwapsPresenter {
     private DropdownOptionGoalIntensity selectedGoalIntensity;
 
     public SwapsPresenter(ISwapsView view) {
+        // basic initialization
         this.view = view;
         currentStep = FIRST_STEP;
+        selectedGoalType = DropdownOptionGoalType.IMPRECISE;
+        view.getSelectGoalTypeCard().setSelectedGoalType(selectedGoalType);  // ensure presenter and view agree
+
+        // add action listeners
         view.addNextButtonListener(e -> {
             currentStep++;
             handleStepChange();
