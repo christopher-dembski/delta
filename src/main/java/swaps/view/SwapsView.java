@@ -6,7 +6,7 @@ import java.awt.*;
 
 public class SwapsView extends JPanel {
     private int step = 1;
-    private OptionGoalType selectedGoalType = OptionGoalType.PRECISE;
+    private DropdownOptionGoalType selectedGoalType = DropdownOptionGoalType.PRECISE;
 
     protected CardLayout swapsCardLayout;
     protected JPanel swapSteps;
@@ -22,9 +22,9 @@ public class SwapsView extends JPanel {
 
         JPanel selectTypePanel = new JPanel();
         selectTypePanel.add(new JLabel("Select Goal Type"));
-        OptionGoalType[] choices = {OptionGoalType.PRECISE, OptionGoalType.IMPRECISE};
+        DropdownOptionGoalType[] choices = {DropdownOptionGoalType.PRECISE, DropdownOptionGoalType.IMPRECISE};
         JComboBox goalTypeChoices = new JComboBox<>(choices);
-        goalTypeChoices.addActionListener(e -> selectedGoalType = (OptionGoalType) goalTypeChoices.getSelectedItem());
+        goalTypeChoices.addActionListener(e -> selectedGoalType = (DropdownOptionGoalType) goalTypeChoices.getSelectedItem());
         selectTypePanel.add(goalTypeChoices);
         swapSteps.add(selectTypePanel, SwapWorkflowStep.SELECT_GOAL_TYPE.toString());
 
@@ -78,7 +78,7 @@ public class SwapsView extends JPanel {
                 break;
             }
             case 2: {
-                String newPanelId = selectedGoalType.equals(OptionGoalType.PRECISE)
+                String newPanelId = selectedGoalType.equals(DropdownOptionGoalType.PRECISE)
                         ? SwapWorkflowStep.PRECISE_GOAL_DETAILS.toString()
                         : SwapWorkflowStep.IMPRECISE_GOAL_DETAILS.toString();
                 swapsCardLayout.show(swapSteps, newPanelId);
