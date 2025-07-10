@@ -17,7 +17,7 @@ public class SwapsView extends JPanel {
     protected JPanel swapSteps;
     private JButton nextButton;
     private JButton previousButton;
-    // steps
+    // cards for each step in the workflow
     protected final SelectGoalTypeCard selectGoalTypeView;
     protected final CreatePreciseGoalCard createPreciseGoalCard;
     protected final CreateImpreciseGoalCard createImpreciseGoal;
@@ -53,24 +53,6 @@ public class SwapsView extends JPanel {
         this.add(buttonContainer);
     }
 
-    private void handleStepChange() {
-        previousButton.setEnabled(currentStep != FIRST_STEP);
-        nextButton.setEnabled(currentStep != LAST_STEP);
-        switch (currentStep) {
-            case 1: {
-                swapsCardLayout.show(swapSteps, SwapWorkflowStep.SELECT_GOAL_TYPE.toString());
-                break;
-            }
-            case 2: {
-                String newPanelId = selectGoalTypeView.getSelectedGoalType().equals(DropdownOptionGoalType.PRECISE)
-                        ? SwapWorkflowStep.PRECISE_GOAL_DETAILS.toString()
-                        : SwapWorkflowStep.IMPRECISE_GOAL_DETAILS.toString();
-                swapsCardLayout.show(swapSteps, newPanelId);
-                break;
-            }
-        }
-    }
-
     private JButton buildNextButton() {
         JButton button = new JButton("Next");
         button.addActionListener(e -> {
@@ -90,6 +72,24 @@ public class SwapsView extends JPanel {
         });
         button.setPreferredSize(new Dimension(100, 30));
         return button;
+    }
+
+    private void handleStepChange() {
+        previousButton.setEnabled(currentStep != FIRST_STEP);
+        nextButton.setEnabled(currentStep != LAST_STEP);
+        switch (currentStep) {
+            case 1: {
+                swapsCardLayout.show(swapSteps, SwapWorkflowStep.SELECT_GOAL_TYPE.toString());
+                break;
+            }
+            case 2: {
+                String newPanelId = selectGoalTypeView.getSelectedGoalType().equals(DropdownOptionGoalType.PRECISE)
+                        ? SwapWorkflowStep.PRECISE_GOAL_DETAILS.toString()
+                        : SwapWorkflowStep.IMPRECISE_GOAL_DETAILS.toString();
+                swapsCardLayout.show(swapSteps, newPanelId);
+                break;
+            }
+        }
     }
 
     public static void main(String[] args) {
