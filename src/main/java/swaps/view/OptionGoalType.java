@@ -1,12 +1,12 @@
 package swaps.view;
 
-public enum GoalTypeOption {
+public enum OptionGoalType {
     PRECISE("Precise"),
     IMPRECISE("Imprecise");
 
     private final String label;
 
-    GoalTypeOption(String label) {
+    OptionGoalType(String label) {
         this.label = label;
     }
 
