@@ -18,9 +18,9 @@ public class SwapsView extends JPanel {
     private JButton nextButton;
     private JButton previousButton;
     // steps
-    protected final SelectGoalTypeView selectGoalTypeView; // step 1
-    protected final CreatePreciseGoalView createPreciseGoalView; // step 2
-    protected final CreateImpreciseGoalView createImpreciseGoal;
+    protected final SelectGoalTypeCard selectGoalTypeView;
+    protected final CreatePreciseGoalCard createPreciseGoalCard;
+    protected final CreateImpreciseGoalCard createImpreciseGoal;
 
     public SwapsView() {
         // one card is displayed at a time
@@ -29,15 +29,15 @@ public class SwapsView extends JPanel {
         swapSteps = new JPanel(swapsCardLayout);
 
         // Step 1: select a goal type (precise or imprecise)
-        selectGoalTypeView = new SelectGoalTypeView();
+        selectGoalTypeView = new SelectGoalTypeCard();
         swapSteps.add(selectGoalTypeView, SwapWorkflowStep.SELECT_GOAL_TYPE.toString());
 
         // Step 2a: create a precise goal
-        createPreciseGoalView = new CreatePreciseGoalView();
-        swapSteps.add(createPreciseGoalView, SwapWorkflowStep.PRECISE_GOAL_DETAILS.toString());
+        createPreciseGoalCard = new CreatePreciseGoalCard();
+        swapSteps.add(createPreciseGoalCard, SwapWorkflowStep.PRECISE_GOAL_DETAILS.toString());
 
         // Step 2b: create an imprecise goal
-        createImpreciseGoal = new CreateImpreciseGoalView();
+        createImpreciseGoal = new CreateImpreciseGoalCard();
         swapSteps.add(createImpreciseGoal, SwapWorkflowStep.IMPRECISE_GOAL_DETAILS.toString());
 
         /* TO DO: extract buttons into separate method */

@@ -2,10 +2,10 @@ package swaps.view;
 
 import javax.swing.*;
 
-public class SelectGoalTypeView extends JPanel {
+public class SelectGoalTypeCard extends JPanel {
     private DropdownOptionGoalType selectedGoalType;
 
-    protected SelectGoalTypeView() {
+    protected SelectGoalTypeCard() {
         this.add(new JLabel("Select Goal Type"));
         DropdownOptionGoalType[] choices = {DropdownOptionGoalType.PRECISE, DropdownOptionGoalType.IMPRECISE};
         selectedGoalType = choices[0]; // combo box defaults to selecting first element
