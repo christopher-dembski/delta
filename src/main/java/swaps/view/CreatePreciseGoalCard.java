@@ -2,8 +2,8 @@ package swaps.view;
 
 import javax.swing.*;
 
-public class CreatePreciseGoalView extends JPanel {
-    protected CreatePreciseGoalView() {
+public class CreatePreciseGoalCard extends JPanel {
+    protected CreatePreciseGoalCard() {
         this.add(new JLabel("Create Precise Goal"));
     }
 }
