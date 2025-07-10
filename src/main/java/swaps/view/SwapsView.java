@@ -8,23 +8,6 @@ public class SwapsView extends JPanel {
     private int step = 1;
     private OptionGoalType selectedGoalType = OptionGoalType.PRECISE;
 
-    private enum IntensityChoices {
-        HIGH("A lot"),
-        MEDIUM("A moderate amount"),
-        LOW("A little");
-
-        private final String label;
-
-        IntensityChoices(String label) {
-            this.label = label;
-        }
-
-        @Override
-        public String toString() {
-            return label;
-        }
-    }
-
     protected CardLayout swapsCardLayout;
     protected JPanel swapSteps;
     private JButton nextButton;
@@ -51,8 +34,8 @@ public class SwapsView extends JPanel {
 
         JPanel createImpreciseGoal = new JPanel();
         createImpreciseGoal.add(new JLabel("Create Imprecise Goal"));
-        IntensityChoices[] intensityChoices = {IntensityChoices.HIGH, IntensityChoices.MEDIUM, IntensityChoices.LOW};
-        JComboBox intensityComboBox = new JComboBox<>(intensityChoices);
+        DropdownOptionIntensity[] dropdownChoiceIntensityOptions = {DropdownOptionIntensity.HIGH, DropdownOptionIntensity.MEDIUM, DropdownOptionIntensity.LOW};
+        JComboBox intensityComboBox = new JComboBox<>(dropdownChoiceIntensityOptions);
         createImpreciseGoal.add(intensityComboBox);
         swapSteps.add(createImpreciseGoal, SwapWorkflowStep.IMPRECISE_GOAL_DETAILS.toString());
 
