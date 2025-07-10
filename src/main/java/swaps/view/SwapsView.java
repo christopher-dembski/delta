@@ -2,21 +2,16 @@ package swaps.view;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 
 
 public class SwapsView extends JPanel {
-    // constants
-    private static final int FIRST_STEP = 1;
-    private static final int LAST_STEP = 2;
-
-    // application state
-    private int currentStep = 1;
-
     // general layout components
     protected CardLayout swapsCardLayout;
     protected JPanel swapSteps;
     private JButton nextButton;
     private JButton previousButton;
+
     // cards for each step in the workflow
     protected final SelectGoalTypeCard selectGoalTypeView;
     protected final CreatePreciseGoalCard createPreciseGoalCard;
@@ -55,10 +50,6 @@ public class SwapsView extends JPanel {
 
     private JButton buildNextButton() {
         JButton button = new JButton("Next");
-        button.addActionListener(e -> {
-            currentStep++;
-            handleStepChange();
-        });
         button.setPreferredSize(new Dimension(100, 30));
         return button;
     }
@@ -66,40 +57,23 @@ public class SwapsView extends JPanel {
     private JButton buildPreviousButton() {
         JButton button = new JButton("Previous");
         button.setEnabled(false); // cannot navigate back from initial step
-        button.addActionListener(e -> {
-            currentStep--;
-            handleStepChange();
-        });
         button.setPreferredSize(new Dimension(100, 30));
         return button;
     }
 
-    private void handleStepChange() {
-        previousButton.setEnabled(currentStep != FIRST_STEP);
-        nextButton.setEnabled(currentStep != LAST_STEP);
-        switch (currentStep) {
-            case 1: {
-                swapsCardLayout.show(swapSteps, SwapWorkflowStep.SELECT_GOAL_TYPE.toString());
-                break;
-            }
-            case 2: {
-                String newPanelId = selectGoalTypeView.getSelectedGoalType().equals(DropdownOptionGoalType.PRECISE)
-                        ? SwapWorkflowStep.PRECISE_GOAL_DETAILS.toString()
-                        : SwapWorkflowStep.IMPRECISE_GOAL_DETAILS.toString();
-                swapsCardLayout.show(swapSteps, newPanelId);
-                break;
-            }
-        }
+    protected void addNextButtonListener(ActionListener listener) {
+        nextButton.addActionListener(listener);
     }
 
-    public static void main(String[] args) {
-        // temporary main method for testing
-        // this component would be rendered within the main page
-        JFrame frame = new JFrame();
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setLocationRelativeTo(null);
-        frame.setSize(500, 500);
-        frame.add(new SwapsView());
-        frame.setVisible(true);
+    protected void addPreviousButtonListener(ActionListener listener) {
+        previousButton.addActionListener(listener);
+    }
+
+    protected void setNextButtonEnabled(boolean enabled) {
+        nextButton.setEnabled(enabled);
+    }
+
+    protected void setPreviousButtonEnabled(boolean enabled) {
+        previousButton.setEnabled(enabled);
     }
 }
