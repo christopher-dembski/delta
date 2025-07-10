@@ -8,22 +8,6 @@ public class SwapsView extends JPanel {
     private int step = 1;
     private GoalTypeOption selectedGoalType = GoalTypeOption.PRECISE;
 
-    private enum GoalTypeOption {
-        PRECISE("Precise"),
-        IMPRECISE("Imprecise");
-
-        private final String label;
-
-        GoalTypeOption(String label) {
-            this.label = label;
-        }
-
-        @Override
-        public String toString() {
-            return label;
-        }
-    }
-
     private enum Step {
         SELECT_GOAL_TYPE("Select Goal Type"),
         PRECISE_GOAL_DETAILS("Precise Goal Details"),
@@ -141,6 +125,8 @@ public class SwapsView extends JPanel {
     }
 
     public static void main(String[] args) {
+        // temporary main method for testing
+        // this component would be rendered within the main page
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
