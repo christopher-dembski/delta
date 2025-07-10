@@ -24,4 +24,8 @@ public class CreateImpreciseGoalCard extends JPanel {
             listener.accept(selectedGoalIntensity);
         });
     }
+
+    public void setSelectedGoalIntensity(DropdownOptionGoalIntensity goalIntensity) {
+        goalIntensityDropdown.setSelectedItem(goalIntensity);
+    }
 }
