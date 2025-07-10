@@ -5,16 +5,19 @@ import javax.swing.*;
 import java.awt.*;
 
 public class SwapsView extends JPanel {
-    private int step = 1;
+    // constants
+    private static final int FIRST_STEP = 1;
+    private static final int LAST_STEP = 2;
+
+    // application state
+    private int currentStep = 1;
     private DropdownOptionGoalType selectedGoalType = DropdownOptionGoalType.PRECISE;
 
+    // components
     protected CardLayout swapsCardLayout;
     protected JPanel swapSteps;
     private JButton nextButton;
     private JButton previousButton;
-
-    private static final int FIRST_STEP = 1;
-    private static final int LAST_STEP = 2;
 
     public SwapsView() {
         swapsCardLayout = new CardLayout();
@@ -43,7 +46,7 @@ public class SwapsView extends JPanel {
 
         nextButton = new JButton("Next");
         nextButton.addActionListener(e -> {
-            step++;
+            currentStep++;
             handleStepChange();
         });
         nextButton.setPreferredSize(new Dimension(100, 30));
@@ -52,7 +55,7 @@ public class SwapsView extends JPanel {
         previousButton = new JButton("Previous");
         previousButton.setEnabled(false); // cannot navigate back from initial step
         previousButton.addActionListener(e -> {
-            step--;
+            currentStep--;
             handleStepChange();
         });
         previousButton.setPreferredSize(new Dimension(100, 30));
@@ -70,9 +73,9 @@ public class SwapsView extends JPanel {
     }
 
     private void handleStepChange() {
-        previousButton.setEnabled(step != FIRST_STEP);
-        nextButton.setEnabled(step != LAST_STEP);
-        switch (step) {
+        previousButton.setEnabled(currentStep != FIRST_STEP);
+        nextButton.setEnabled(currentStep != LAST_STEP);
+        switch (currentStep) {
             case 1: {
                 swapsCardLayout.show(swapSteps, SwapWorkflowStep.SELECT_GOAL_TYPE.toString());
                 break;
