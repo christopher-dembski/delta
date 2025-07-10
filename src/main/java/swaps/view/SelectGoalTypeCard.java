@@ -1,20 +1,25 @@
 package swaps.view;
 
 import javax.swing.*;
+import java.util.function.Consumer;
 
 public class SelectGoalTypeCard extends JPanel {
-    private DropdownOptionGoalType selectedGoalType;
+    private JComboBox goalTypeDropDown;
 
     protected SelectGoalTypeCard() {
         this.add(new JLabel("Select Goal Type"));
-        DropdownOptionGoalType[] choices = {DropdownOptionGoalType.PRECISE, DropdownOptionGoalType.IMPRECISE};
-        selectedGoalType = choices[0]; // combo box defaults to selecting first element
-        JComboBox goalTypeChoices = new JComboBox<>(choices);
-        goalTypeChoices.addActionListener(e -> selectedGoalType = (DropdownOptionGoalType) goalTypeChoices.getSelectedItem());
-        this.add(goalTypeChoices);
+        DropdownOptionGoalType[] choices = {
+                DropdownOptionGoalType.PRECISE,
+                DropdownOptionGoalType.IMPRECISE
+        };
+        goalTypeDropDown = new JComboBox<>(choices);
+        this.add(goalTypeDropDown);
     }
 
-    protected DropdownOptionGoalType getSelectedGoalType() {
-        return selectedGoalType;
+    public void addGoalTypeDropDownListener(Consumer<DropdownOptionGoalType> listener) {
+        goalTypeDropDown.addActionListener(e -> {
+            DropdownOptionGoalType selected = (DropdownOptionGoalType) goalTypeDropDown.getSelectedItem();
+            listener.accept(selected);
+        });
     }
 }

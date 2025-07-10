@@ -8,10 +8,11 @@ public class SwapsPresenter {
     private static final int LAST_STEP = 2;
 
     // instance variables
-    private SwapsView view;
+    private ISwapsView view;
     private int currentStep;
+    private DropdownOptionGoalType selectedGoalType;
 
-    public SwapsPresenter(SwapsView view) {
+    public SwapsPresenter(ISwapsView view) {
         this.view = view;
         currentStep = FIRST_STEP;
         view.addNextButtonListener(e -> {
@@ -22,6 +23,9 @@ public class SwapsPresenter {
             currentStep--;
             handleStepChange();
         });
+        view.getSelectGoalTypeCard().addGoalTypeDropDownListener(goalTypeFromDropDown -> {
+            this.selectedGoalType = goalTypeFromDropDown;
+        });
     }
 
     private void handleStepChange() {
@@ -29,14 +33,14 @@ public class SwapsPresenter {
         view.setNextButtonEnabled(currentStep != LAST_STEP);
         switch (currentStep) {
             case 1: {
-                view.swapsCardLayout.show(view.swapSteps, SwapWorkflowStep.SELECT_GOAL_TYPE.toString());
+                view.setCard(SwapWorkflowStep.SELECT_GOAL_TYPE);
                 break;
             }
             case 2: {
-                String newPanelId = view.selectGoalTypeView.getSelectedGoalType().equals(DropdownOptionGoalType.PRECISE)
-                        ? SwapWorkflowStep.PRECISE_GOAL_DETAILS.toString()
-                        : SwapWorkflowStep.IMPRECISE_GOAL_DETAILS.toString();
-                view.swapsCardLayout.show(view.swapSteps, newPanelId);
+                SwapWorkflowStep newPanelId = selectedGoalType.equals(DropdownOptionGoalType.PRECISE)
+                        ? SwapWorkflowStep.PRECISE_GOAL_DETAILS
+                        : SwapWorkflowStep.IMPRECISE_GOAL_DETAILS;
+                view.setCard(newPanelId);
                 break;
             }
         }

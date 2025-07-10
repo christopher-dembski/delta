@@ -5,10 +5,10 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 
 
-public class SwapsView extends JPanel {
+public class SwapsView extends JPanel implements ISwapsView {
     // general layout components
-    protected CardLayout swapsCardLayout;
-    protected JPanel swapSteps;
+    private CardLayout swapsCardLayout;
+    private JPanel swapSteps;
     private JButton nextButton;
     private JButton previousButton;
 
@@ -61,19 +61,33 @@ public class SwapsView extends JPanel {
         return button;
     }
 
-    protected void addNextButtonListener(ActionListener listener) {
+    @Override
+    public void setCard(SwapWorkflowStep workflowStep) {
+        swapsCardLayout.show(swapSteps, workflowStep.toString());
+    }
+
+    @Override
+    public void addNextButtonListener(ActionListener listener) {
         nextButton.addActionListener(listener);
     }
 
-    protected void addPreviousButtonListener(ActionListener listener) {
+    @Override
+    public void addPreviousButtonListener(ActionListener listener) {
         previousButton.addActionListener(listener);
     }
 
-    protected void setNextButtonEnabled(boolean enabled) {
+    @Override
+    public void setNextButtonEnabled(boolean enabled) {
         nextButton.setEnabled(enabled);
     }
 
-    protected void setPreviousButtonEnabled(boolean enabled) {
+    @Override
+    public void setPreviousButtonEnabled(boolean enabled) {
         previousButton.setEnabled(enabled);
+    }
+
+    @Override
+    public SelectGoalTypeCard getSelectGoalTypeCard() {
+        return selectGoalTypeView;
     }
 }
