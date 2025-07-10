@@ -14,4 +14,6 @@ public interface ISwapsView {
     void setPreviousButtonEnabled(boolean enabled);
 
     ISelectGoalTypeCard getSelectGoalTypeCard();
+
+    CreateImpreciseGoalCard getCreateImpreciseGoalCard();
 }
