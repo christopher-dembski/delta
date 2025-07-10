@@ -92,7 +92,7 @@ public class SwapsView extends JPanel implements ISwapsView {
     }
 
     @Override
-    public CreateImpreciseGoalCard getCreateImpreciseGoalCard() {
+    public ICreateImpreciseGoalCard getCreateImpreciseGoalCard() {
         return createImpreciseGoalCard;
     }
 }

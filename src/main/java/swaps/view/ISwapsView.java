@@ -15,5 +15,5 @@ public interface ISwapsView {
 
     ISelectGoalTypeCard getSelectGoalTypeCard();
 
-    CreateImpreciseGoalCard getCreateImpreciseGoalCard();
+    ICreateImpreciseGoalCard getCreateImpreciseGoalCard();
 }
