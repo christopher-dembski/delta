@@ -66,7 +66,7 @@ public class MySQLConfig implements IDatabaseConfig {
         tableNames = new HashMap<>();
         // class name -> table name
         tableNames.put("Student", "students");
-        tableNames.put("Profile", "profiles");  // Add missing mapping
+        tableNames.put("Profile", "profiles");
     }
 
     /**
