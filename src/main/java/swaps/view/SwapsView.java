@@ -13,23 +13,23 @@ public class SwapsView extends JPanel {
     private int currentStep = 1;
     private DropdownOptionGoalType selectedGoalType = DropdownOptionGoalType.PRECISE;
 
-    // components
+    // general layout components
     protected CardLayout swapsCardLayout;
     protected JPanel swapSteps;
     private JButton nextButton;
     private JButton previousButton;
+    // steps
+    SelectGoalTypeView selectGoalTypeView; // step 1
 
     public SwapsView() {
+        // one card is displayed at a time
+        // proceed through each card step by step when creating a swap
         swapsCardLayout = new CardLayout();
         swapSteps = new JPanel(swapsCardLayout);
 
-        JPanel selectTypePanel = new JPanel();
-        selectTypePanel.add(new JLabel("Select Goal Type"));
-        DropdownOptionGoalType[] choices = {DropdownOptionGoalType.PRECISE, DropdownOptionGoalType.IMPRECISE};
-        JComboBox goalTypeChoices = new JComboBox<>(choices);
-        goalTypeChoices.addActionListener(e -> selectedGoalType = (DropdownOptionGoalType) goalTypeChoices.getSelectedItem());
-        selectTypePanel.add(goalTypeChoices);
-        swapSteps.add(selectTypePanel, SwapWorkflowStep.SELECT_GOAL_TYPE.toString());
+        // step 1
+        selectGoalTypeView = new SelectGoalTypeView();
+        swapSteps.add(selectGoalTypeView, SwapWorkflowStep.SELECT_GOAL_TYPE.toString());
 
         JPanel createPreciseGoal = new JPanel();
         createPreciseGoal.add(new JLabel("Create Precise Goal"));
