@@ -6,8 +6,8 @@ import java.util.function.Consumer;
 public class CreateImpreciseGoalCard extends JPanel implements ICreateImpreciseGoalCard {
     private JComboBox<DropdownOptionGoalIntensity> goalIntensityDropdown;
 
-    protected CreateImpreciseGoalCard() {
-        this.add(new JLabel("Create Imprecise Goal"));
+    protected CreateImpreciseGoalCard(int goalNumber) {
+        this.add(new JLabel("Create Goal %d (Imprecise)".formatted(goalNumber)));
         DropdownOptionGoalIntensity[] dropdownChoiceIntensityOptions = {
                 DropdownOptionGoalIntensity.HIGH,
                 DropdownOptionGoalIntensity.MEDIUM,

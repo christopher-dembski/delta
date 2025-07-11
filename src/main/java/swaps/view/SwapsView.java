@@ -35,15 +35,15 @@ public class SwapsView extends JPanel implements ISwapsView {
         swapSteps = new JPanel(swapsCardLayout);
 
         // Step 1: select a goal type (precise or imprecise)
-        selectGoal1TypeCard = new SelectGoalTypeCard();
+        selectGoal1TypeCard = new SelectGoalTypeCard(1);
         swapSteps.add(selectGoal1TypeCard, SwapWorkflowStep.SELECT_GOAL_TYPE.toString());
 
         // Step 2a: create a precise goal
-        createPreciseGoal1Card = new CreatePreciseGoalCard();
+        createPreciseGoal1Card = new CreatePreciseGoalCard(1);
         swapSteps.add(createPreciseGoal1Card, SwapWorkflowStep.CREATE_GOAL_1_PRECISE.toString());
 
         // Step 2b: create an imprecise goal
-        createImpreciseGoal1Card = new CreateImpreciseGoalCard();
+        createImpreciseGoal1Card = new CreateImpreciseGoalCard(1);
         swapSteps.add(createImpreciseGoal1Card, SwapWorkflowStep.CREATE_GOAL_1_IMPRECISE.toString());
 
         // step 3: choose whether to create a second goal or not
@@ -51,17 +51,16 @@ public class SwapsView extends JPanel implements ISwapsView {
         swapSteps.add(chooseOneOrTwoGoalsCard, SwapWorkflowStep.CHOOSE_ONE_OR_TWO_GOALS.toString());
 
         // step 4: choose whether to create a precise or imprecise second goal (optional)
-        selectGoal2TypeCard = new SelectGoalTypeCard();
+        selectGoal2TypeCard = new SelectGoalTypeCard(2);
         swapSteps.add(selectGoal2TypeCard, SwapWorkflowStep.SELECT_GOAL_2_TYPE.toString());
 
         // Step 5a: create a precise goal (optional)
-        createPreciseGoal2Card = new CreatePreciseGoalCard();
+        createPreciseGoal2Card = new CreatePreciseGoalCard(2);
         swapSteps.add(createPreciseGoal2Card, SwapWorkflowStep.CREATE_GOAL_2_PRECISE.toString());
 
         // Step 5b: create an imprecise goal (optional)
-        createImpreciseGoal2Card = new CreateImpreciseGoalCard();
+        createImpreciseGoal2Card = new CreateImpreciseGoalCard(2);
         swapSteps.add(createImpreciseGoal2Card, SwapWorkflowStep.CREATE_GOAL_2_IMPRECISE.toString());
-
     }
 
     private void initLayout() {
