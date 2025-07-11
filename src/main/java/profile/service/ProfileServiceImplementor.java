@@ -6,19 +6,19 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 import profile.model.Profile;
-import profile.repository.UserRepository;
+import profile.repository.IUserRepository;
 
 /**
  * Concrete implementation of {@link IProfileService}.
  */
 public class ProfileServiceImplementor implements IProfileService {
 
-    private final UserRepository userRepo;
+    private final IUserRepository userRepo;
 
     /** Holds the currently signed-in user (null when no session active). */
     private final AtomicReference<Profile> currentUser = new AtomicReference<>();
 
-    public ProfileServiceImplementor(UserRepository userRepo) {
+    public ProfileServiceImplementor(IUserRepository userRepo) {
         this.userRepo = userRepo;
     }
 

@@ -1,7 +1,7 @@
 package app;
 
 import profile.presenter.UserSignUpPresenter;
-import profile.repository.UserRepository;
+import profile.repository.IUserRepository;
 import profile.repository.UserRepositoryImplementor;
 import profile.service.IProfileService;
 import profile.service.ProfileServiceImplementor;
@@ -13,7 +13,7 @@ public class AppMain {
         javax.swing.SwingUtilities.invokeLater(() -> {
             try {
                 // Create the repository and service layers
-                UserRepository repository = new UserRepositoryImplementor(AppBackend.db());
+                IUserRepository repository = new UserRepositoryImplementor(AppBackend.db());
                 IProfileService profileService = new ProfileServiceImplementor(repository);
 
                 // Create the view

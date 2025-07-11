@@ -8,9 +8,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import profile.model.Profile;
 
 /**
- * Simple in-memory implementation of UserRepository for unit testing
+ * Simple in-memory implementation of IUserRepository for unit testing
  */
-public class TestUserRepository implements UserRepository {
+public class TestUserRepository implements IUserRepository {
     private final ConcurrentHashMap<Integer, Profile> profiles = new ConcurrentHashMap<>();
     private boolean shouldThrowException = false;
     private String exceptionMessage = "Test exception";

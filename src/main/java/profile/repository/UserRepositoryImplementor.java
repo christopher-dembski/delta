@@ -24,7 +24,7 @@ import profile.model.UnitSystem;
  *
  * GoF pattern applied: Adapter.
  */
-public final class UserRepositoryImplementor implements UserRepository {
+public final class UserRepositoryImplementor implements IUserRepository {
 
     private static final String TABLE = "profiles";
 

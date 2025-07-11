@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import profile.model.Profile;
 
-public interface UserRepository {
+public interface IUserRepository {
     Optional<Profile> findById(Integer id);
     List<Profile>     findAll();
     boolean           add(Profile p);
