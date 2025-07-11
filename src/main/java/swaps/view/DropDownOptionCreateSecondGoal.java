@@ -1,12 +1,12 @@
 package swaps.view;
 
-public enum DropDownCreateSecondGoal {
+public enum DropDownOptionCreateSecondGoal {
     YES("Yes"),
     NO("No");
 
     private final String label;
 
-    DropDownCreateSecondGoal(String label) {
+    DropDownOptionCreateSecondGoal(String label) {
         this.label = label;
     }
 
