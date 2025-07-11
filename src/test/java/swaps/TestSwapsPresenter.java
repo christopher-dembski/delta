@@ -10,31 +10,34 @@ import static org.mockito.Mockito.*;
 
 class TestSwapsPresenter {
     private SwapsPresenter presenter;
-    private ISwapsView viewMock;
+    private ISwapsView view;
 
     @BeforeEach
     public void beforeEach() {
-        viewMock = mock(ISwapsView.class);
-        ISelectGoalTypeCard mockSelectGoalTypeCard = mock(ISelectGoalTypeCard.class);
-        when(viewMock.getSelectGoalTypeCard()).thenReturn(mockSelectGoalTypeCard);
-        ICreateImpreciseGoalCard mockCreateImpreciseGoalTypeCard = mock(ICreateImpreciseGoalCard.class);
-        when(viewMock.getCreateImpreciseGoalCard()).thenReturn(mockCreateImpreciseGoalTypeCard);
-        presenter = new SwapsPresenter(viewMock);
+        view = spy(new SwapsView());
+        presenter = new SwapsPresenter(view);
     }
 
     @Test
-    public void testInitialState() {
-        verify(viewMock.getSelectGoalTypeCard()).setSelectedGoalType(DropdownOptionGoalType.IMPRECISE);
-        verify(viewMock.getSelectGoalTypeCard()).addGoalTypeDropDownListener(any());
-        verify(viewMock.getCreateImpreciseGoalCard()).setSelectedGoalIntensity(DropdownOptionGoalIntensity.HIGH);
-        verify(viewMock.getCreateImpreciseGoalCard()).addGoalIntensityDropdownListener(any());
-    }
-
-    @Test
-    public void testChangeStepToCreateImpreciseGoal() {
+    public void testButtonState() {
         presenter.changeStep(2);
-        verify(viewMock).setPreviousButtonEnabled(true);
-        verify(viewMock).setNextButtonEnabled(false);
-        verify(viewMock).setCard(SwapWorkflowStep.IMPRECISE_GOAL_DETAILS);
+        verify(view).setNextButtonEnabled(false);
+        verify(view).setPreviousButtonEnabled(true);
+        presenter.changeStep(1);
+        verify(view).setNextButtonEnabled(true);
+        verify(view).setPreviousButtonEnabled(false);
+    }
+
+    @Test
+    public void testNavigateToCreateImpreciseGoalCard() {
+        presenter.changeStep(2);
+        verify(view).setCard(SwapWorkflowStep.IMPRECISE_GOAL_DETAILS);
+    }
+
+    @Test
+    public void testNavigateToPreciseGoalCard() {
+        view.getSelectGoalTypeCard().setSelectedGoalType(DropdownOptionGoalType.PRECISE);
+        presenter.changeStep(2);
+        verify(view).setCard(SwapWorkflowStep.PRECISE_GOAL_DETAILS);
     }
 }
