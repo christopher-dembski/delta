@@ -7,6 +7,7 @@ public class TestSignUpView implements ISignUpView {
     private Runnable submitCallback;
     private RawInput formInput;
     private String lastError;
+    private String lastSuccess;
     private boolean closed = false;
 
     public TestSignUpView() {
@@ -14,7 +15,7 @@ public class TestSignUpView implements ISignUpView {
         this.formInput = new RawInput(
             "John Doe",
             "25",
-            "1998-01-15",
+            "1999-07-01",
             "175.0",
             "70.0",
             "MALE",
@@ -38,11 +39,15 @@ public class TestSignUpView implements ISignUpView {
     }
 
     @Override
+    public void showSuccess(String msg) {
+        this.lastSuccess = msg;
+    }
+
+    @Override
     public void close() {
         this.closed = true;
     }
 
-    // Test helper methods
     public void setFormInput(RawInput input) {
         this.formInput = input;
     }
@@ -57,12 +62,17 @@ public class TestSignUpView implements ISignUpView {
         return lastError;
     }
 
+    public String getLastSuccess() {
+        return lastSuccess;
+    }
+
     public boolean isClosed() {
         return closed;
     }
 
     public void reset() {
         this.lastError = null;
+        this.lastSuccess = null;
         this.closed = false;
     }
 }

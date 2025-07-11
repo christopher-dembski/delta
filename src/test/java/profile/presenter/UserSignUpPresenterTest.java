@@ -76,6 +76,21 @@ class UserSignUpPresenterTest {
     }
 
     @Test
+    void testSuccessfulSubmission() {
+        // Arrange
+        presenter.initialize();
+        
+        // Act
+        testView.triggerSubmit();
+        
+        // Assert
+        assertEquals("Profile created successfully for John Doe!", testView.getLastSuccess());
+        assertTrue(testView.isClosed());
+        assertEquals(1, testService.size());
+        assertNull(testView.getLastError());
+    }
+
+    @Test
     void handleFormSubmission_WithEmptyName_ShouldShowError() {
         // Given
         presenter.initialize();
@@ -106,7 +121,7 @@ class UserSignUpPresenterTest {
         testView.setFormInput(new ISignUpView.RawInput(
             "John Doe",
             "invalid",  // Invalid age
-            "1999-07-01",  // Fixed: consistent DOB
+            "1999-07-01",  
             "175.0", 
             "70.0",
             "MALE",

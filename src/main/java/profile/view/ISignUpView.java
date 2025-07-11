@@ -12,6 +12,9 @@ public interface ISignUpView {
     /** Inform the user something went wrong. */
     void showError(String msg);
 
+    /** Inform the user of successful profile creation. */
+    void showSuccess(String msg);
+
     /** Close & dispose the window after success. */
     void close();
 

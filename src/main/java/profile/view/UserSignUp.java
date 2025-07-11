@@ -68,6 +68,15 @@ public class UserSignUp extends JFrame implements ISignUpView {
     }
 
     @Override
+    public void showSuccess(String msg) {
+        JOptionPane.showMessageDialog(
+                this,
+                msg,
+                "Success",
+                JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    @Override
     public void close() {
         dispose();
     }

@@ -29,8 +29,8 @@ public class UserSignUpPresenter {
             // Delegate user creation to service
             Profile createdProfile = profileService.createUser(rawInput);
             
-            // Show success message (only if not in headless mode)
-            showSuccessMessage(createdProfile);
+            // show success message through the view
+            view.showSuccess("Profile created successfully for " + createdProfile.getName() + "!");
             
             // Close the signup window
             view.close();
@@ -44,17 +44,6 @@ public class UserSignUpPresenter {
         } catch (Exception e) {
             // generic error for unexpected issues
             view.showError("An unexpected error occurred: " + e.getMessage());
-        }
-    }
-    
-    private void showSuccessMessage(Profile profile) {
-        if (!java.awt.GraphicsEnvironment.isHeadless()) {
-            javax.swing.JOptionPane.showMessageDialog(
-                null,
-                "Profile created successfully for " + profile.getName() + "!",
-                "Success",
-                javax.swing.JOptionPane.INFORMATION_MESSAGE
-            );
         }
     }
 }
