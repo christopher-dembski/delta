@@ -28,10 +28,6 @@ public final class UserRepositoryImplementor implements IUserRepository {
 
     private static final String TABLE = "profiles";
 
-
-  
-
-
     @Override
     public boolean add(Profile p) {
         try {
@@ -48,7 +44,7 @@ public final class UserRepositoryImplementor implements IUserRepository {
         try {
             List<IRecord> rs = AppBackend.db().execute(
                     new SelectQuery(TABLE).filter("id", Comparison.EQUAL, id));
-            return rs.isEmpty() ? Optional.empty() : Optional.of(map(rs.getFirst()));
+            return rs.isEmpty() ? Optional.empty() : Optional.of(fromRecord(rs.getFirst()));
         } catch (DatabaseException ex) {
             throw new UserRepositoryException("select failed", ex);
         }
@@ -59,7 +55,7 @@ public final class UserRepositoryImplementor implements IUserRepository {
         try {
             List<IRecord> rs = AppBackend.db().execute(new SelectQuery(TABLE));
             List<Profile> out = new ArrayList<>();
-            for (IRecord r : rs) out.add(map(r));
+            for (IRecord r : rs) out.add(fromRecord(r));
             return out;
         } catch (DatabaseException ex) {
             throw new UserRepositoryException("selectAll failed", ex);
@@ -92,7 +88,7 @@ public final class UserRepositoryImplementor implements IUserRepository {
         return new Record(m);
     }
 
-    private static Profile map(IRecord r) {
+    private static Profile fromRecord(IRecord r) {
         
         return new Profile.Builder()
                 .id((Integer) r.getValue("id"))
