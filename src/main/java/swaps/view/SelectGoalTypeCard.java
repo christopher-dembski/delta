@@ -6,8 +6,8 @@ import java.util.function.Consumer;
 public class SelectGoalTypeCard extends JPanel implements ISelectGoalTypeCard {
     private JComboBox goalTypeDropDown;
 
-    protected SelectGoalTypeCard() {
-        this.add(new JLabel("Select Goal Type"));
+    protected SelectGoalTypeCard(int goalNumber) {
+        this.add(new JLabel("Select Goal Type %d".formatted(goalNumber)));
         DropdownOptionGoalType[] choices = {
                 DropdownOptionGoalType.PRECISE,
                 DropdownOptionGoalType.IMPRECISE
