@@ -8,7 +8,6 @@ import java.util.Optional;
 
 import data.Comparison;
 import data.DatabaseException;
-import data.IDatabaseDriver;
 import data.IRecord;
 import data.InsertQuery;
 import data.Record;
@@ -17,6 +16,7 @@ import data.UpdateQuery;
 import profile.model.Profile;
 import profile.model.Sex;
 import profile.model.UnitSystem;
+import shared.AppBackend;
 
 /**
  * Adapter that maps Profile <--> data.* query objects
@@ -28,20 +28,14 @@ public final class UserRepositoryImplementor implements IUserRepository {
 
     private static final String TABLE = "profiles";
 
-    private final IDatabaseDriver driver;
 
-    /* ------------------------------------------------------------ */
+  
 
-    public UserRepositoryImplementor(IDatabaseDriver driver) {
-        this.driver = driver;
-    }
-
-    /* ------------------------ CRUD ------------------------------ */
 
     @Override
     public boolean add(Profile p) {
         try {
-            driver.execute(new InsertQuery(TABLE, toRecord(p)));
+            AppBackend.db().execute(new InsertQuery(TABLE, toRecord(p)));
             return true;
         } catch (DatabaseException ex) {
             if (ex.getMessage().contains("Duplicate")) return false;
@@ -52,7 +46,7 @@ public final class UserRepositoryImplementor implements IUserRepository {
     @Override
     public Optional<Profile> findById(Integer id) {
         try {
-            List<IRecord> rs = driver.execute(
+            List<IRecord> rs = AppBackend.db().execute(
                     new SelectQuery(TABLE).filter("id", Comparison.EQUAL, id));
             return rs.isEmpty() ? Optional.empty() : Optional.of(map(rs.getFirst()));
         } catch (DatabaseException ex) {
@@ -63,7 +57,7 @@ public final class UserRepositoryImplementor implements IUserRepository {
     @Override
     public List<Profile> findAll() {
         try {
-            List<IRecord> rs = driver.execute(new SelectQuery(TABLE));
+            List<IRecord> rs = AppBackend.db().execute(new SelectQuery(TABLE));
             List<Profile> out = new ArrayList<>();
             for (IRecord r : rs) out.add(map(r));
             return out;
@@ -75,14 +69,13 @@ public final class UserRepositoryImplementor implements IUserRepository {
     @Override
     public boolean update(Profile p) {
         try {
-            driver.execute(new UpdateQuery(TABLE, toRecord(p)));
+            AppBackend.db().execute(new UpdateQuery(TABLE, toRecord(p)));
             return true;
         } catch (DatabaseException ex) {
             throw new RepositoryException("update failed", ex);
         }
     }
 
-    /* ---------------- helper mappers ---------------------------- */
 
     private static IRecord toRecord(Profile p) {
         Map<String, Object> m = new HashMap<>();
@@ -114,7 +107,6 @@ public final class UserRepositoryImplementor implements IUserRepository {
                 .build();
     }
 
-    /* custom runtime wrapper */
     public static class RepositoryException extends RuntimeException {
         public RepositoryException(String msg, Throwable cause) {
             super(msg, cause);
