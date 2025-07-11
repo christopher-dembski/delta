@@ -26,14 +26,8 @@ public class SwapsPresenter {
         view.getCreateImpreciseGoalCard().setSelectedGoalIntensity(selectedGoalIntensity);
 
         // add action listeners
-        view.addNextButtonListener(e -> {
-            currentStep++;
-            handleStepChange();
-        });
-        view.addPreviousButtonListener(e -> {
-            currentStep--;
-            handleStepChange();
-        });
+        view.addNextButtonListener(e -> changeStep(currentStep + 1));
+        view.addPreviousButtonListener(e -> changeStep(currentStep - 1));
         view.getSelectGoalTypeCard().addGoalTypeDropDownListener(goalTypeFromDropDown -> {
             selectedGoalType = goalTypeFromDropDown;
         });
@@ -42,9 +36,10 @@ public class SwapsPresenter {
         });
     }
 
-    private void handleStepChange() {
-        view.setPreviousButtonEnabled(currentStep != FIRST_STEP);
-        view.setNextButtonEnabled(currentStep != LAST_STEP);
+    public void changeStep(int newStep) {
+        currentStep = newStep;
+        view.setPreviousButtonEnabled(currentStep != SwapsPresenter.FIRST_STEP);
+        view.setNextButtonEnabled(currentStep != SwapsPresenter.LAST_STEP);
         switch (currentStep) {
             case 1: {
                 view.setCard(SwapWorkflowStep.SELECT_GOAL_TYPE);
