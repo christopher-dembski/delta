@@ -1,6 +1,10 @@
 package data;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -205,12 +209,10 @@ public class MySQLDriver implements IDatabaseDriver {
      * @return The object formatted as a String, so it can be used in a MySQL query.
      */
     private static String formatSQLValue(Object value) {
-        if (value instanceof String) {
-            return "'%s'".formatted(value);
        if (value instanceof String || value instanceof java.sql.Date || value instanceof java.sql.Timestamp) {
-         ...return "'%s'".formatted(value);
+         return "'%s'".formatted(value);
        }
-        }
+        
         return value.toString();
     }
 
