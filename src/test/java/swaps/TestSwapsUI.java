@@ -8,7 +8,7 @@ import swaps.view.*;
 
 import static org.mockito.Mockito.*;
 
-class TestSwapsPresenter {
+class TestSwapsUI {
     private SwapsPresenter presenter;
     private ISwapsView view;
 
