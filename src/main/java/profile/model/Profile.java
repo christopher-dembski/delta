@@ -2,7 +2,6 @@ package profile.model;
 
 import java.time.LocalDate;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Immutable domain object representing a user profile.
@@ -20,7 +19,7 @@ import java.util.UUID;
  */
 public final class Profile {
 
-    private final String     id;
+    private final Integer    id;
     private final String     name;
     private final int        age;
     private final Sex        sex;
@@ -40,8 +39,7 @@ public final class Profile {
         this.unitSystem  = b.unitSystem;
     }
 
-    // ----- getters ---------------------------------------------------------
-    public String     getId()          { return id; }
+    public Integer    getId()          { return id; }
     public String     getName()        { return name; }
     public int        getAge()         { return age; }
     public Sex        getSex()         { return sex; }
@@ -66,18 +64,17 @@ public final class Profile {
                '}';
     }
 
-    // ----- builder ---------------------------------------------------------
     public static class Builder {
-        private String     id          = UUID.randomUUID().toString();
+        private Integer    id = null;
         private String     name;
         private int        age;
         private Sex        sex;
         private LocalDate  dateOfBirth;
         private double     height;
         private double     weight;
-        private UnitSystem unitSystem  = UnitSystem.METRIC; // default
+        private UnitSystem unitSystem  = UnitSystem.METRIC; 
 
-        public Builder id(String id)                   { this.id = (id != null) ? id : UUID.randomUUID().toString(); return this; }
+        public Builder id(Integer id)                  { this.id = id; return this; }
         public Builder name(String name)               { this.name = name; return this; }
         public Builder age(int age)                    { this.age = age; return this; }
         public Builder sex(Sex sex)                    { this.sex = sex; return this; }
@@ -86,7 +83,7 @@ public final class Profile {
         public Builder weight(double weight)           { this.weight = weight; return this; }
         public Builder unitSystem(UnitSystem unit)     { this.unitSystem = (unit != null) ? unit : UnitSystem.METRIC; return this; }
 
-        /** Builds a validated, immutable Profile */
+        // build immutable Profile 
         public Profile build() {
             Objects.requireNonNull(name,        "name");
             Objects.requireNonNull(sex,         "sex");

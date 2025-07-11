@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,7 +19,7 @@ class ProfileTest {
     @BeforeEach
     void setUp() {
         validBuilder = new Profile.Builder()
-                .id("test-id")
+                .id(42)
                 .name("John Doe")
                 .age(25)
                 .sex(Sex.MALE)
@@ -35,7 +36,7 @@ class ProfileTest {
 
         // Then
         assertNotNull(profile);
-        assertEquals("test-id", profile.getId());
+        assertEquals(42, profile.getId());
         assertEquals("John Doe", profile.getName());
         assertEquals(25, profile.getAge());
         assertEquals(Sex.MALE, profile.getSex());
@@ -46,7 +47,7 @@ class ProfileTest {
     }
 
     @Test
-    void build_WithNullId_ShouldUseDefaultId() {
+    void build_WithNullId_ShouldAllowNullId() {
         // Given
         validBuilder.id(null);
 
@@ -54,7 +55,7 @@ class ProfileTest {
         Profile profile = validBuilder.build();
 
         // Then
-        assertNotNull(profile.getId()); // Should generate a default UUID
+        assertNull(profile.getId()); 
     }
 
     @Test
@@ -125,8 +126,9 @@ class ProfileTest {
 
     @Test
     void build_WithSameBuilder_ShouldCreateDifferentInstances() {
-        // Given - Create a new builder each time to get different UUIDs
+        // Given - Create profiles with different IDs to test instance differences
         Profile.Builder builder1 = new Profile.Builder()
+                .id(100)
                 .name("John Doe")
                 .age(25)
                 .sex(Sex.MALE)
@@ -136,6 +138,7 @@ class ProfileTest {
                 .unitSystem(UnitSystem.METRIC);
         
         Profile.Builder builder2 = new Profile.Builder()
+                .id(200)
                 .name("John Doe")
                 .age(25)
                 .sex(Sex.MALE)
@@ -150,13 +153,13 @@ class ProfileTest {
 
         // Then
         assertNotEquals(profile1, profile2); // Different objects with different IDs
-        assertNotEquals(profile1.getId(), profile2.getId()); // Different UUIDs
+        assertNotEquals(profile1.getId(), profile2.getId()); 
     }
 
     @Test
     void build_WithExplicitSameId_ShouldCreateEqualProfiles() {
         // Given
-        String sameId = "same-test-id";
+        Integer sameId = 123;
         Profile profile1 = validBuilder.id(sameId).build();
         Profile profile2 = new Profile.Builder()
                 .id(sameId)

@@ -11,7 +11,7 @@ import profile.model.Profile;
  * Simple in-memory implementation of UserRepository for unit testing
  */
 public class TestUserRepository implements UserRepository {
-    private final ConcurrentHashMap<String, Profile> profiles = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer, Profile> profiles = new ConcurrentHashMap<>();
     private boolean shouldThrowException = false;
     private String exceptionMessage = "Test exception";
 
@@ -25,7 +25,7 @@ public class TestUserRepository implements UserRepository {
     }
 
     @Override
-    public Optional<Profile> findById(String id) {
+    public Optional<Profile> findById(Integer id) {
         if (shouldThrowException) {
             throw new RuntimeException(exceptionMessage);
         }

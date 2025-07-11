@@ -4,19 +4,18 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
-import java.util.UUID;
 
 import profile.model.Profile;
 import profile.model.Sex;
 import profile.model.UnitSystem;
-import profile.service.ProfileService;
+import profile.service.IProfileService;
 import profile.view.ISignUpView;
 
 public class UserSignUpPresenter {
     private final ISignUpView view;
-    private final ProfileService profileService;
+    private final IProfileService profileService;
 
-    public UserSignUpPresenter(ISignUpView view, ProfileService profileService) {
+    public UserSignUpPresenter(ISignUpView view, IProfileService profileService) {
         this.view = view;
         this.profileService = profileService;
     }
@@ -177,9 +176,7 @@ public class UserSignUpPresenter {
         }
 
         // Create and return the profile using Builder pattern
-        String profileId = UUID.randomUUID().toString();
         return new Profile.Builder()
-                .id(profileId)
                 .name(rawInput.fullName().trim())
                 .age(age)
                 .sex(sex)

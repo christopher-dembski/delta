@@ -1,10 +1,22 @@
 package profile.repository;
 
-import data.*;
-import data.Record;
-import profile.model.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-import java.util.*;
+import data.Comparison;
+import data.DatabaseException;
+import data.IDatabaseDriver;
+import data.IRecord;
+import data.InsertQuery;
+import data.Record;
+import data.SelectQuery;
+import data.UpdateQuery;
+import profile.model.Profile;
+import profile.model.Sex;
+import profile.model.UnitSystem;
 
 /**
  * Adapter that maps Profile <--> data.* query objects
@@ -38,7 +50,7 @@ public final class UserRepositoryImplementor implements UserRepository {
     }
 
     @Override
-    public Optional<Profile> findById(String id) {
+    public Optional<Profile> findById(Integer id) {
         try {
             List<IRecord> rs = driver.execute(
                     new SelectQuery(TABLE).filter("id", Comparison.EQUAL, id));
@@ -74,7 +86,9 @@ public final class UserRepositoryImplementor implements UserRepository {
 
     private static IRecord toRecord(Profile p) {
         Map<String, Object> m = new HashMap<>();
-        m.put("id",          p.getId());
+        if (p.getId() != null) {
+            m.put("id", p.getId());
+        }
         m.put("full_name",   p.getName());
         m.put("age",         p.getAge());
         m.put("sex",         p.getSex().name());
@@ -86,8 +100,9 @@ public final class UserRepositoryImplementor implements UserRepository {
     }
 
     private static Profile map(IRecord r) {
+        
         return new Profile.Builder()
-                .id((String) r.getValue("id"))
+                .id((Integer) r.getValue("id"))
                 .name((String) r.getValue("full_name"))
                 .age((Integer) r.getValue("age"))
                 .sex(Sex.valueOf((String) r.getValue("sex")))

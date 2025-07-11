@@ -1,16 +1,20 @@
 package profile.service;
 
+import java.time.LocalDate;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import profile.model.Profile;
 import profile.model.Sex;
 import profile.model.UnitSystem;
 import profile.repository.TestUserRepository;
-
-import java.time.LocalDate;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class ProfileServiceImplementorTest {
 
@@ -26,6 +30,7 @@ public class ProfileServiceImplementorTest {
     @Test
     public void testAddProfile_Success() {
         Profile profile = new Profile.Builder()
+                .id(1)
                 .name("John Doe")
                 .age(25)
                 .sex(Sex.MALE)
@@ -52,6 +57,7 @@ public class ProfileServiceImplementorTest {
     @Test
     public void testAddProfile_DuplicateProfile() {
         Profile profile = new Profile.Builder()
+                .id(2)
                 .name("John Doe")
                 .age(25)
                 .sex(Sex.MALE)
@@ -72,6 +78,7 @@ public class ProfileServiceImplementorTest {
     @Test
     public void testAddProfile_WithDefaults() {
         Profile profile = new Profile.Builder()
+                .id(3)
                 .name("Jane Doe")
                 .age(30)
                 .sex(Sex.FEMALE)
@@ -91,6 +98,7 @@ public class ProfileServiceImplementorTest {
     @Test
     public void testGetById() {
         Profile profile = new Profile.Builder()
+                .id(4)
                 .name("Test User")
                 .age(28)
                 .sex(Sex.FEMALE)
@@ -105,13 +113,14 @@ public class ProfileServiceImplementorTest {
         assertTrue(found.isPresent());
         assertEquals(profile, found.get());
         
-        Optional<Profile> notFound = service.getById("nonexistent");
+        Optional<Profile> notFound = service.getById(999);
         assertFalse(notFound.isPresent());
     }
 
     @Test
     public void testUpdate() {
         Profile original = new Profile.Builder()
+                .id(5)
                 .name("Original Name")
                 .age(25)
                 .sex(Sex.MALE)
@@ -145,6 +154,7 @@ public class ProfileServiceImplementorTest {
         assertTrue(service.listAll().isEmpty());
         
         Profile profile1 = new Profile.Builder()
+                .id(6)
                 .name("User 1")
                 .age(25)
                 .sex(Sex.MALE)
@@ -154,6 +164,7 @@ public class ProfileServiceImplementorTest {
                 .build();
                 
         Profile profile2 = new Profile.Builder()
+                .id(7)
                 .name("User 2")
                 .age(30)
                 .sex(Sex.FEMALE)
@@ -171,6 +182,7 @@ public class ProfileServiceImplementorTest {
     @Test
     public void testSessionManagement() {
         Profile profile = new Profile.Builder()
+                .id(8)
                 .name("Session User")
                 .age(28)
                 .sex(Sex.FEMALE)

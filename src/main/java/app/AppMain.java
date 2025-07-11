@@ -3,7 +3,7 @@ package app;
 import profile.presenter.UserSignUpPresenter;
 import profile.repository.UserRepository;
 import profile.repository.UserRepositoryImplementor;
-import profile.service.ProfileService;
+import profile.service.IProfileService;
 import profile.service.ProfileServiceImplementor;
 import profile.view.UserSignUp;
 import shared.AppBackend;
@@ -14,7 +14,7 @@ public class AppMain {
             try {
                 // Create the repository and service layers
                 UserRepository repository = new UserRepositoryImplementor(AppBackend.db());
-                ProfileService profileService = new ProfileServiceImplementor(repository);
+                IProfileService profileService = new ProfileServiceImplementor(repository);
 
                 // Create the view
                 UserSignUp view = new UserSignUp();

@@ -1,17 +1,17 @@
 package profile.service;
 
-import profile.model.Profile;
-import profile.repository.UserRepository;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
+import profile.model.Profile;
+import profile.repository.UserRepository;
+
 /**
- * Concrete implementation of {@link ProfileService}.
+ * Concrete implementation of {@link IProfileService}.
  */
-public class ProfileServiceImplementor implements ProfileService {
+public class ProfileServiceImplementor implements IProfileService {
 
     private final UserRepository userRepo;
 
@@ -23,7 +23,7 @@ public class ProfileServiceImplementor implements ProfileService {
     }
 
     @Override
-    public Optional<Profile> getById(String id) {
+    public Optional<Profile> getById(Integer id) {
         return userRepo.findById(id);
     }
 
@@ -43,7 +43,7 @@ public class ProfileServiceImplementor implements ProfileService {
     }
 
     @Override
-    public Optional<Profile> openSession(String id) {
+    public Optional<Profile> openSession(Integer id) {
         Optional<Profile> candidate = userRepo.findById(id);
         candidate.ifPresent(currentUser::set);      // only set if profile exists
         return candidate;

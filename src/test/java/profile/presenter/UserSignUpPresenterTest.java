@@ -151,6 +151,7 @@ class UserSignUpPresenterTest {
     void handleFormSubmission_WithDuplicateName_ShouldShowError() {
         // Given
         Profile existingProfile = new Profile.Builder()
+            .id(1)
             .name("John Doe")
             .age(30)
             .sex(Sex.MALE)

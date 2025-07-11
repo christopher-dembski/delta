@@ -11,12 +11,12 @@ CREATE TABLE students
 );
 
 CREATE TABLE profiles(
-     id            VARCHAR(36) PRIMARY KEY,
+     id            INT PRIMARY KEY AUTO_INCREMENT,
      full_name     VARCHAR(80) NOT NULL,
      age           INT         NOT NULL,
      sex           VARCHAR(10) NOT NULL,
      dob           DATE        NOT NULL,
-     height     DOUBLE      NOT NULL,
-     weight     DOUBLE      NOT NULL,
+     height        DOUBLE      NOT NULL,
+     weight        DOUBLE      NOT NULL,
      unit_system   VARCHAR(10) NOT NULL
 );

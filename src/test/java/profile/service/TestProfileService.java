@@ -8,24 +8,41 @@ import java.util.concurrent.ConcurrentHashMap;
 import profile.model.Profile;
 
 /**
- * Simple in-memory implementation of ProfileService for unit testing
+ * Simple in-memory implementation of IProfileService for unit testing
  */
-public class TestProfileService implements ProfileService {
-    private final ConcurrentHashMap<String, Profile> profiles = new ConcurrentHashMap<>();
+public class TestProfileService implements IProfileService {
+    private final ConcurrentHashMap<Integer, Profile> profiles = new ConcurrentHashMap<>();
     private Profile currentSession = null;
     private boolean shouldThrowException = false;
     private String exceptionMessage = "Test exception";
+    private int nextId = 1; 
 
     @Override
     public void add(Profile profile) {
         if (shouldThrowException) {
             throw new RuntimeException(exceptionMessage);
         }
-        profiles.put(profile.getId(), profile);
+        
+        // If profile doesn't have an ID, auto-generate one (simulating database behavior)
+        Profile profileToStore = profile;
+        if (profile.getId() == null) {
+            profileToStore = new Profile.Builder()
+                    .id(nextId++)
+                    .name(profile.getName())
+                    .age(profile.getAge())
+                    .sex(profile.getSex())
+                    .dateOfBirth(profile.getDateOfBirth())
+                    .height(profile.getHeight())
+                    .weight(profile.getWeight())
+                    .unitSystem(profile.getUnitSystem())
+                    .build();
+        }
+        
+        profiles.put(profileToStore.getId(), profileToStore);
     }
 
     @Override
-    public Optional<Profile> getById(String id) {
+    public Optional<Profile> getById(Integer id) {
         if (shouldThrowException) {
             throw new RuntimeException(exceptionMessage);
         }
@@ -49,7 +66,7 @@ public class TestProfileService implements ProfileService {
     }
 
     @Override
-    public Optional<Profile> openSession(String profileId) {
+    public Optional<Profile> openSession(Integer profileId) {
         if (shouldThrowException) {
             throw new RuntimeException(exceptionMessage);
         }
@@ -81,6 +98,7 @@ public class TestProfileService implements ProfileService {
     public void clear() {
         profiles.clear();
         currentSession = null;
+        nextId = 1; // Reset 
     }
 
     public void setShouldThrowException(boolean shouldThrow) {
@@ -96,7 +114,21 @@ public class TestProfileService implements ProfileService {
     }
 
     public void addProfile(Profile profile) {
-        profiles.put(profile.getId(), profile);
+        // Use the same logic as add() to handle null IDs
+        Profile profileToStore = profile;
+        if (profile.getId() == null) {
+            profileToStore = new Profile.Builder()
+                    .id(nextId++)
+                    .name(profile.getName())
+                    .age(profile.getAge())
+                    .sex(profile.getSex())
+                    .dateOfBirth(profile.getDateOfBirth())
+                    .height(profile.getHeight())
+                    .weight(profile.getWeight())
+                    .unitSystem(profile.getUnitSystem())
+                    .build();
+        }
+        profiles.put(profileToStore.getId(), profileToStore);
     }
 
     public boolean getShouldThrowException() {
