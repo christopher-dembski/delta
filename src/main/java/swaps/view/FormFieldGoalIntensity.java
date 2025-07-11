@@ -4,13 +4,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.function.Consumer;
 
-public class CreateImpreciseGoalCard extends JPanel implements ICreateImpreciseGoalCard {
+public class FormFieldGoalIntensity extends JPanel {
     private JComboBox<DropdownOptionGoalIntensity> goalIntensityDropdown;
 
-    protected CreateImpreciseGoalCard(int goalNumber) {
+    protected FormFieldGoalIntensity(int goalNumber) {
         // vertically stack components
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        this.add(new JLabel("Create Goal %d (Imprecise)".formatted(goalNumber)));
         DropdownOptionGoalIntensity[] dropdownChoiceIntensityOptions = {
                 DropdownOptionGoalIntensity.HIGH,
                 DropdownOptionGoalIntensity.MEDIUM,
@@ -24,7 +23,6 @@ public class CreateImpreciseGoalCard extends JPanel implements ICreateImpreciseG
         this.add(comboWrapper);
     }
 
-    @Override
     public void addGoalIntensityDropdownListener(Consumer<DropdownOptionGoalIntensity> listener) {
         goalIntensityDropdown.addActionListener(e -> {
             DropdownOptionGoalIntensity selectedGoalIntensity =
@@ -33,7 +31,6 @@ public class CreateImpreciseGoalCard extends JPanel implements ICreateImpreciseG
         });
     }
 
-    @Override
     public void setSelectedGoalIntensity(DropdownOptionGoalIntensity goalIntensity) {
         goalIntensityDropdown.setSelectedItem(goalIntensity);
     }

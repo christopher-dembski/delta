@@ -4,13 +4,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.function.Consumer;
 
-public class SelectGoalTypeCard extends JPanel implements ISelectGoalTypeCard {
+public class FormFieldGoalType extends JPanel  {
     private JComboBox goalTypeDropDown;
 
-    protected SelectGoalTypeCard(int goalNumber) {
+    protected FormFieldGoalType() {
         // vertically stack components
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        this.add(new JLabel("Select Goal Type %d".formatted(goalNumber)));
         DropdownOptionGoalType[] choices = {
                 DropdownOptionGoalType.PRECISE,
                 DropdownOptionGoalType.IMPRECISE
@@ -23,12 +22,10 @@ public class SelectGoalTypeCard extends JPanel implements ISelectGoalTypeCard {
         this.add(comboWrapper);
     }
 
-    @Override
     public void setSelectedGoalType(DropdownOptionGoalType goalIntensity) {
         goalTypeDropDown.setSelectedItem(goalIntensity);
     }
 
-    @Override
     public void addGoalTypeDropDownListener(Consumer<DropdownOptionGoalType> listener) {
         goalTypeDropDown.addActionListener(e -> {
             DropdownOptionGoalType selected = (DropdownOptionGoalType) goalTypeDropDown.getSelectedItem();
