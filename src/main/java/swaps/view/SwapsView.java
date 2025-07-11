@@ -11,13 +11,20 @@ public class SwapsView extends JPanel implements ISwapsView {
     private JPanel swapSteps;
     private JButton nextButton;
     private JButton previousButton;
+    private JPanel buttonContainer;
 
     // cards for each step in the workflow
-    protected final SelectGoalTypeCard selectGoalTypeView;
-    protected final CreatePreciseGoalCard createPreciseGoalCard;
-    protected final CreateImpreciseGoalCard createImpreciseGoalCard;
+    protected SelectGoalTypeCard selectGoalTypeView;
+    protected CreatePreciseGoalCard createPreciseGoalCard;
+    protected CreateImpreciseGoalCard createImpreciseGoalCard;
 
     public SwapsView() {
+        initCards();
+        initButtons();
+        initLayout();
+    }
+
+    private void initCards() {
         // one card is displayed at a time
         // proceed through each card step by step when creating a swap
         swapsCardLayout = new CardLayout();
@@ -34,18 +41,21 @@ public class SwapsView extends JPanel implements ISwapsView {
         // Step 2b: create an imprecise goal
         createImpreciseGoalCard = new CreateImpreciseGoalCard();
         swapSteps.add(createImpreciseGoalCard, SwapWorkflowStep.IMPRECISE_GOAL_DETAILS.toString());
+    }
 
-        // next and previous buttons
-        nextButton = buildNextButton();
-        previousButton = buildPreviousButton();
-        JPanel buttonContainer = new JPanel(new FlowLayout());
-        buttonContainer.add(previousButton);
-        buttonContainer.add(nextButton);
-
-        // main layout
+    private void initLayout() {
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         this.add(swapSteps);
         this.add(buttonContainer);
+    }
+
+    private void initButtons() {
+        // next and previous buttons
+        nextButton = buildNextButton();
+        previousButton = buildPreviousButton();
+        buttonContainer = new JPanel(new FlowLayout());
+        buttonContainer.add(previousButton);
+        buttonContainer.add(nextButton);
     }
 
     private JButton buildNextButton() {
