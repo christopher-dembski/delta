@@ -39,7 +39,7 @@ public final class UserRepositoryImplementor implements IUserRepository {
             return true;
         } catch (DatabaseException ex) {
             if (ex.getMessage().contains("Duplicate")) return false;
-            throw new RepositoryException("insert failed", ex);
+            throw new UserRepositoryException("insert failed", ex);
         }
     }
 
@@ -50,7 +50,7 @@ public final class UserRepositoryImplementor implements IUserRepository {
                     new SelectQuery(TABLE).filter("id", Comparison.EQUAL, id));
             return rs.isEmpty() ? Optional.empty() : Optional.of(map(rs.getFirst()));
         } catch (DatabaseException ex) {
-            throw new RepositoryException("select failed", ex);
+            throw new UserRepositoryException("select failed", ex);
         }
     }
 
@@ -62,7 +62,7 @@ public final class UserRepositoryImplementor implements IUserRepository {
             for (IRecord r : rs) out.add(map(r));
             return out;
         } catch (DatabaseException ex) {
-            throw new RepositoryException("selectAll failed", ex);
+            throw new UserRepositoryException("selectAll failed", ex);
         }
     }
 
@@ -72,7 +72,7 @@ public final class UserRepositoryImplementor implements IUserRepository {
             AppBackend.db().execute(new UpdateQuery(TABLE, toRecord(p)));
             return true;
         } catch (DatabaseException ex) {
-            throw new RepositoryException("update failed", ex);
+            throw new UserRepositoryException("update failed", ex);
         }
     }
 
@@ -107,8 +107,8 @@ public final class UserRepositoryImplementor implements IUserRepository {
                 .build();
     }
 
-    public static class RepositoryException extends RuntimeException {
-        public RepositoryException(String msg, Throwable cause) {
+    public static class UserRepositoryException extends RuntimeException {
+        public UserRepositoryException(String msg, Throwable cause) {
             super(msg, cause);
         }
     }
