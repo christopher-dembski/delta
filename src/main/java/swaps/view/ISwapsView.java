@@ -13,7 +13,15 @@ public interface ISwapsView {
 
     void setPreviousButtonEnabled(boolean enabled);
 
-    ISelectGoalTypeCard getSelectGoalTypeCard();
+    ISelectGoalTypeCard getSelectGoal1TypeCard();
 
-    ICreateImpreciseGoalCard getCreateImpreciseGoalCard();
+    ICreateImpreciseGoalCard getCreateImpreciseGoal1Card();
+
+    ChooseOneOrTwoGoalsCard getChooseOneOrTwoGoalsCard();
+
+    SelectGoalTypeCard getSelectGoal2TypeCard();
+
+    ICreateImpreciseGoalCard getCreateImpreciseGoal2Card();
+
+    CreatePreciseGoalCard getCreatePreciseGoal2Card();
 }

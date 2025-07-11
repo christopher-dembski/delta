@@ -14,9 +14,13 @@ public class SwapsView extends JPanel implements ISwapsView {
     private JPanel buttonContainer;
 
     // cards for each step in the workflow
-    protected SelectGoalTypeCard selectGoalTypeView;
-    protected CreatePreciseGoalCard createPreciseGoalCard;
-    protected CreateImpreciseGoalCard createImpreciseGoalCard;
+    protected SelectGoalTypeCard selectGoal1TypeCard;
+    protected CreatePreciseGoalCard createPreciseGoal1Card;
+    protected CreateImpreciseGoalCard createImpreciseGoal1Card;
+    protected CreatePreciseGoalCard createPreciseGoal2Card;
+    protected CreateImpreciseGoalCard createImpreciseGoal2Card;
+    protected ChooseOneOrTwoGoalsCard chooseOneOrTwoGoalsCard;
+    protected SelectGoalTypeCard selectGoal2TypeCard;
 
     public SwapsView() {
         initCards();
@@ -31,16 +35,33 @@ public class SwapsView extends JPanel implements ISwapsView {
         swapSteps = new JPanel(swapsCardLayout);
 
         // Step 1: select a goal type (precise or imprecise)
-        selectGoalTypeView = new SelectGoalTypeCard();
-        swapSteps.add(selectGoalTypeView, SwapWorkflowStep.SELECT_GOAL_TYPE.toString());
+        selectGoal1TypeCard = new SelectGoalTypeCard();
+        swapSteps.add(selectGoal1TypeCard, SwapWorkflowStep.SELECT_GOAL_TYPE.toString());
 
         // Step 2a: create a precise goal
-        createPreciseGoalCard = new CreatePreciseGoalCard();
-        swapSteps.add(createPreciseGoalCard, SwapWorkflowStep.PRECISE_GOAL_DETAILS.toString());
+        createPreciseGoal1Card = new CreatePreciseGoalCard();
+        swapSteps.add(createPreciseGoal1Card, SwapWorkflowStep.CREATE_GOAL_1_PRECISE.toString());
 
         // Step 2b: create an imprecise goal
-        createImpreciseGoalCard = new CreateImpreciseGoalCard();
-        swapSteps.add(createImpreciseGoalCard, SwapWorkflowStep.IMPRECISE_GOAL_DETAILS.toString());
+        createImpreciseGoal1Card = new CreateImpreciseGoalCard();
+        swapSteps.add(createImpreciseGoal1Card, SwapWorkflowStep.CREATE_GOAL_1_IMPRECISE.toString());
+
+        // step 3: choose whether to create a second goal or not
+        chooseOneOrTwoGoalsCard = new ChooseOneOrTwoGoalsCard();
+        swapSteps.add(chooseOneOrTwoGoalsCard, SwapWorkflowStep.CHOOSE_ONE_OR_TWO_GOALS.toString());
+
+        // step 4: choose whether to create a precise or imprecise second goal (optional)
+        selectGoal2TypeCard = new SelectGoalTypeCard();
+        swapSteps.add(selectGoal2TypeCard, SwapWorkflowStep.SELECT_GOAL_2_TYPE.toString());
+
+        // Step 5a: create a precise goal (optional)
+        createPreciseGoal2Card = new CreatePreciseGoalCard();
+        swapSteps.add(createPreciseGoal2Card, SwapWorkflowStep.CREATE_GOAL_2_PRECISE.toString());
+
+        // Step 5b: create an imprecise goal (optional)
+        createImpreciseGoal2Card = new CreateImpreciseGoalCard();
+        swapSteps.add(createImpreciseGoal2Card, SwapWorkflowStep.CREATE_GOAL_2_IMPRECISE.toString());
+
     }
 
     private void initLayout() {
@@ -97,12 +118,32 @@ public class SwapsView extends JPanel implements ISwapsView {
     }
 
     @Override
-    public ISelectGoalTypeCard getSelectGoalTypeCard() {
-        return selectGoalTypeView;
+    public ISelectGoalTypeCard getSelectGoal1TypeCard() {
+        return selectGoal1TypeCard;
     }
 
     @Override
-    public ICreateImpreciseGoalCard getCreateImpreciseGoalCard() {
-        return createImpreciseGoalCard;
+    public ICreateImpreciseGoalCard getCreateImpreciseGoal1Card() {
+        return createImpreciseGoal1Card;
+    }
+
+    @Override
+    public ChooseOneOrTwoGoalsCard getChooseOneOrTwoGoalsCard() {
+        return chooseOneOrTwoGoalsCard;
+    }
+
+    @Override
+    public SelectGoalTypeCard getSelectGoal2TypeCard() {
+        return selectGoal2TypeCard;
+    }
+
+    @Override
+    public ICreateImpreciseGoalCard getCreateImpreciseGoal2Card() {
+        return createImpreciseGoal2Card;
+    }
+
+    @Override
+    public CreatePreciseGoalCard getCreatePreciseGoal2Card() {
+        return createPreciseGoal2Card;
     }
 }
