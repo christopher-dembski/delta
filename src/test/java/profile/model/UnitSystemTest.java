@@ -22,7 +22,7 @@ class UnitSystemTest {
         String result = UnitSystem.IMPERIAL.toString();
 
         // Then
-        assertEquals("Imperial (ft/in, lb)", result);
+        assertEquals("Imperial (ft, lb)", result);
     }
 
     @Test

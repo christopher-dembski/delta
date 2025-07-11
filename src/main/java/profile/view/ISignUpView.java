@@ -1,8 +1,6 @@
 
 package profile.view;
 
-import profile.model.Profile;
-
 public interface ISignUpView {
 
     /** Register a one-shot handler fired when the user hits “Create profile”. */

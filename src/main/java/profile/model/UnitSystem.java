@@ -2,7 +2,7 @@ package profile.model;
 
 public enum UnitSystem {
     METRIC("Metric (cm, kg)"),
-    IMPERIAL("Imperial (ft/in, lb)");
+    IMPERIAL("Imperial (ft, lb)");
 
     private final String displayName;
 
