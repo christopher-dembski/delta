@@ -14,18 +14,22 @@ public class SwapsPresenter {
     private DropdownOptionGoalIntensity selectedGoalIntensity;
 
     public SwapsPresenter(ISwapsView view) {
-        // basic initialization
         this.view = view;
         currentStep = FIRST_STEP;
+        initDropDowns();
+        initActionListeners();
+    }
 
+    private void initDropDowns() {
         // set state
         // call setters to ensure presenter and view agree on state
         selectedGoalType = DropdownOptionGoalType.IMPRECISE;
         view.getSelectGoalTypeCard().setSelectedGoalType(selectedGoalType);
         selectedGoalIntensity = DropdownOptionGoalIntensity.HIGH;
         view.getCreateImpreciseGoalCard().setSelectedGoalIntensity(selectedGoalIntensity);
+    }
 
-        // add action listeners
+    private void initActionListeners() {
         view.addNextButtonListener(e -> changeStep(currentStep + 1));
         view.addPreviousButtonListener(e -> changeStep(currentStep - 1));
         view.getSelectGoalTypeCard().addGoalTypeDropDownListener(goalTypeFromDropDown -> {
