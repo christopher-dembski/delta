@@ -1,22 +1,19 @@
 package app;
 
-import profile.view.UserSignUp;
 import profile.presenter.UserSignUpPresenter;
-import profile.service.ProfileService;
-import profile.service.ProfileServiceImplementor;
 import profile.repository.UserRepository;
 import profile.repository.UserRepositoryImplementor;
-import data.MySQLDriver;
-import data.MySQLConfig;
+import profile.service.ProfileService;
+import profile.service.ProfileServiceImplementor;
+import profile.view.UserSignUp;
+import shared.AppBackend;
 
 public class AppMain {
     public static void main(String[] args) {
         javax.swing.SwingUtilities.invokeLater(() -> {
             try {
-                // Create the database driver and config
-
                 // Create the repository and service layers
-                UserRepository repository = new UserRepositoryImplementor(driver);
+                UserRepository repository = new UserRepositoryImplementor(AppBackend.db());
                 ProfileService profileService = new ProfileServiceImplementor(repository);
 
                 // Create the view
