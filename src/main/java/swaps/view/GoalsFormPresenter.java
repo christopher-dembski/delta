@@ -21,12 +21,17 @@ public class GoalsFormPresenter {
 
     private void initDropDowns() {
         // call setters to ensure presenter and view agree on state
+        // goal 1
         selectedGoal1Type = DropdownOptionGoalType.IMPRECISE;
         goalsFormView.getGoal1TypeField().setSelectedGoalType(selectedGoal1Type);
         selectedGoal1Intensity = DropdownOptionGoalIntensity.HIGH;
         goalsFormView.getGoal1IntensityField().setSelectedGoalIntensity(selectedGoal1Intensity);
+        goalsFormView.setGoal1ImpreciseGoalFieldsVisibility(selectedGoal1Type.equals(DropdownOptionGoalType.IMPRECISE));
+        goalsFormView.setGoal1PreciseGoalFieldsVisibility(selectedGoal1Type.equals(DropdownOptionGoalType.PRECISE));
+        // create 1 or two goals
         createSecondGoal = false;
         goalsFormView.getChooseOneOrTwoGoalsField().setOneOrTwoGoalsDropdown(createSecondGoal);
+        // goal 2
         selectedGoal2Type = DropdownOptionGoalType.IMPRECISE;
         goalsFormView.getGoal2TypeField().setSelectedGoalType(selectedGoal2Type);
         selectedGoal2Intensity = DropdownOptionGoalIntensity.HIGH;
@@ -36,12 +41,20 @@ public class GoalsFormPresenter {
     private void initActionListeners() {
         goalsFormView.getGoal1TypeField().addGoalTypeDropDownListener(goalTypeFromDropDown -> {
             selectedGoal1Type = goalTypeFromDropDown;
+            if (selectedGoal1Type.equals(DropdownOptionGoalType.PRECISE)) {
+                goalsFormView.setGoal1PreciseGoalFieldsVisibility(true);
+                goalsFormView.setGoal1ImpreciseGoalFieldsVisibility(false);
+            } else {  // IMPRECISE
+                goalsFormView.setGoal1ImpreciseGoalFieldsVisibility(true);
+                goalsFormView.setGoal1PreciseGoalFieldsVisibility(false);
+            }
         });
         goalsFormView.getGoal1IntensityField().addGoalIntensityDropdownListener(goalIntensityFromDropdown -> {
             selectedGoal1Intensity = goalIntensityFromDropdown;
         });
         goalsFormView.getChooseOneOrTwoGoalsField().addOneOrTwoGoalsDropdownListener(createSecondGoalFromCheckbox -> {
-            goalsFormView.setGoal2SectionVisibility(createSecondGoalFromCheckbox);
+            createSecondGoal = createSecondGoalFromCheckbox;
+            goalsFormView.setGoal2SectionVisibility(createSecondGoal);
         });
         goalsFormView.getGoal2TypeField().addGoalTypeDropDownListener(goalTypeFromDropDown -> {
             selectedGoal2Type = goalTypeFromDropDown;
