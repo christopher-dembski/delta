@@ -9,7 +9,7 @@ public class GoalsFormPresenter {
     // for field values
     private DropdownOptionGoalType selectedGoal1Type;
     private DropdownOptionGoalIntensity selectedGoal1Intensity;
-    private DropDownOptionCreateSecondGoal createSecondGoalYesNo;
+    private boolean createSecondGoal;
     private DropdownOptionGoalType selectedGoal2Type;
     private DropdownOptionGoalIntensity selectedGoal2Intensity;
 
@@ -25,8 +25,8 @@ public class GoalsFormPresenter {
         goalsFormView.getGoal1TypeField().setSelectedGoalType(selectedGoal1Type);
         selectedGoal1Intensity = DropdownOptionGoalIntensity.HIGH;
         goalsFormView.getGoal1IntensityField().setSelectedGoalIntensity(selectedGoal1Intensity);
-        createSecondGoalYesNo = DropDownOptionCreateSecondGoal.NO;
-        goalsFormView.getChooseOneOrTwoGoalsField().setOneOrTwoGoalsDropdown(createSecondGoalYesNo);
+        createSecondGoal = false;
+        goalsFormView.getChooseOneOrTwoGoalsField().setOneOrTwoGoalsDropdown(createSecondGoal);
         selectedGoal2Type = DropdownOptionGoalType.IMPRECISE;
         goalsFormView.getGoal2TypeField().setSelectedGoalType(selectedGoal2Type);
         selectedGoal2Intensity = DropdownOptionGoalIntensity.HIGH;
@@ -40,9 +40,8 @@ public class GoalsFormPresenter {
         goalsFormView.getGoal1IntensityField().addGoalIntensityDropdownListener(goalIntensityFromDropdown -> {
             selectedGoal1Intensity = goalIntensityFromDropdown;
         });
-        goalsFormView.getChooseOneOrTwoGoalsField().addOneOrTwoGoalsDropdownListener(createSecondGoalYesNoFromDropdown -> {
-            createSecondGoalYesNo = createSecondGoalYesNoFromDropdown;
-            goalsFormView.setGoal2SectionVisibility(createSecondGoalYesNo.toBoolean());
+        goalsFormView.getChooseOneOrTwoGoalsField().addOneOrTwoGoalsDropdownListener(createSecondGoalFromCheckbox -> {
+            goalsFormView.setGoal2SectionVisibility(createSecondGoalFromCheckbox);
         });
         goalsFormView.getGoal2TypeField().addGoalTypeDropDownListener(goalTypeFromDropDown -> {
             selectedGoal2Type = goalTypeFromDropDown;

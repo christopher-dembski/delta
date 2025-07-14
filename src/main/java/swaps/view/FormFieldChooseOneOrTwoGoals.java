@@ -4,26 +4,21 @@ import javax.swing.*;
 import java.util.function.Consumer;
 
 public class FormFieldChooseOneOrTwoGoals extends JPanel {
-    private JComboBox oneOrTwoGoalsDropdown;
+    private JCheckBox oneOrTwoGoalsDropdown;
 
     protected FormFieldChooseOneOrTwoGoals() {
         this.add(new JLabel("Specify a second goal?"));
-        DropDownOptionCreateSecondGoal[] choices = {
-                DropDownOptionCreateSecondGoal.NO,
-                DropDownOptionCreateSecondGoal.YES
-        };
-        oneOrTwoGoalsDropdown = new JComboBox(choices);
+        oneOrTwoGoalsDropdown = new JCheckBox();
         this.add(oneOrTwoGoalsDropdown);
     }
 
-    public void setOneOrTwoGoalsDropdown(DropDownOptionCreateSecondGoal createSecondGoal) {
-        oneOrTwoGoalsDropdown.setSelectedItem(createSecondGoal);
+    public void setOneOrTwoGoalsDropdown(boolean isSelected) {
+        oneOrTwoGoalsDropdown.setSelected(isSelected);
     }
 
-    public void addOneOrTwoGoalsDropdownListener(Consumer<DropDownOptionCreateSecondGoal> listener) {
+    public void addOneOrTwoGoalsDropdownListener(Consumer<Boolean> listener) {
         oneOrTwoGoalsDropdown.addActionListener(e -> {
-            DropDownOptionCreateSecondGoal yesNo = (DropDownOptionCreateSecondGoal) oneOrTwoGoalsDropdown.getSelectedItem();
-            listener.accept(yesNo);
+            listener.accept(oneOrTwoGoalsDropdown.isSelected());
         });
     }
 }
