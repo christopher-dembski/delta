@@ -1,4 +1,4 @@
-package swaps.view.goals;
+package swaps.view.goals.form;
 
 public enum DropdownOptionGoalIntensity {
     HIGH("A lot"),

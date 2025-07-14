@@ -1,5 +1,7 @@
 package swaps.view.goals;
 
+import swaps.view.goals.form.GoalsFormPresenter;
+
 import javax.swing.*;
 
 

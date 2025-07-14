@@ -1,4 +1,4 @@
-package swaps.view.goals;
+package swaps.view.goals.form;
 
 import javax.swing.*;
 import java.util.function.Consumer;
@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 public class FormFieldDefineSecondGoal extends JPanel {
     private JCheckBox oneOrTwoGoalsDropdown;
 
-    protected FormFieldDefineSecondGoal() {
+    public FormFieldDefineSecondGoal() {
         this.add(new JLabel("Specify a second goal?"));
         oneOrTwoGoalsDropdown = new JCheckBox();
         this.add(oneOrTwoGoalsDropdown);

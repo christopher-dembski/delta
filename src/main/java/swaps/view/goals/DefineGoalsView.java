@@ -1,5 +1,8 @@
 package swaps.view.goals;
 
+import swaps.view.goals.form.FormFieldDefineSecondGoal;
+import swaps.view.goals.form.GoalsFormView;
+
 import javax.swing.*;
 
 public class DefineGoalsView extends JPanel {
