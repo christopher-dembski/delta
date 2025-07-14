@@ -36,6 +36,8 @@ public class GoalsFormPresenter {
         goalsFormView.getGoal2TypeField().setSelectedGoalType(selectedGoal2Type);
         selectedGoal2Intensity = DropdownOptionGoalIntensity.HIGH;
         goalsFormView.getGoal2IntensityField().setSelectedGoalIntensity(selectedGoal2Intensity);
+        goalsFormView.setGoal2ImpreciseGoalFieldsVisibility(selectedGoal2Type.equals(DropdownOptionGoalType.IMPRECISE));
+        goalsFormView.setGoal2PreciseGoalFieldsVisibility(selectedGoal2Type.equals(DropdownOptionGoalType.PRECISE));
     }
 
     private void initActionListeners() {
@@ -58,6 +60,13 @@ public class GoalsFormPresenter {
         });
         goalsFormView.getGoal2TypeField().addGoalTypeDropDownListener(goalTypeFromDropDown -> {
             selectedGoal2Type = goalTypeFromDropDown;
+            if (selectedGoal2Type.equals(DropdownOptionGoalType.PRECISE)) {
+                goalsFormView.setGoal2PreciseGoalFieldsVisibility(true);
+                goalsFormView.setGoal2ImpreciseGoalFieldsVisibility(false);
+            } else {  // IMPRECISE
+                goalsFormView.setGoal2ImpreciseGoalFieldsVisibility(true);
+                goalsFormView.setGoal2PreciseGoalFieldsVisibility(false);
+            }
         });
         goalsFormView.getGoal2IntensityField().addGoalIntensityDropdownListener(goalIntensityFromDropdown -> {
             selectedGoal2Intensity = goalIntensityFromDropdown;
