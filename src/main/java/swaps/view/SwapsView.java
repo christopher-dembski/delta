@@ -1,5 +1,7 @@
 package swaps.view;
 
+import swaps.view.goals.DefineGoalsView;
+
 import javax.swing.*;
 
 

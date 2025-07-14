@@ -1,4 +1,4 @@
-package swaps.view;
+package swaps.view.goals;
 
 import javax.swing.*;
 
