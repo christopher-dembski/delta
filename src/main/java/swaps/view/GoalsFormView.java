@@ -6,11 +6,10 @@ import java.awt.*;
 public class GoalsFormView extends JPanel {
     // goal 1
     private FormFieldGoalType goal1TypeField;
-    private FormFieldPreciseAmount goal1PlaceholderFIeld;
+    private FormFieldPreciseAmount goal1PreciseAmountPlaceholderField;
     private FormFieldGoalIntensity goal1IntensityField;
     // 1 or 2 goals
     private FormFieldChooseOneOrTwoGoals chooseOneOrTwoGoalsField;
-    private boolean goal2SectionVisible;
     // goal 2
     private JPanel goal2Section;
     private FormFieldGoalType goal2TypeField;
@@ -31,8 +30,8 @@ public class GoalsFormView extends JPanel {
         goal1Section.add(new JLabel("Goal 1"));
         goal1TypeField = new FormFieldGoalType();
         goal1Section.add(goal1TypeField);
-        goal1PlaceholderFIeld = new FormFieldPreciseAmount();
-        goal1Section.add(goal1PlaceholderFIeld);
+        goal1PreciseAmountPlaceholderField = new FormFieldPreciseAmount();
+        goal1Section.add(goal1PreciseAmountPlaceholderField);
         goal1IntensityField = new FormFieldGoalIntensity(1);
         goal1Section.add(goal1IntensityField);
         this.add(goal1Section);
@@ -44,7 +43,6 @@ public class GoalsFormView extends JPanel {
     }
 
     private void initGoalTwoSection() {
-        goal2SectionVisible = false;
         goal2Section = new JPanel();
         goal2Section.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         goal2Section.setLayout(new BoxLayout(goal2Section, BoxLayout.Y_AXIS));
@@ -55,12 +53,20 @@ public class GoalsFormView extends JPanel {
         goal2Section.add(goal2PreciseAmountPlaceholderField);
         Goal2IntensityField = new FormFieldGoalIntensity(2);
         goal2Section.add(Goal2IntensityField);
-        goal2Section.setVisible(goal2SectionVisible);
+        goal2Section.setVisible(false);
         this.add(goal2Section);
     }
 
     public void setGoal2SectionVisibility(boolean isVisible) {
         goal2Section.setVisible(isVisible);
+    }
+
+    public void setGoal1ImpreciseGoalFieldsVisibility(boolean isVisible) {
+        goal1IntensityField.setVisible(isVisible);
+    }
+
+    public void setGoal1PreciseGoalFieldsVisibility(boolean isVisible) {
+        goal1PreciseAmountPlaceholderField.setVisible(isVisible);
     }
 
     public FormFieldGoalType getGoal1TypeField() {
