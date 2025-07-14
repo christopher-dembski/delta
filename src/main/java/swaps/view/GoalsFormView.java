@@ -1,6 +1,7 @@
 package swaps.view;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class GoalsFormView extends JPanel {
     // goal 1
@@ -16,25 +17,42 @@ public class GoalsFormView extends JPanel {
 
     public GoalsFormView() {
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        initGoal1Section();
+        initChooseOneOrTwoGoalsSection();
+        initGoalTwoSection();
+    }
 
-        this.add(new JLabel("Goal 1"));
+    private void initGoal1Section() {
+        JPanel goal1Section = new JPanel();
+        goal1Section.setLayout(new BoxLayout(goal1Section, BoxLayout.Y_AXIS));
+        goal1Section.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        goal1Section.add(new JLabel("Goal 1"));
         goal1TypeField = new FormFieldGoalType();
-        this.add(goal1TypeField);
+        goal1Section.add(goal1TypeField);
         goal1PlaceholderFIeld = new FormFieldPreciseAmount();
-        this.add(goal1PlaceholderFIeld);
+        goal1Section.add(goal1PlaceholderFIeld);
         goal1IntensityField = new FormFieldGoalIntensity(1);
-        this.add(goal1IntensityField);
+        goal1Section.add(goal1IntensityField);
+        this.add(goal1Section);
+    }
 
+    private void initChooseOneOrTwoGoalsSection() {
         chooseOneOrTwoGoalsField = new FormFieldChooseOneOrTwoGoals();
         this.add(chooseOneOrTwoGoalsField);
+    }
 
-        this.add(new JLabel("Goal 2"));
+    private void initGoalTwoSection() {
+        JPanel goal2Section = new JPanel();
+        goal2Section.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        goal2Section.setLayout(new BoxLayout(goal2Section, BoxLayout.Y_AXIS));
+        goal2Section.add(new JLabel("Goal 2"));
         goal2TypeField = new FormFieldGoalType();
-        this.add(goal2TypeField);
+        goal2Section.add(goal2TypeField);
         goal2PreciseAmountPlaceholderField = new FormFieldPreciseAmount();
-        this.add(goal2PreciseAmountPlaceholderField);
+        goal2Section.add(goal2PreciseAmountPlaceholderField);
         Goal2IntensityField = new FormFieldGoalIntensity(2);
-        this.add(Goal2IntensityField);
+        goal2Section.add(Goal2IntensityField);
+        this.add(goal2Section);
     }
 
     public FormFieldGoalType getGoal1TypeField() {

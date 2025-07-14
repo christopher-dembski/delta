@@ -7,12 +7,10 @@ public class SwapsView extends JPanel {
     private GoalsFormView goalsFormView;
 
     public SwapsView() {
-        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        goalsFormView = new GoalsFormView();
-        this.add(goalsFormView);
-    }
-
-    public GoalsFormView getGoalsForm() {
-        return goalsFormView;
+        // TO DO: create series of panels
+        // create goals
+        // select goals
+        // render statistics
+        // view specific meals
     }
 }
