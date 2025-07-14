@@ -4,7 +4,7 @@ import javax.swing.*;
 
 
 public class SwapsView extends JPanel {
-    private GoalsFormView goalsFormView;
+    private DefineGoalsView defineGoalsView;
 
     public SwapsView() {
         // TO DO: create series of panels

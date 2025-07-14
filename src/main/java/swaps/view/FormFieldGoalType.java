@@ -26,7 +26,7 @@ public class FormFieldGoalType extends JPanel  {
         goalTypeDropDown.setSelectedItem(goalIntensity);
     }
 
-    public void addGoalTypeDropDownListener(Consumer<DropdownOptionGoalType> listener) {
+    public void addListener(Consumer<DropdownOptionGoalType> listener) {
         goalTypeDropDown.addActionListener(e -> {
             DropdownOptionGoalType selected = (DropdownOptionGoalType) goalTypeDropDown.getSelectedItem();
             listener.accept(selected);

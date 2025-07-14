@@ -4,104 +4,47 @@ import javax.swing.*;
 import java.awt.*;
 
 public class GoalsFormView extends JPanel {
-    // goal 1
-    private FormFieldGoalType goal1TypeField;
-    private FormFieldPreciseAmount goal1PreciseAmountPlaceholderField;
-    private FormFieldGoalIntensity goal1IntensityField;
-    // 1 or 2 goals
-    private FormFieldChooseOneOrTwoGoals chooseOneOrTwoGoalsField;
-    // goal 2
-    private JPanel goal2Section;
-    private FormFieldGoalType goal2TypeField;
-    private FormFieldPreciseAmount goal2PreciseAmountPlaceholderField;
-    private FormFieldGoalIntensity goal2IntensityField;
+    private FormFieldGoalType typeField;
+    private FormFieldPreciseAmount preciseAmountField;
+    private FormFieldGoalIntensity intensityField;
 
-    public GoalsFormView() {
+    public GoalsFormView(String header) {
+        initLayout(header);
+        initFormFields();
+    }
+
+    private void initLayout(String header) {
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        initGoal1Section();
-        initChooseOneOrTwoGoalsSection();
-        initGoalTwoSection();
+        this.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        this.add(new JLabel(header));
     }
 
-    private void initGoal1Section() {
-        JPanel goal1Section = new JPanel();
-        goal1Section.setLayout(new BoxLayout(goal1Section, BoxLayout.Y_AXIS));
-        goal1Section.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        goal1Section.add(new JLabel("Goal 1"));
-        goal1TypeField = new FormFieldGoalType();
-        goal1Section.add(goal1TypeField);
-        goal1PreciseAmountPlaceholderField = new FormFieldPreciseAmount();
-        goal1Section.add(goal1PreciseAmountPlaceholderField);
-        goal1IntensityField = new FormFieldGoalIntensity(1);
-        goal1Section.add(goal1IntensityField);
-        this.add(goal1Section);
+    private void initFormFields() {
+        typeField = new FormFieldGoalType();
+        this.add(typeField);
+        preciseAmountField = new FormFieldPreciseAmount();
+        this.add(preciseAmountField);
+        intensityField = new FormFieldGoalIntensity();
+        this.add(intensityField);
     }
 
-    private void initChooseOneOrTwoGoalsSection() {
-        chooseOneOrTwoGoalsField = new FormFieldChooseOneOrTwoGoals();
-        this.add(chooseOneOrTwoGoalsField);
+    /* Conditional Rendering */
+
+    public void setPreciseAmountFieldVisibility(boolean isVisible) {
+        preciseAmountField.setVisible(isVisible);
     }
 
-    private void initGoalTwoSection() {
-        goal2Section = new JPanel();
-        goal2Section.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        goal2Section.setLayout(new BoxLayout(goal2Section, BoxLayout.Y_AXIS));
-        goal2Section.add(new JLabel("Goal 2"));
-        goal2TypeField = new FormFieldGoalType();
-        goal2Section.add(goal2TypeField);
-        goal2PreciseAmountPlaceholderField = new FormFieldPreciseAmount();
-        goal2Section.add(goal2PreciseAmountPlaceholderField);
-        goal2IntensityField = new FormFieldGoalIntensity(2);
-        goal2Section.add(goal2IntensityField);
-        goal2Section.setVisible(false);
-        this.add(goal2Section);
+    public void setIntensityFieldVisibility(boolean isVisible) {
+        intensityField.setVisible(isVisible);
     }
 
-    // conditional rendering
+    /* Form Fields */
 
-    public void setGoal1PreciseGoalFieldsVisibility(boolean isVisible) {
-        goal1PreciseAmountPlaceholderField.setVisible(isVisible);
+    public FormFieldGoalType getTypeField() {
+        return typeField;
     }
 
-    public void setGoal1ImpreciseGoalFieldsVisibility(boolean isVisible) {
-        goal1IntensityField.setVisible(isVisible);
-    }
-
-    public void setGoal2SectionVisibility(boolean isVisible) {
-        goal2Section.setVisible(isVisible);
-    }
-
-    public void setGoal2PreciseGoalFieldsVisibility(boolean isVisible) {
-        goal2PreciseAmountPlaceholderField.setVisible(isVisible);
-    }
-
-    public void setGoal2ImpreciseGoalFieldsVisibility(boolean isVisible) {
-        goal2IntensityField.setVisible(isVisible);
-    }
-
-    // form fields
-
-    public FormFieldGoalType getGoal1TypeField() {
-        return goal1TypeField;
-    }
-
-    public FormFieldGoalIntensity getGoal1IntensityField() {
-        return goal1IntensityField;
-    }
-
-    public FormFieldChooseOneOrTwoGoals getChooseOneOrTwoGoalsField() {
-        return chooseOneOrTwoGoalsField;
-    }
-
-    public FormFieldGoalType getGoal2TypeField() {
-        return goal2TypeField;
-    }
-
-    public FormFieldGoalIntensity getGoal2IntensityField() {
-        return goal2IntensityField;
-    }
-
-    public FormFieldPreciseAmount getGoal2PreciseAmountPlaceholderField() {
-        return goal2PreciseAmountPlaceholderField;
+    public FormFieldGoalIntensity getIntensityField() {
+        return intensityField;
     }
 }

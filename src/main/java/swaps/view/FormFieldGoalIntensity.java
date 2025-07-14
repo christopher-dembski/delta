@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 public class FormFieldGoalIntensity extends JPanel {
     private JComboBox<DropdownOptionGoalIntensity> goalIntensityDropdown;
 
-    protected FormFieldGoalIntensity(int goalNumber) {
+    protected FormFieldGoalIntensity() {
         // vertically stack components
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         DropdownOptionGoalIntensity[] dropdownChoiceIntensityOptions = {
@@ -23,7 +23,7 @@ public class FormFieldGoalIntensity extends JPanel {
         this.add(comboWrapper);
     }
 
-    public void addGoalIntensityDropdownListener(Consumer<DropdownOptionGoalIntensity> listener) {
+    public void addListener(Consumer<DropdownOptionGoalIntensity> listener) {
         goalIntensityDropdown.addActionListener(e -> {
             DropdownOptionGoalIntensity selectedGoalIntensity =
                     (DropdownOptionGoalIntensity) goalIntensityDropdown.getSelectedItem();
