@@ -9,9 +9,5 @@ public enum Comparison {
     GREATER_THAN,
     LESS_THAN,
     GREATER_EQUAL,
-    LESS_EQUAL,
-    /**
-     * Performs a fuzzy search using a SQL LIKE comparison.
-     */
-    FUZZY_SEARCH
+    LESS_EQUAL
 }

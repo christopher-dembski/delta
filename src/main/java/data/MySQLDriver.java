@@ -111,13 +111,6 @@ public class MySQLDriver implements IDatabaseDriver {
         String tableName = query.getCollectionName();
         StringBuilder selectStatement = new StringBuilder(SELECT_STATEMENT_TEMPLATE.formatted(tableName));
         selectStatement.append(buildWhereClause(query.getFilters()));
-        if (query.getSortColumn() != null && query.getSortDirection() != null) {
-            String direction = query.getSortDirection() == Order.ASCENDING ? "ASC" : "DESC";
-            selectStatement.append(" ORDER BY %s %s".formatted(query.getSortColumn(), direction));
-        }
-        if (query.getLimit() != null) {
-            selectStatement.append(" LIMIT %d".formatted(query.getLimit()));
-        }
         selectStatement.append(SEMICOLON);
         try {
             ResultSet resultSet = connection.createStatement().executeQuery(selectStatement.toString());
@@ -185,14 +178,10 @@ public class MySQLDriver implements IDatabaseDriver {
         for (int i = 0; i < filters.size(); i++) {
             QueryFilter filter = filters.get(i);
             String template = i == 0 ? WHERE_CLAUSE_TEMPLATE : AND_CLAUSE_TEMPLATE;
-            Object value = filter.value();
-            if (filter.comparison() == Comparison.FUZZY_SEARCH && value != null) {
-                value = "%" + value + "%";
-            }
             whereClause.append(template.formatted(
                     filter.field(),
                     comparisonOperatorToString(filter.comparison()),
-                    formatSQLValue(value)
+                    formatSQLValue(filter.value())
             ));
         }
         return whereClause.toString();
@@ -252,9 +241,6 @@ public class MySQLDriver implements IDatabaseDriver {
             }
             case LESS_EQUAL -> {
                 return "<=";
-            }
-            case FUZZY_SEARCH -> {
-                return "LIKE";
             }
             default -> {
                 throw new RuntimeException("This operator is not supported by the MySQL driver.");
