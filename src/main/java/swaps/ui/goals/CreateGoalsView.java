@@ -1,11 +1,11 @@
-package swaps.view.goals;
+package swaps.ui.goals;
 
-import swaps.view.goals.form.FormFieldDefineSecondGoal;
-import swaps.view.goals.form.GoalsFormView;
+import swaps.ui.goals.create_goal_form.form_fields.FormFieldDefineSecondGoal;
+import swaps.ui.goals.create_goal_form.GoalsFormView;
 
 import javax.swing.*;
 
-public class DefineGoalsView extends JPanel {
+public class CreateGoalsView extends JPanel {
     private static final String GOAL_1_HEADER = "Goal 1";
     private static final String GOAL_2_HEADER = "Goal 2";
 
@@ -13,7 +13,7 @@ public class DefineGoalsView extends JPanel {
     private final GoalsFormView goal1View;
     private final GoalsFormView goal2View;
 
-    public DefineGoalsView() {
+    public CreateGoalsView() {
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         // goal 1
         goal1View = new GoalsFormView(GOAL_1_HEADER);

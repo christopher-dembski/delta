@@ -1,4 +1,7 @@
-package swaps.view.goals.form;
+package swaps.ui.goals.create_goal_form;
+
+import swaps.ui.goals.create_goal_form.form_fields.DropdownOptionGoalIntensity;
+import swaps.ui.goals.create_goal_form.form_fields.DropdownOptionGoalType;
 
 public class GoalsFormPresenter {
     private GoalsFormView view;

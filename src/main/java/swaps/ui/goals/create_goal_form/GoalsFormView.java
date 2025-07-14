@@ -1,4 +1,8 @@
-package swaps.view.goals.form;
+package swaps.ui.goals.create_goal_form;
+
+import swaps.ui.goals.create_goal_form.form_fields.FormFieldGoalIntensity;
+import swaps.ui.goals.create_goal_form.form_fields.FormFieldGoalType;
+import swaps.ui.goals.create_goal_form.form_fields.FormFieldPreciseAmount;
 
 import javax.swing.*;
 import java.awt.*;

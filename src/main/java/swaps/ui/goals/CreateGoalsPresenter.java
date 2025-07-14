@@ -1,22 +1,22 @@
-package swaps.view.goals;
+package swaps.ui.goals;
 
-import swaps.view.goals.form.GoalsFormPresenter;
+import swaps.ui.goals.create_goal_form.GoalsFormPresenter;
 
 import javax.swing.*;
 
 
-public class DefineGoalsPresenter {
-    private DefineGoalsView defineGoalsView;
+public class CreateGoalsPresenter {
+    private CreateGoalsView createGoalsView;
     private GoalsFormPresenter goal1Presenter;
     private boolean createSecondGoal;
     private GoalsFormPresenter goal2Presenter;
 
-    public DefineGoalsPresenter(
-            DefineGoalsView defineGoalsView,
+    public CreateGoalsPresenter(
+            CreateGoalsView createGoalsView,
             GoalsFormPresenter goal1Presenter,
             GoalsFormPresenter goal2Presenter
     ) {
-        this.defineGoalsView = defineGoalsView;
+        this.createGoalsView = createGoalsView;
         this.goal1Presenter = goal1Presenter;
         this.goal2Presenter = goal2Presenter;
         createSecondGoal = false;
@@ -26,13 +26,13 @@ public class DefineGoalsPresenter {
     }
 
     private void initDefineSecondGoalCheckbox() {
-        defineGoalsView.getDefineSecondGoalCheckbox().setOneOrTwoGoalsDropdown(createSecondGoal);
+        createGoalsView.getDefineSecondGoalCheckbox().setOneOrTwoGoalsDropdown(createSecondGoal);
     }
 
     private void addActionListeners() {
-        defineGoalsView.getDefineSecondGoalCheckbox().addOneOrTwoGoalsDropdownListener(createSecondGoalFromCheckbox -> {
+        createGoalsView.getDefineSecondGoalCheckbox().addOneOrTwoGoalsDropdownListener(createSecondGoalFromCheckbox -> {
             createSecondGoal = createSecondGoalFromCheckbox;
-            defineGoalsView.setGoal2FormVisibility(createSecondGoal);
+            createGoalsView.setGoal2FormVisibility(createSecondGoal);
         });
     }
 
@@ -44,11 +44,11 @@ public class DefineGoalsPresenter {
         frame.setLocationRelativeTo(null);
         frame.setSize(500, 500);
         // setup views and presenters
-        DefineGoalsView defineGoalsView = new DefineGoalsView();
-        GoalsFormPresenter goal1Presenter = new GoalsFormPresenter(defineGoalsView.getGoal1View());
-        GoalsFormPresenter goal2Presenter = new GoalsFormPresenter(defineGoalsView.getGoal2View());
-        new DefineGoalsPresenter(defineGoalsView, goal1Presenter, goal2Presenter);  // init state + register listeners
-        frame.add(defineGoalsView);
+        CreateGoalsView createGoalsView = new CreateGoalsView();
+        GoalsFormPresenter goal1Presenter = new GoalsFormPresenter(createGoalsView.getGoal1View());
+        GoalsFormPresenter goal2Presenter = new GoalsFormPresenter(createGoalsView.getGoal2View());
+        new CreateGoalsPresenter(createGoalsView, goal1Presenter, goal2Presenter);  // init state + register listeners
+        frame.add(createGoalsView);
         // render
         frame.setVisible(true);
     }

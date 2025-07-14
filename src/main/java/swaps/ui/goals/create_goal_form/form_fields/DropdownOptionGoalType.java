@@ -1,4 +1,4 @@
-package swaps.view.goals.form;
+package swaps.ui.goals.create_goal_form.form_fields;
 
 public enum DropdownOptionGoalType {
     PRECISE("Precise"),

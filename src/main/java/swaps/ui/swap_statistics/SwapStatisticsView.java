@@ -1,4 +1,4 @@
-package swaps.view.swap_statistics;
+package swaps.ui.swap_statistics;
 
 import javax.swing.*;
 

@@ -1,9 +1,9 @@
-package swaps.view.goals.form;
+package swaps.ui.goals.create_goal_form.form_fields;
 
 import javax.swing.*;
 
 public class FormFieldPreciseAmount extends JPanel {
-    protected FormFieldPreciseAmount() {
+    public FormFieldPreciseAmount() {
         this.add(new JLabel("Create Precise Goal (In-Progress)"));
     }
 }

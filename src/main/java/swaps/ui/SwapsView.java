@@ -1,9 +1,9 @@
-package swaps.view;
+package swaps.ui;
 
-import swaps.view.goals.DefineGoalsView;
-import swaps.view.select_swap.SelectSwapView;
-import swaps.view.swap_meal_details.SwapMealDetailsView;
-import swaps.view.swap_statistics.SwapStatisticsView;
+import swaps.ui.goals.CreateGoalsView;
+import swaps.ui.select_swap.SelectSwapView;
+import swaps.ui.swap_meal_details.SwapMealDetailsView;
+import swaps.ui.swap_statistics.SwapStatisticsView;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,14 +13,14 @@ public class SwapsView extends JPanel {
     private static final String NEXT_BUTTON_LABEL = "Next";
     private static final String PREVIOUS_BUTTON_LABEL = "Previous";
 
-    private DefineGoalsView defineGoalsView;
+    private CreateGoalsView createGoalsView;
     private CardLayout cardLayout;
     private JPanel cardPanel;
     private JButton nextButton;
     private JButton previousButton;
 
-    public SwapsView(DefineGoalsView defineGoalsView) {
-        this.defineGoalsView = defineGoalsView;
+    public SwapsView(CreateGoalsView createGoalsView) {
+        this.createGoalsView = createGoalsView;
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         initCardPanel();
         initNavigationButtons();
@@ -29,7 +29,7 @@ public class SwapsView extends JPanel {
     private void initCardPanel() {
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
-        cardPanel.add(defineGoalsView, SwapsPresenter.DEFINE_GOALS_CARD_ID);
+        cardPanel.add(createGoalsView, SwapsPresenter.DEFINE_GOALS_CARD_ID);
         cardPanel.add(new SelectSwapView(), SwapsPresenter.SELECT_SWAPS_CARD_ID);
         cardPanel.add(new SwapStatisticsView(), SwapsPresenter.SWAP_STATISTICS_CARD_ID);
         cardPanel.add(new SwapMealDetailsView(), SwapsPresenter.SWAP_MEAL_DETAILS_CARD_ID);
@@ -67,7 +67,7 @@ public class SwapsView extends JPanel {
         nextButton.addActionListener(e -> listener.run());
     }
 
-    public DefineGoalsView getDefineGoalsView() {
-        return defineGoalsView;
+    public CreateGoalsView getDefineGoalsView() {
+        return createGoalsView;
     }
 }
