@@ -3,10 +3,10 @@ package swaps.view;
 import javax.swing.*;
 import java.util.function.Consumer;
 
-public class FormFieldChooseOneOrTwoGoals extends JPanel {
+public class FormFieldDefineSecondGoal extends JPanel {
     private JCheckBox oneOrTwoGoalsDropdown;
 
-    protected FormFieldChooseOneOrTwoGoals() {
+    protected FormFieldDefineSecondGoal() {
         this.add(new JLabel("Specify a second goal?"));
         oneOrTwoGoalsDropdown = new JCheckBox();
         this.add(oneOrTwoGoalsDropdown);
