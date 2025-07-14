@@ -15,23 +15,27 @@ public class GoalsFormPresenter {
 
     public GoalsFormPresenter(GoalsFormView goalsFormView) {
         this.goalsFormView = goalsFormView;
-        initDropDowns();
+        initFormFieldsGoal1();
+        initFormFieldOneOrTwoGoals();
+        initFormFieldsGoal2();
         initActionListeners();
     }
 
-    private void initDropDowns() {
-        // call setters to ensure presenter and view agree on state
-        // goal 1
+    private void initFormFieldsGoal1() {
         selectedGoal1Type = DropdownOptionGoalType.IMPRECISE;
         goalsFormView.getGoal1TypeField().setSelectedGoalType(selectedGoal1Type);
         selectedGoal1Intensity = DropdownOptionGoalIntensity.HIGH;
         goalsFormView.getGoal1IntensityField().setSelectedGoalIntensity(selectedGoal1Intensity);
         goalsFormView.setGoal1ImpreciseGoalFieldsVisibility(selectedGoal1Type.equals(DropdownOptionGoalType.IMPRECISE));
         goalsFormView.setGoal1PreciseGoalFieldsVisibility(selectedGoal1Type.equals(DropdownOptionGoalType.PRECISE));
-        // create 1 or two goals
+    }
+
+    private void initFormFieldOneOrTwoGoals() {
         createSecondGoal = false;
         goalsFormView.getChooseOneOrTwoGoalsField().setOneOrTwoGoalsDropdown(createSecondGoal);
-        // goal 2
+    }
+
+    private void initFormFieldsGoal2() {
         selectedGoal2Type = DropdownOptionGoalType.IMPRECISE;
         goalsFormView.getGoal2TypeField().setSelectedGoalType(selectedGoal2Type);
         selectedGoal2Intensity = DropdownOptionGoalIntensity.HIGH;
