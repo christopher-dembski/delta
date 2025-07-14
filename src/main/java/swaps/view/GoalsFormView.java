@@ -14,7 +14,7 @@ public class GoalsFormView extends JPanel {
     private JPanel goal2Section;
     private FormFieldGoalType goal2TypeField;
     private FormFieldPreciseAmount goal2PreciseAmountPlaceholderField;
-    private FormFieldGoalIntensity Goal2IntensityField;
+    private FormFieldGoalIntensity goal2IntensityField;
 
     public GoalsFormView() {
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -51,23 +51,35 @@ public class GoalsFormView extends JPanel {
         goal2Section.add(goal2TypeField);
         goal2PreciseAmountPlaceholderField = new FormFieldPreciseAmount();
         goal2Section.add(goal2PreciseAmountPlaceholderField);
-        Goal2IntensityField = new FormFieldGoalIntensity(2);
-        goal2Section.add(Goal2IntensityField);
+        goal2IntensityField = new FormFieldGoalIntensity(2);
+        goal2Section.add(goal2IntensityField);
         goal2Section.setVisible(false);
         this.add(goal2Section);
     }
 
-    public void setGoal2SectionVisibility(boolean isVisible) {
-        goal2Section.setVisible(isVisible);
+    // conditional rendering
+
+    public void setGoal1PreciseGoalFieldsVisibility(boolean isVisible) {
+        goal1PreciseAmountPlaceholderField.setVisible(isVisible);
     }
 
     public void setGoal1ImpreciseGoalFieldsVisibility(boolean isVisible) {
         goal1IntensityField.setVisible(isVisible);
     }
 
-    public void setGoal1PreciseGoalFieldsVisibility(boolean isVisible) {
-        goal1PreciseAmountPlaceholderField.setVisible(isVisible);
+    public void setGoal2SectionVisibility(boolean isVisible) {
+        goal2Section.setVisible(isVisible);
     }
+
+    public void setGoal2PreciseGoalFieldsVisibility(boolean isVisible) {
+        goal2PreciseAmountPlaceholderField.setVisible(isVisible);
+    }
+
+    public void setGoal2ImpreciseGoalFieldsVisibility(boolean isVisible) {
+        goal2IntensityField.setVisible(isVisible);
+    }
+
+    // form fields
 
     public FormFieldGoalType getGoal1TypeField() {
         return goal1TypeField;
@@ -86,7 +98,7 @@ public class GoalsFormView extends JPanel {
     }
 
     public FormFieldGoalIntensity getGoal2IntensityField() {
-        return Goal2IntensityField;
+        return goal2IntensityField;
     }
 
     public FormFieldPreciseAmount getGoal2PreciseAmountPlaceholderField() {
