@@ -10,7 +10,9 @@ public class GoalsFormView extends JPanel {
     private FormFieldGoalIntensity goal1IntensityField;
     // 1 or 2 goals
     private FormFieldChooseOneOrTwoGoals chooseOneOrTwoGoalsField;
+    private boolean goal2SectionVisible;
     // goal 2
+    private JPanel goal2Section;
     private FormFieldGoalType goal2TypeField;
     private FormFieldPreciseAmount goal2PreciseAmountPlaceholderField;
     private FormFieldGoalIntensity Goal2IntensityField;
@@ -42,7 +44,8 @@ public class GoalsFormView extends JPanel {
     }
 
     private void initGoalTwoSection() {
-        JPanel goal2Section = new JPanel();
+        goal2SectionVisible = false;
+        goal2Section = new JPanel();
         goal2Section.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         goal2Section.setLayout(new BoxLayout(goal2Section, BoxLayout.Y_AXIS));
         goal2Section.add(new JLabel("Goal 2"));
@@ -52,7 +55,12 @@ public class GoalsFormView extends JPanel {
         goal2Section.add(goal2PreciseAmountPlaceholderField);
         Goal2IntensityField = new FormFieldGoalIntensity(2);
         goal2Section.add(Goal2IntensityField);
+        goal2Section.setVisible(goal2SectionVisible);
         this.add(goal2Section);
+    }
+
+    public void setGoal2SectionVisibility(boolean isVisible) {
+        goal2Section.setVisible(isVisible);
     }
 
     public FormFieldGoalType getGoal1TypeField() {

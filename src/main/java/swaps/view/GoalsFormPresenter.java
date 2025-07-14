@@ -42,6 +42,7 @@ public class GoalsFormPresenter {
         });
         goalsFormView.getChooseOneOrTwoGoalsField().addOneOrTwoGoalsDropdownListener(createSecondGoalYesNoFromDropdown -> {
             createSecondGoalYesNo = createSecondGoalYesNoFromDropdown;
+            goalsFormView.setGoal2SectionVisibility(createSecondGoalYesNo.toBoolean());
         });
         goalsFormView.getGoal2TypeField().addGoalTypeDropDownListener(goalTypeFromDropDown -> {
             selectedGoal2Type = goalTypeFromDropDown;
