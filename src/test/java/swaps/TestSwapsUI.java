@@ -13,7 +13,7 @@ class TestSwapsUI {
 
     @BeforeEach
     public void beforeEach() {
-         view = spy(new SwapsView());
+         // view = spy(new SwapsView());
          presenter = new SwapsPresenter(view);
     }
 }
