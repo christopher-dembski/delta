@@ -1,6 +1,4 @@
-package swaps.view.swap_meal_details;
-
-import swaps.view.swap_statistics.SwapStatisticsView;
+package swaps.ui.swap_meal_details;
 
 import javax.swing.*;
 

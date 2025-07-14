@@ -1,9 +1,9 @@
-package swaps.view;
+package swaps.ui;
 
 
-import swaps.view.goals.DefineGoalsPresenter;
-import swaps.view.goals.DefineGoalsView;
-import swaps.view.goals.form.GoalsFormPresenter;
+import swaps.ui.goals.CreateGoalsPresenter;
+import swaps.ui.goals.CreateGoalsView;
+import swaps.ui.goals.create_goal_form.GoalsFormPresenter;
 
 import javax.swing.*;
 import java.lang.reflect.Array;
@@ -36,10 +36,10 @@ public class SwapsPresenter {
     }
 
     private void initDefineGoalsView() {
-        DefineGoalsView defineGoalsView = view.getDefineGoalsView();
-        GoalsFormPresenter goal1Presenter = new GoalsFormPresenter(defineGoalsView.getGoal1View());
-        GoalsFormPresenter goal2Presenter = new GoalsFormPresenter(defineGoalsView.getGoal2View());
-        new DefineGoalsPresenter(defineGoalsView, goal1Presenter, goal2Presenter);
+        CreateGoalsView createGoalsView = view.getDefineGoalsView();
+        GoalsFormPresenter goal1Presenter = new GoalsFormPresenter(createGoalsView.getGoal1View());
+        GoalsFormPresenter goal2Presenter = new GoalsFormPresenter(createGoalsView.getGoal2View());
+        new CreateGoalsPresenter(createGoalsView, goal1Presenter, goal2Presenter);
     }
 
     private void addPreviousButtonActionListener() {
@@ -72,7 +72,7 @@ public class SwapsPresenter {
         frame.setLocationRelativeTo(null);
         frame.setSize(500, 500);
         // set up view and presenter
-        SwapsView swapsView = new SwapsView(new DefineGoalsView());
+        SwapsView swapsView = new SwapsView(new CreateGoalsView());
         new SwapsPresenter(swapsView);
         frame.add(swapsView);
         // render

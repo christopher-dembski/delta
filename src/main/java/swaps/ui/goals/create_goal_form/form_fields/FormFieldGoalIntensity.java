@@ -1,4 +1,4 @@
-package swaps.view.goals.form;
+package swaps.ui.goals.create_goal_form.form_fields;
 
 import javax.swing.*;
 import java.awt.*;
@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 public class FormFieldGoalIntensity extends JPanel {
     private JComboBox<DropdownOptionGoalIntensity> goalIntensityDropdown;
 
-    protected FormFieldGoalIntensity() {
+    public FormFieldGoalIntensity() {
         // vertically stack components
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         DropdownOptionGoalIntensity[] dropdownChoiceIntensityOptions = {

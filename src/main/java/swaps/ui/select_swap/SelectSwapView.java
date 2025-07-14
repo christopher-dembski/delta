@@ -1,4 +1,4 @@
-package swaps.view.select_swap;
+package swaps.ui.select_swap;
 
 import javax.swing.*;
 

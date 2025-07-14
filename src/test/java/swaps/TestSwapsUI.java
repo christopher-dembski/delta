@@ -2,10 +2,7 @@ package swaps;
 
 
 import org.junit.jupiter.api.BeforeEach;
-import swaps.view.*;
-
-
-import static org.mockito.Mockito.*;
+import swaps.ui.*;
 
 class TestSwapsUI {
     private SwapsPresenter presenter;
