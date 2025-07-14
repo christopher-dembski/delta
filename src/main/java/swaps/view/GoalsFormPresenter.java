@@ -18,7 +18,9 @@ public class GoalsFormPresenter {
         initFormFieldsGoal1();
         initFormFieldOneOrTwoGoals();
         initFormFieldsGoal2();
-        initActionListeners();
+        addActionListenersGoal1Fields();
+        addActionListenersOneOrTwoGoalsField();
+        addActionListenersGoal2Fields();
     }
 
     private void initFormFieldsGoal1() {
@@ -44,7 +46,7 @@ public class GoalsFormPresenter {
         goalsFormView.setGoal2PreciseGoalFieldsVisibility(selectedGoal2Type.equals(DropdownOptionGoalType.PRECISE));
     }
 
-    private void initActionListeners() {
+    private void addActionListenersGoal1Fields() {
         goalsFormView.getGoal1TypeField().addGoalTypeDropDownListener(goalTypeFromDropDown -> {
             selectedGoal1Type = goalTypeFromDropDown;
             if (selectedGoal1Type.equals(DropdownOptionGoalType.PRECISE)) {
@@ -58,10 +60,16 @@ public class GoalsFormPresenter {
         goalsFormView.getGoal1IntensityField().addGoalIntensityDropdownListener(goalIntensityFromDropdown -> {
             selectedGoal1Intensity = goalIntensityFromDropdown;
         });
+    }
+
+    private void addActionListenersOneOrTwoGoalsField() {
         goalsFormView.getChooseOneOrTwoGoalsField().addOneOrTwoGoalsDropdownListener(createSecondGoalFromCheckbox -> {
             createSecondGoal = createSecondGoalFromCheckbox;
             goalsFormView.setGoal2SectionVisibility(createSecondGoal);
         });
+    }
+
+    private void addActionListenersGoal2Fields() {
         goalsFormView.getGoal2TypeField().addGoalTypeDropDownListener(goalTypeFromDropDown -> {
             selectedGoal2Type = goalTypeFromDropDown;
             if (selectedGoal2Type.equals(DropdownOptionGoalType.PRECISE)) {
