@@ -27,7 +27,7 @@ public class Step1FoodGroupTest {
         // Import ONLY food groups CSV (clean version without French newlines)
         System.out.println("\nImporting FOOD_GROUP_TEMP.csv...");
         CSVImportService csvImporter = new CSVImportService(new MySQLDriver(MySQLConfig.instance()));
-        csvImporter.load("src/main/java/csv/FOOD_GROUP_TEMP.csv", "food_groups");
+        csvImporter.load("src/main/java/csv/csv_files/FOOD_GROUP_TEMP.csv", "food_groups");
         System.out.println("Import complete!");
         
         // Test our class works

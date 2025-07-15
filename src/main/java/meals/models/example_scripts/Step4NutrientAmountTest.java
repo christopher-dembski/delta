@@ -31,7 +31,7 @@ public class Step4NutrientAmountTest {
         // Import nutrient amounts CSV (nutrition facts for our 5 foods)
         System.out.println("\nImporting NUTRIENT_AMOUNT_TEMP_NO_STDERR.csv...");
         CSVImportService csvImporter = new CSVImportService(new MySQLDriver(MySQLConfig.instance()));
-        csvImporter.load("src/main/java/csv/NUTRIENT_AMOUNT_TEMP_NO_STDERR.csv", "nutrient_amounts");
+        csvImporter.load("src/main/java/csv/csv_files/NUTRIENT_AMOUNT_TEMP_NO_STDERR.csv", "nutrient_amounts");
         System.out.println("Import complete!");
         
         // Test our class works

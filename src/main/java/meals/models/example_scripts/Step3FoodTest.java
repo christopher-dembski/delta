@@ -30,7 +30,7 @@ public class Step3FoodTest {
             // Import CSV data
             System.out.println("\nImporting FOOD_NAME_TEMP.csv...");
             CSVImportService csvImporter = new CSVImportService(new MySQLDriver(MySQLConfig.instance()));
-            csvImporter.load("src/main/java/csv/FOOD_NAME_TEMP.csv", "foods");
+            csvImporter.load("src/main/java/csv/csv_files/FOOD_NAME_TEMP.csv", "foods");
             System.out.println("Import complete!");
             
             // Test: Count total foods

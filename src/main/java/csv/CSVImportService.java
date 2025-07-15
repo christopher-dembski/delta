@@ -60,6 +60,6 @@ public class CSVImportService implements ICSVImportService {
     public static void main(String[] args) throws DatabaseException, IOException {
         CSVImportService csvImporter = new CSVImportService(new MySQLDriver(MySQLConfig.instance()));
         // example for testing
-        csvImporter.load("src/main/java/csv/students.csv", "students");
+        csvImporter.load("src/main/java/csv/csv_files/students.csv", "students");
     }
 }

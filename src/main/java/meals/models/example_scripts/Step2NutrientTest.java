@@ -27,7 +27,7 @@ public class Step2NutrientTest {
         // Import nutrients CSV (clean version - no French fields)
         System.out.println("\nImporting NUTRIENT_NAME_TEMP.csv...");
         CSVImportService csvImporter = new CSVImportService(new MySQLDriver(MySQLConfig.instance()));
-        csvImporter.load("src/main/java/csv/NUTRIENT_NAME_TEMP.csv", "nutrients");
+        csvImporter.load("src/main/java/csv/csv_files/NUTRIENT_NAME_TEMP.csv", "nutrients");
         System.out.println("Import complete!");
         
         // Test our class works
