@@ -1,9 +1,11 @@
-package meals.models;
+package meals.models.example_scripts;
 
 import csv.CSVImportService;
 import data.DatabaseException;
 import data.MySQLConfig;
 import data.MySQLDriver;
+import meals.models.food.FoodGroup;
+import meals.models.food.FoodGroupDAO;
 
 import java.io.IOException;
 import java.util.List;

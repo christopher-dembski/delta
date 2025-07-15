@@ -1,4 +1,7 @@
-package meals.models;
+package meals.models.meal;
+
+import meals.models.food.ConversionFactor;
+import meals.models.food.Food;
 
 /**
  * Represents an item that is part of a meal.

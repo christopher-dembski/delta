@@ -1,4 +1,4 @@
-package meals.models;
+package meals.models.food;
 
 public class ConversionFactor {
 

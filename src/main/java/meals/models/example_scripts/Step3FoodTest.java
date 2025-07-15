@@ -1,9 +1,12 @@
-package meals.models;
+package meals.models.example_scripts;
 
 import csv.CSVImportService;
 import data.IDatabaseDriver;
 import data.MySQLConfig;
 import data.MySQLDriver;
+import meals.models.food.Food;
+import meals.models.food.FoodDAO;
+import meals.models.food.FoodGroupDAO;
 
 import java.util.List;
 

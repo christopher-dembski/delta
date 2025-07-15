@@ -1,4 +1,4 @@
-package meals.models;
+package meals.models.meal;
 
 import java.util.List;
 

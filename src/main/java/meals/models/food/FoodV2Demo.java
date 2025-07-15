@@ -1,8 +1,10 @@
-package meals.models;
+package meals.models.food;
 
 import data.IDatabaseDriver;
 import data.MySQLConfig;
 import data.MySQLDriver;
+import meals.models.nutrient.NutrientAmountDAO;
+import meals.models.nutrient.NutrientDAO;
 
 import java.util.List;
 

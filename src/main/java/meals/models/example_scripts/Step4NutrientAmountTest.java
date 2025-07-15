@@ -1,9 +1,13 @@
-package meals.models;
+package meals.models.example_scripts;
 
 import csv.CSVImportService;
 import data.DatabaseException;
 import data.MySQLConfig;
 import data.MySQLDriver;
+import meals.models.nutrient.Nutrient;
+import meals.models.nutrient.NutrientAmount;
+import meals.models.nutrient.NutrientAmountDAO;
+import meals.models.nutrient.NutrientDAO;
 
 import java.io.IOException;
 import java.util.List;

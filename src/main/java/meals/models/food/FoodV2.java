@@ -1,6 +1,10 @@
-package meals.models;
+package meals.models.food;
 
 import data.DatabaseException;
+import meals.models.nutrient.Nutrient;
+import meals.models.nutrient.NutrientAmount;
+import meals.models.nutrient.NutrientAmountDAO;
+import meals.models.nutrient.NutrientDAO;
 
 import java.util.ArrayList;
 import java.util.List;
