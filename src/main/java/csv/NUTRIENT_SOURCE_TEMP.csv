@@ -1,0 +1,6 @@
+NutrientSourceID,NutrientSourceCode,NutrientSourceDescription,NutrientSourc DescriptionF
+0,0,No change from USDA,Provient integralement de l'USDA
+2,2,Nutrient calculated from data other than USDA,Nutriment calcule avec des donnees autres que l'USDA
+8,8,Nutrient value of food created for the Nutrition Canada Survey,Nutriment provenant d'un aliment cree pour l'Enquete Nutrition Canada
+12,12,Nutrient value is an assumed zero,Nutriment estime a zero 
+102,51,Calculated using a recipe,Calcule d'apres une recette 

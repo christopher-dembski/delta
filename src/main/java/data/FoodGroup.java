@@ -36,7 +36,7 @@ public class FoodGroup implements IRecord {
         this.foodGroupId = (Integer) record.getValue("FoodGroupID");
         this.foodGroupCode = (Integer) record.getValue("FoodGroupCode");
         this.foodGroupName = (String) record.getValue("FoodGroupName");
-        this.foodGroupNameF = (String) record.getValue("FoodGroupNameF"); // May be null
+        this.foodGroupNameF = null; // No French field in database
     }
 
     // Getters and setters
@@ -99,7 +99,7 @@ public class FoodGroup implements IRecord {
             case "FoodGroupID" -> foodGroupId;
             case "FoodGroupCode" -> foodGroupCode;
             case "FoodGroupName" -> foodGroupName;
-            case "FoodGroupNameF" -> foodGroupNameF;
+            // No FoodGroupNameF - French field removed from database
             default -> null;
         };
     }

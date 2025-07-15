@@ -14,6 +14,8 @@ public class Food implements IRecord {
     private Integer foodSourceId;
     private String foodDescription;
     private String foodDescriptionF; // French description
+    private String foodDateOfEntry;   // Date fields from CSV - nullable
+    private String foodDateOfPublication; // Date fields from CSV - nullable
     private String countryCode;
     private String scientificName;
     
@@ -53,7 +55,15 @@ public class Food implements IRecord {
         this.foodGroupId = (Integer) record.getValue("FoodGroupID");
         this.foodSourceId = (Integer) record.getValue("FoodSourceID");
         this.foodDescription = (String) record.getValue("FoodDescription");
-        this.foodDescriptionF = (String) record.getValue("FoodDescriptionF");
+        this.foodDescriptionF = (String) record.getValue("FoodDescriptionF"); // Nullable French field
+        
+        // Convert empty date strings to null for MySQL DATE compatibility
+        String entryDate = (String) record.getValue("FoodDateOfEntry");
+        this.foodDateOfEntry = (entryDate == null || entryDate.trim().isEmpty()) ? null : entryDate;
+        
+        String pubDate = (String) record.getValue("FoodDateOfPublication");  
+        this.foodDateOfPublication = (pubDate == null || pubDate.trim().isEmpty()) ? null : pubDate;
+        
         this.countryCode = (String) record.getValue("CountryCode");
         this.scientificName = (String) record.getValue("ScientificName");
         this.assignedFoodGroup = null;
@@ -171,7 +181,9 @@ public class Food implements IRecord {
             case "FoodGroupID" -> foodGroupId;
             case "FoodSourceID" -> foodSourceId;
             case "FoodDescription" -> foodDescription;
-            case "FoodDescriptionF" -> foodDescriptionF;
+            case "FoodDescriptionF" -> foodDescriptionF; // French field - nullable
+            case "FoodDateOfEntry" -> foodDateOfEntry; // Date field - nullable
+            case "FoodDateOfPublication" -> foodDateOfPublication; // Date field - nullable
             case "CountryCode" -> countryCode;
             case "ScientificName" -> scientificName;
             default -> null;
@@ -180,9 +192,11 @@ public class Food implements IRecord {
 
     @Override
     public Collection<String> fieldNames() {
+        // All fields including nullable French and date fields
         return Map.of("FoodID", foodId, "FoodCode", foodCode, 
                      "FoodGroupID", foodGroupId, "FoodSourceID", foodSourceId,
                      "FoodDescription", foodDescription, "FoodDescriptionF", foodDescriptionF,
+                     "FoodDateOfEntry", foodDateOfEntry, "FoodDateOfPublication", foodDateOfPublication,
                      "CountryCode", countryCode, "ScientificName", scientificName).keySet();
     }
 

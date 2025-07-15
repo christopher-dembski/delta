@@ -47,7 +47,7 @@ public class Nutrient implements IRecord {
         this.nutrientSymbol = (String) record.getValue("NutrientSymbol");
         this.nutrientUnit = (String) record.getValue("NutrientUnit");
         this.nutrientName = (String) record.getValue("NutrientName");
-        this.nutrientNameF = (String) record.getValue("NutrientNameF");
+        this.nutrientNameF = null; // No French field in database
         this.tagname = (String) record.getValue("Tagname");
         this.nutrientDecimals = (Integer) record.getValue("NutrientDecimals");
     }
@@ -157,7 +157,7 @@ public class Nutrient implements IRecord {
             case "NutrientSymbol" -> nutrientSymbol;
             case "NutrientUnit" -> nutrientUnit;
             case "NutrientName" -> nutrientName;
-            case "NutrientNameF" -> nutrientNameF;
+            // No NutrientNameF - French field removed from database
             case "Tagname" -> tagname;
             case "NutrientDecimals" -> nutrientDecimals;
             default -> null;
@@ -166,10 +166,11 @@ public class Nutrient implements IRecord {
 
     @Override
     public Collection<String> fieldNames() {
+        // Only English fields - no French fields in database
         return Map.of("NutrientID", nutrientId, "NutrientCode", nutrientCode, 
                      "NutrientSymbol", nutrientSymbol, "NutrientUnit", nutrientUnit,
-                     "NutrientName", nutrientName, "NutrientNameF", nutrientNameF,
-                     "Tagname", tagname, "NutrientDecimals", nutrientDecimals).keySet();
+                     "NutrientName", nutrientName, "Tagname", tagname, 
+                     "NutrientDecimals", nutrientDecimals).keySet();
     }
 
     @Override

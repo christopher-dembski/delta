@@ -11,9 +11,8 @@ public class NutrientAmount implements IRecord {
     private Integer foodId;
     private Integer nutrientId;
     private Double nutrientValue;
-    private Double standardError;
-    private Integer numberOfObservations;
     private Integer nutrientSourceId;
+    private String nutrientDateOfEntry; // Date field from CSV - nullable
 
     /**
      * Default constructor.
@@ -34,12 +33,10 @@ public class NutrientAmount implements IRecord {
      * Complete constructor.
      */
     public NutrientAmount(Integer foodId, Integer nutrientId, Double nutrientValue, 
-                         Double standardError, Integer numberOfObservations, Integer nutrientSourceId) {
+                         Integer nutrientSourceId) {
         this.foodId = foodId;
         this.nutrientId = nutrientId;
         this.nutrientValue = nutrientValue;
-        this.standardError = standardError;
-        this.numberOfObservations = numberOfObservations;
         this.nutrientSourceId = nutrientSourceId;
     }
 
@@ -50,9 +47,8 @@ public class NutrientAmount implements IRecord {
         this.foodId = (Integer) record.getValue("FoodID");
         this.nutrientId = (Integer) record.getValue("NutrientID");
         this.nutrientValue = (Double) record.getValue("NutrientValue");
-        this.standardError = (Double) record.getValue("StandardError");
-        this.numberOfObservations = (Integer) record.getValue("NumberofObservations");
         this.nutrientSourceId = (Integer) record.getValue("NutrientSourceID");
+        this.nutrientDateOfEntry = (String) record.getValue("NutrientDateOfEntry"); // Nullable date field
     }
 
     // Getters and setters
@@ -80,22 +76,6 @@ public class NutrientAmount implements IRecord {
         this.nutrientValue = nutrientValue;
     }
 
-    public Double getStandardError() {
-        return standardError;
-    }
-
-    public void setStandardError(Double standardError) {
-        this.standardError = standardError;
-    }
-
-    public Integer getNumberOfObservations() {
-        return numberOfObservations;
-    }
-
-    public void setNumberOfObservations(Integer numberOfObservations) {
-        this.numberOfObservations = numberOfObservations;
-    }
-
     public Integer getNutrientSourceId() {
         return nutrientSourceId;
     }
@@ -110,7 +90,7 @@ public class NutrientAmount implements IRecord {
     }
 
     public boolean hasQualityData() {
-        return numberOfObservations != null && numberOfObservations > 0;
+        return true; // No longer based on numberOfObservations
     }
 
     public Double getValueForServing(Double conversionFactor) {
@@ -125,9 +105,8 @@ public class NutrientAmount implements IRecord {
             case "FoodID" -> foodId;
             case "NutrientID" -> nutrientId;
             case "NutrientValue" -> nutrientValue;
-            case "StandardError" -> standardError;
-            case "NumberofObservations" -> numberOfObservations;
             case "NutrientSourceID" -> nutrientSourceId;
+            case "NutrientDateOfEntry" -> nutrientDateOfEntry; // Date field - nullable
             default -> null;
         };
     }
@@ -135,8 +114,7 @@ public class NutrientAmount implements IRecord {
     @Override
     public Collection<String> fieldNames() {
         return Map.of("FoodID", foodId, "NutrientID", nutrientId, 
-                     "NutrientValue", nutrientValue, "StandardError", standardError,
-                     "NumberofObservations", numberOfObservations, "NutrientSourceID", nutrientSourceId).keySet();
+                     "NutrientValue", nutrientValue, "NutrientSourceID", nutrientSourceId, "NutrientDateOfEntry", nutrientDateOfEntry).keySet();
     }
 
     @Override
