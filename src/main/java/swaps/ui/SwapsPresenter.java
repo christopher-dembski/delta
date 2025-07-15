@@ -8,6 +8,9 @@ import swaps.ui.goals.create_goal_form.GoalsFormPresenter;
 import javax.swing.*;
 import java.lang.reflect.Array;
 
+/**
+ * The presenter that handles the logic and manages state for navigating between different steps in the swap workflow.
+ */
 public class SwapsPresenter {
     protected static final String DEFINE_GOALS_CARD_ID = "DEFINE_GOALS";
     protected static final String SELECT_SWAPS_CARD_ID = "SELECT_SWAPS";
@@ -24,6 +27,9 @@ public class SwapsPresenter {
     private int currentCardIndex;
     private final int lastCardIndex;
 
+    /**
+     * @param view The view to manage through the presenter.
+     */
     public SwapsPresenter(SwapsView view) {
         this.view = view;
         currentCardIndex = 0;
@@ -35,6 +41,10 @@ public class SwapsPresenter {
         view.setNextButtonEnabled(true);
     }
 
+    /**
+     * Initializes the views/presenters for defining goals, which is the first step in the swaps process.
+     * Helper method to be called in the constructor.
+     */
     private void initDefineGoalsView() {
         CreateGoalsView createGoalsView = view.getDefineGoalsView();
         GoalsFormPresenter goal1Presenter = new GoalsFormPresenter(createGoalsView.getGoal1View());
@@ -42,6 +52,10 @@ public class SwapsPresenter {
         new CreateGoalsPresenter(createGoalsView, goal1Presenter, goal2Presenter);
     }
 
+    /**
+     * Defines what action is taken when the previous button is clicked.
+     * Helper method to be called in the constructor.
+     */
     private void addPreviousButtonActionListener() {
         view.addPreviousButtonActionListener(() -> {
             if (currentCardIndex == 0) return;
@@ -50,6 +64,10 @@ public class SwapsPresenter {
         });
     }
 
+    /**
+     * Defines what action is taken when the next button is clicked.
+     * Helper method to be called in the constructor.
+     */
     private void addNextButtonActionListener() {
         view.addNextButtonActionListener(() -> {
             if (currentCardIndex == lastCardIndex) return;
@@ -58,15 +76,20 @@ public class SwapsPresenter {
         });
     }
 
+    /**
+     * Handles logic for updating the UI when navigating to a new card.
+     */
     private void updateVisibleCardAndNavigationControls() {
         view.setPreviousButtonEnabled(currentCardIndex > 0);
         view.setNextButtonEnabled(currentCardIndex < lastCardIndex);
         view.showCard(CARD_IDS[currentCardIndex]);
     }
 
+    /**
+     * Temporary main method for ad-hoc testing.
+     * @param args Command line arguments (ignored).
+     */
     public static void main(String[] args) {
-        // this is a temporary method for testing
-        // eventually, this view will become one tab in the main UI
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
