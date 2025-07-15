@@ -40,3 +40,59 @@ CREATE TABLE grades
     grade      varchar(2),
     semester   varchar(20)
 );
+
+-- ======================================
+-- NUTRITION TABLES
+-- ======================================
+
+-- Food Groups table (independent entity)
+CREATE TABLE food_groups
+(
+    FoodGroupID   int PRIMARY KEY,
+    FoodGroupCode int,
+    FoodGroupName varchar(255),
+    FoodGroupNameF varchar(255) DEFAULT NULL
+);
+
+-- Nutrients table (independent entity)  
+CREATE TABLE nutrients
+(
+    NutrientID       int PRIMARY KEY,
+    NutrientCode     int,
+    NutrientSymbol   varchar(20),
+    NutrientUnit     varchar(20),
+    NutrientName     varchar(255),
+    NutrientNameF    varchar(255),
+    Tagname          varchar(100),
+    NutrientDecimals int
+);
+
+-- Foods table (has foreign key to food_groups)
+CREATE TABLE foods
+(
+    FoodID           int PRIMARY KEY,
+    FoodCode         int,
+    FoodGroupID      int,
+    FoodSourceID     int,
+    FoodDescription  varchar(500),
+    FoodDescriptionF varchar(500),
+    CountryCode      varchar(10),
+    ScientificName   varchar(255),
+    
+    FOREIGN KEY (FoodGroupID) REFERENCES food_groups(FoodGroupID)
+);
+
+-- Nutrient Amounts table (junction table - nutritional values per food)
+CREATE TABLE nutrient_amounts
+(
+    FoodID                int,
+    NutrientID           int,
+    NutrientValue        double,
+    StandardError        double,
+    NumberofObservations int,
+    NutrientSourceID     int,
+    
+    PRIMARY KEY (FoodID, NutrientID),
+    FOREIGN KEY (FoodID) REFERENCES foods(FoodID),
+    FOREIGN KEY (NutrientID) REFERENCES nutrients(NutrientID)
+);
