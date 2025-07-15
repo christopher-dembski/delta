@@ -4,6 +4,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.function.Consumer;
 
+/**
+ * Represents an intensity for imprecise goals.
+ */
 public class FormFieldGoalIntensity extends JPanel {
     private JComboBox<DropdownOptionGoalIntensity> goalIntensityDropdown;
 
@@ -23,6 +26,10 @@ public class FormFieldGoalIntensity extends JPanel {
         this.add(comboWrapper);
     }
 
+    /**
+     * Add an action to take when the dropdown is interacted with.
+     * @param listener The action to take when the user interacts with the form field.
+     */
     public void addListener(Consumer<DropdownOptionGoalIntensity> listener) {
         goalIntensityDropdown.addActionListener(e -> {
             DropdownOptionGoalIntensity selectedGoalIntensity =
@@ -31,6 +38,10 @@ public class FormFieldGoalIntensity extends JPanel {
         });
     }
 
+    /**
+     * Sets the selected goal intensity.
+     * @param goalIntensity The selected intensity for the goal.
+     */
     public void setSelectedGoalIntensity(DropdownOptionGoalIntensity goalIntensity) {
         goalIntensityDropdown.setSelectedItem(goalIntensity);
     }

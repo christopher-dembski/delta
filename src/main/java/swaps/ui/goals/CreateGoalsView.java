@@ -5,6 +5,9 @@ import swaps.ui.goals.create_goal_form.GoalsFormView;
 
 import javax.swing.*;
 
+/**
+ * View for specifying 1 or 2 goals to generate swaps for.
+ */
 public class CreateGoalsView extends JPanel {
     private static final String GOAL_1_HEADER = "Goal 1";
     private static final String GOAL_2_HEADER = "Goal 2";
@@ -26,24 +29,31 @@ public class CreateGoalsView extends JPanel {
         this.add(goal2View);
     }
 
-    /* Conditional Rendering */
-
+    /**
+     * Controls whether the form for the second goal is visible.
+     * @param isVisible Whether the second goal form should be rendered.
+     */
     public void setGoal2FormVisibility(boolean isVisible) {
         goal2View.setVisible(isVisible);
     }
 
-    /* Form Fields */
-
+    /**
+     * @return The checkbox that allows the user to specify whether they want to define a second goal.
+     */
     public FormFieldDefineSecondGoal getDefineSecondGoalCheckbox() {
         return defineSecondGoalCheckbox;
     }
 
-    /* Subcomponents */
-
+    /**
+     * @return The form representing the first goal.
+     */
     public GoalsFormView getGoal1View() {
         return goal1View;
     }
 
+    /**
+     * @return The form representing the optional second goal.
+     */
     public GoalsFormView getGoal2View() {
         return goal2View;
     }

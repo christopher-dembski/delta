@@ -23,10 +23,4 @@ public class TestSwapsUI {
         verify(view).setPreviousButtonEnabled(false);
         verify(view).setNextButtonEnabled(true);
     }
-
-    @Test
-    public void testEnablesPreviousButtonAndEnablesNextButtonOnMiddleCard() {
-        verify(view).setPreviousButtonEnabled(false);
-        verify(view).setNextButtonEnabled(true);
-    }
 }

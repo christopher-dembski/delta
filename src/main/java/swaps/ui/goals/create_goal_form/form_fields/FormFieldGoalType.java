@@ -4,6 +4,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.function.Consumer;
 
+/**
+ * Form field representing a type of goal.
+ */
 public class FormFieldGoalType extends JPanel  {
     private JComboBox goalTypeDropDown;
 
@@ -22,10 +25,18 @@ public class FormFieldGoalType extends JPanel  {
         this.add(comboWrapper);
     }
 
-    public void setSelectedGoalType(DropdownOptionGoalType goalIntensity) {
-        goalTypeDropDown.setSelectedItem(goalIntensity);
+    /**
+     * Sets the selected goal type.
+     * @param goalType The selected goal type (precise/imprecise).
+     */
+    public void setSelectedGoalType(DropdownOptionGoalType goalType) {
+        goalTypeDropDown.setSelectedItem(goalType);
     }
 
+    /**
+     * Specifies which action to take when the user interacts with the dropdown.
+     * @param listener The action to take when the user interacts with the dropdown.
+     */
     public void addListener(Consumer<DropdownOptionGoalType> listener) {
         goalTypeDropDown.addActionListener(e -> {
             DropdownOptionGoalType selected = (DropdownOptionGoalType) goalTypeDropDown.getSelectedItem();
