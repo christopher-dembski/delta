@@ -1,6 +1,10 @@
-package data;
+package meals.models;
 
 import csv.CSVImportService;
+import data.IDatabaseDriver;
+import data.MySQLConfig;
+import data.MySQLDriver;
+
 import java.util.List;
 
 /**

@@ -1,4 +1,6 @@
-package data;
+package meals.models;
+
+import data.IRecord;
 
 import java.util.Collection;
 import java.util.Map;

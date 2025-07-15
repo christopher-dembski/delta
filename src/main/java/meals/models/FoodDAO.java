@@ -1,4 +1,6 @@
-package data;
+package meals.models;
+
+import data.*;
 
 import java.util.List;
 import java.util.stream.Collectors;

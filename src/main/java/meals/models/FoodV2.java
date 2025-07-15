@@ -1,4 +1,6 @@
-package data;
+package meals.models;
+
+import data.DatabaseException;
 
 import java.util.ArrayList;
 import java.util.List;

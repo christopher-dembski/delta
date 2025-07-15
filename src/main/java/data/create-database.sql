@@ -3,14 +3,14 @@ CREATE DATABASE delta_database;
 
 USE delta_database;
 
--- example table for testing
+-- Example tables for testing
+
 CREATE TABLE students
 (
     id   int PRIMARY KEY AUTO_INCREMENT,
     name varchar(255)
 );
 
--- Additional tables for CSV import demo
 -- Professors table (create first for foreign key reference)
 CREATE TABLE professors
 (
