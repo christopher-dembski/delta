@@ -6,24 +6,40 @@ import java.awt.*;
 
 public class AppMain extends JFrame {
 
-    private static final String TITLE = "Nutrition App";
+    private static final String HEADER_TITLE = "Nutrition App";
+    private static final int WINDOW_WIDTH = 1000;
+    private static final int WINDOW_HEIGHT = 700;
+
+    private CardLayout mainCardLayout = new CardLayout();
+    private JPanel mainPanel = new JPanel(mainCardLayout);
+    private NavigationView menu;
 
     public AppMain() {
-        this.setTitle(TITLE);
+        initLayout();
+        initNavigation();
+        initCardPanels();
+        initDivider();
+    }
+
+    private void initLayout() {
+        this.setTitle(HEADER_TITLE);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setSize(1000, 700);
+        this.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+        mainCardLayout = new CardLayout();
+        mainPanel = new JPanel(mainCardLayout);
+    }
 
-        CardLayout mainCardLayout = new CardLayout();
-        JPanel mainPanel = new JPanel(mainCardLayout);
-
-        NavigationView menu = new NavigationView();
+    private void initNavigation() {
+        menu = new NavigationView();
+        // TO DO: the navigation presenter shouldn't live in the view
         NavigationPresenter navigationPresenter = new NavigationPresenter(menu);
         navigationPresenter.addNavigationListener(menuItem -> {
             mainCardLayout.show(mainPanel, menuItem.toString());
         });
-        JScrollPane menuScrolling = new JScrollPane(menu);
-        this.add(menuScrolling);
+        this.add(menu);
+    }
 
+    private void initCardPanels() {
         mainPanel.add(new PlaceholderView("Select Profile View"), MenuItem.SELECT_PROFILE.toString());
         mainPanel.add(new PlaceholderView("Edit Profile View"), MenuItem.EDIT_PROFILE.toString());
         mainPanel.add(new PlaceholderView("Create Profile View"), MenuItem.CREATE_PROFILE.toString());
@@ -32,11 +48,12 @@ public class AppMain extends JFrame {
         mainPanel.add(new PlaceholderView("Single Meal View"), MenuItem.VIEW_SINGLE_MEAL.toString());
         mainPanel.add(new PlaceholderView("Meal Statistics View"), MenuItem.VIEW_MEAL_STATISTICS.toString());
         mainPanel.add(new PlaceholderView("Explore Swaps View"), MenuItem.EXPLORE_INGREDIENT_SWAPS.toString());
+    }
 
+    private void initDivider() {
         JSplitPane divider = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, menu, mainPanel);
         divider.setDividerLocation(250);
         this.add(divider);
-
         this.setVisible(true);
     }
 
