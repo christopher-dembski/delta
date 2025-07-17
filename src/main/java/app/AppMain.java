@@ -14,11 +14,12 @@ public class AppMain extends JFrame {
     private JPanel mainPanel = new JPanel(mainCardLayout);
     private NavigationView menu;
 
-    public AppMain() {
+    public AppMain(NavigationView navigationView) {
+        menu = navigationView;
+        this.add(menu);
         initLayout();
-        initNavigation();
-        initCardPanels();
         initDivider();
+        initCardPanels();
     }
 
     private void initLayout() {
@@ -29,14 +30,11 @@ public class AppMain extends JFrame {
         mainPanel = new JPanel(mainCardLayout);
     }
 
-    private void initNavigation() {
-        menu = new NavigationView();
-        // TO DO: the navigation presenter shouldn't live in the view
-        NavigationPresenter navigationPresenter = new NavigationPresenter(menu);
-        navigationPresenter.addNavigationListener(menuItem -> {
-            mainCardLayout.show(mainPanel, menuItem.toString());
-        });
-        this.add(menu);
+    private void initDivider() {
+        JSplitPane divider = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, menu, mainPanel);
+        divider.setDividerLocation(250);
+        this.add(divider);
+        this.setVisible(true);
     }
 
     private void initCardPanels() {
@@ -50,14 +48,7 @@ public class AppMain extends JFrame {
         mainPanel.add(new PlaceholderView("Explore Swaps View"), MenuItem.EXPLORE_INGREDIENT_SWAPS.toString());
     }
 
-    private void initDivider() {
-        JSplitPane divider = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, menu, mainPanel);
-        divider.setDividerLocation(250);
-        this.add(divider);
-        this.setVisible(true);
-    }
-
-    public static void main(String[] args) {
-        javax.swing.SwingUtilities.invokeLater(AppMain::new);
+    public void renderCard(MenuItem menuItem) {
+        mainCardLayout.show(mainPanel, menuItem.toString());
     }
 }
