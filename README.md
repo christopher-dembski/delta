@@ -10,7 +10,7 @@ mvn test
 To run the application:
 
 ```bash
-mvn clean compile exec:java -Dexec.mainClass="app.AppMain" -e
+mvn clean compile exec:java -Dexec.mainClass="app.AppMainView" -e
 ```
 
 To run test that simulate CI environment (headless mode) before pushing:

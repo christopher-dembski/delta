@@ -1,4 +1,6 @@
-package app;
+package shared;
+
+import app.MenuItem;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -10,13 +12,13 @@ public class NavigationView extends JPanel {
 
     public NavigationView() {
         super(new BorderLayout());
-        DefaultMutableTreeNode menuRoot = new DefaultMutableTreeNode(MenuItem.MENU_ROOT);
+        DefaultMutableTreeNode menuRoot = new DefaultMutableTreeNode(app.MenuItem.MENU_ROOT);
         DefaultMutableTreeNode profileSubMenu = buildProfilesSubMenu();
         DefaultMutableTreeNode mealsSubMenu = buildMealsSubmenu();
         menuRoot.add(profileSubMenu);
         menuRoot.add(mealsSubMenu);
-        menuRoot.add(new DefaultMutableTreeNode(MenuItem.VIEW_MEAL_STATISTICS));
-        menuRoot.add(new DefaultMutableTreeNode(MenuItem.EXPLORE_INGREDIENT_SWAPS));
+        menuRoot.add(new DefaultMutableTreeNode(app.MenuItem.VIEW_MEAL_STATISTICS));
+        menuRoot.add(new DefaultMutableTreeNode(app.MenuItem.EXPLORE_INGREDIENT_SWAPS));
         menuTree = new JTree(menuRoot);
         menuTree.setRootVisible(false);
         this.add(menuTree);
@@ -26,10 +28,10 @@ public class NavigationView extends JPanel {
     // accept this list as param to make completely decouple from main UI
 
     private static DefaultMutableTreeNode buildProfilesSubMenu() {
-        DefaultMutableTreeNode profileSubMenu = new DefaultMutableTreeNode(MenuItem.PROFILE_SUBMENU);
-        DefaultMutableTreeNode selectProfileMenuItem = new DefaultMutableTreeNode(MenuItem.SELECT_PROFILE);
-        DefaultMutableTreeNode editProfileMenuItem = new DefaultMutableTreeNode(MenuItem.EDIT_PROFILE);
-        DefaultMutableTreeNode createProfileMenuItem = new DefaultMutableTreeNode(MenuItem.CREATE_PROFILE);
+        DefaultMutableTreeNode profileSubMenu = new DefaultMutableTreeNode(app.MenuItem.PROFILE_SUBMENU);
+        DefaultMutableTreeNode selectProfileMenuItem = new DefaultMutableTreeNode(app.MenuItem.SELECT_PROFILE);
+        DefaultMutableTreeNode editProfileMenuItem = new DefaultMutableTreeNode(app.MenuItem.EDIT_PROFILE);
+        DefaultMutableTreeNode createProfileMenuItem = new DefaultMutableTreeNode(app.MenuItem.CREATE_PROFILE);
         profileSubMenu.add(selectProfileMenuItem);
         profileSubMenu.add(editProfileMenuItem);
         profileSubMenu.add(createProfileMenuItem);
@@ -37,21 +39,21 @@ public class NavigationView extends JPanel {
     }
 
     private static DefaultMutableTreeNode buildMealsSubmenu() {
-        DefaultMutableTreeNode mealsSubMenu = new DefaultMutableTreeNode(MenuItem.MEALS_SUBMENU);
-        DefaultMutableTreeNode logMealMenuItem = new DefaultMutableTreeNode(MenuItem.LOG_MEAL);
-        DefaultMutableTreeNode viewMultipleMealsMenuItem = new DefaultMutableTreeNode(MenuItem.VIEW_MULTIPLE_MEALS);
-        DefaultMutableTreeNode viewSingleMealMenuItem = new DefaultMutableTreeNode(MenuItem.VIEW_SINGLE_MEAL);
+        DefaultMutableTreeNode mealsSubMenu = new DefaultMutableTreeNode(app.MenuItem.MEALS_SUBMENU);
+        DefaultMutableTreeNode logMealMenuItem = new DefaultMutableTreeNode(app.MenuItem.LOG_MEAL);
+        DefaultMutableTreeNode viewMultipleMealsMenuItem = new DefaultMutableTreeNode(app.MenuItem.VIEW_MULTIPLE_MEALS);
+        DefaultMutableTreeNode viewSingleMealMenuItem = new DefaultMutableTreeNode(app.MenuItem.VIEW_SINGLE_MEAL);
         mealsSubMenu.add(logMealMenuItem);
         mealsSubMenu.add(viewMultipleMealsMenuItem);
         mealsSubMenu.add(viewSingleMealMenuItem);
         return mealsSubMenu;
     }
 
-    public void addNavigationListener(Consumer<MenuItem> listener) {
+    public void addNavigationListener(Consumer<app.MenuItem> listener) {
         menuTree.addTreeSelectionListener(treeSelectionEvent -> {
             DefaultMutableTreeNode menuNode =
                     (DefaultMutableTreeNode) treeSelectionEvent.getPath().getLastPathComponent();
-            MenuItem menuItem = (MenuItem) menuNode.getUserObject();
+            app.MenuItem menuItem = (MenuItem) menuNode.getUserObject();
             listener.accept(menuItem);
         });
     }

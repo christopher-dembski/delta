@@ -1,10 +1,12 @@
 package app;
 
 
+import shared.NavigationView;
+
 import javax.swing.*;
 import java.awt.*;
 
-public class AppMain extends JFrame {
+public class AppMainView extends JFrame {
 
     private static final String HEADER_TITLE = "Nutrition App";
     private static final int WINDOW_WIDTH = 1000;
@@ -14,7 +16,7 @@ public class AppMain extends JFrame {
     private JPanel mainPanel = new JPanel(mainCardLayout);
     private NavigationView menu;
 
-    public AppMain(NavigationView navigationView) {
+    public AppMainView(NavigationView navigationView) {
         menu = navigationView;
         this.add(menu);
         initLayout();

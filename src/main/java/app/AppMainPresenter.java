@@ -1,12 +1,15 @@
 package app;
 
+import shared.NavigationPresenter;
+import shared.NavigationView;
+
 public class AppMainPresenter {
-    private AppMain view;
+    private AppMainView view;
 
     public AppMainPresenter() {
         NavigationView menu = new NavigationView();
         NavigationPresenter navigationPresenter = new NavigationPresenter(menu);
-        view = new AppMain(menu);
+        view = new AppMainView(menu);
         navigationPresenter.addNavigationListener(menuItem -> view.renderCard(menuItem));
     }
 

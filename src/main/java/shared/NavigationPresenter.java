@@ -1,4 +1,6 @@
-package app;
+package shared;
+
+import app.MenuItem;
 
 import java.util.function.Consumer;
 
