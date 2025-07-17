@@ -7,13 +7,13 @@ import java.util.function.Consumer;
 
 
 public class NavigationView<T> extends JPanel {
-    private final JTree leftNavTree;
+    private final JTree navTree;
 
     public NavigationView(INavElement<T> navElement) {
         super(new BorderLayout());
-        leftNavTree = new JTree(buildTree(navElement));
-        leftNavTree.setRootVisible(false);
-        this.add(leftNavTree);
+        navTree = new JTree(buildTree(navElement));
+        navTree.setRootVisible(false);
+        this.add(navTree);
     }
 
     private DefaultMutableTreeNode buildTree(INavElement<T> navElement) {
@@ -26,7 +26,7 @@ public class NavigationView<T> extends JPanel {
     }
 
     public void addNavigationListener(Consumer<T> listener) {
-        leftNavTree.addTreeSelectionListener(treeSelectionEvent -> {
+        navTree.addTreeSelectionListener(treeSelectionEvent -> {
             DefaultMutableTreeNode menuNode =
                     (DefaultMutableTreeNode) treeSelectionEvent.getPath().getLastPathComponent();
             T leftNavItem = (T) menuNode.getUserObject();

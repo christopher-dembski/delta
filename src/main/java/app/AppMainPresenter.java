@@ -6,14 +6,14 @@ import shared.navigation.*;
 public class AppMainPresenter {
     private static AppMainPresenter instance;
 
-    private AppMainView appMainView;
+    private final AppMainView appMainView;
 
     public AppMainPresenter() {
         INavElement<LeftNavItem> leftNavTree = buildLeftNavTree();
-        NavigationView leftNav = new NavigationView(leftNavTree);
+        NavigationView<LeftNavItem> leftNav = new NavigationView<>(leftNavTree);
         NavigationPresenter leftNavPresenter = new NavigationPresenter(leftNav);
         appMainView = new AppMainView(leftNav);
-        leftNavPresenter.addNavigationListener(menuItem -> appMainView.renderCard(menuItem));
+        leftNavPresenter.addNavigationListener(appMainView::renderCard);
     }
 
     private static INavElement<LeftNavItem> buildLeftNavTree() {
