@@ -1,7 +1,7 @@
 package app;
 
 
-import shared.NavigationView;
+import shared.navigation.NavigationView;
 
 import javax.swing.*;
 import java.awt.*;

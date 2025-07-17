@@ -1,4 +1,4 @@
-package shared;
+package shared.navigation;
 
 import app.LeftNavItem;
 
