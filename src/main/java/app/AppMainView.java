@@ -12,45 +12,49 @@ public class AppMainView extends JFrame {
     private static final int WINDOW_WIDTH = 1000;
     private static final int WINDOW_HEIGHT = 700;
 
-    private CardLayout mainCardLayout = new CardLayout();
-    private JPanel mainPanel = new JPanel(mainCardLayout);
-    private NavigationView menu;
+    private CardLayout mainWindowCardLayout = new CardLayout();
+    private JPanel mainWindow = new JPanel(mainWindowCardLayout);
+    private NavigationView leftNavView;
 
-    public AppMainView(NavigationView navigationView) {
-        menu = navigationView;
-        this.add(menu);
+    public AppMainView(NavigationView leftNavView) {
+        initLeftNav(leftNavView);
         initLayout();
         initDivider();
-        initCardPanels();
+        initMainWindowCards();
+    }
+
+    private void initLeftNav(NavigationView leftNavView) {
+        this.leftNavView = leftNavView;
+        this.add(this.leftNavView);
     }
 
     private void initLayout() {
         this.setTitle(HEADER_TITLE);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-        mainCardLayout = new CardLayout();
-        mainPanel = new JPanel(mainCardLayout);
+        mainWindowCardLayout = new CardLayout();
+        mainWindow = new JPanel(mainWindowCardLayout);
     }
 
     private void initDivider() {
-        JSplitPane divider = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, menu, mainPanel);
+        JSplitPane divider = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftNavView, mainWindow);
         divider.setDividerLocation(250);
         this.add(divider);
         this.setVisible(true);
     }
 
-    private void initCardPanels() {
-        mainPanel.add(new PlaceholderView("Select Profile View"), MenuItem.SELECT_PROFILE.toString());
-        mainPanel.add(new PlaceholderView("Edit Profile View"), MenuItem.EDIT_PROFILE.toString());
-        mainPanel.add(new PlaceholderView("Create Profile View"), MenuItem.CREATE_PROFILE.toString());
-        mainPanel.add(new PlaceholderView("Log Meals View"), MenuItem.LOG_MEAL.toString());
-        mainPanel.add(new PlaceholderView("Multiple Meals View"), MenuItem.VIEW_MULTIPLE_MEALS.toString());
-        mainPanel.add(new PlaceholderView("Single Meal View"), MenuItem.VIEW_SINGLE_MEAL.toString());
-        mainPanel.add(new PlaceholderView("Meal Statistics View"), MenuItem.VIEW_MEAL_STATISTICS.toString());
-        mainPanel.add(new PlaceholderView("Explore Swaps View"), MenuItem.EXPLORE_INGREDIENT_SWAPS.toString());
+    private void initMainWindowCards() {
+        mainWindow.add(new PlaceholderView("Select Profile View"), LeftNavItem.SELECT_PROFILE.toString());
+        mainWindow.add(new PlaceholderView("Edit Profile View"), LeftNavItem.EDIT_PROFILE.toString());
+        mainWindow.add(new PlaceholderView("Create Profile View"), LeftNavItem.CREATE_PROFILE.toString());
+        mainWindow.add(new PlaceholderView("Log Meals View"), LeftNavItem.LOG_MEAL.toString());
+        mainWindow.add(new PlaceholderView("Multiple Meals View"), LeftNavItem.VIEW_MULTIPLE_MEALS.toString());
+        mainWindow.add(new PlaceholderView("Single Meal View"), LeftNavItem.VIEW_SINGLE_MEAL.toString());
+        mainWindow.add(new PlaceholderView("Meal Statistics View"), LeftNavItem.VIEW_MEAL_STATISTICS.toString());
+        mainWindow.add(new PlaceholderView("Explore Swaps View"), LeftNavItem.EXPLORE_INGREDIENT_SWAPS.toString());
     }
 
-    public void renderCard(MenuItem menuItem) {
-        mainCardLayout.show(mainPanel, menuItem.toString());
+    public void renderCard(LeftNavItem leftNavItem) {
+        mainWindowCardLayout.show(mainWindow, leftNavItem.toString());
     }
 }

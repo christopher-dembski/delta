@@ -4,13 +4,13 @@ import shared.NavigationPresenter;
 import shared.NavigationView;
 
 public class AppMainPresenter {
-    private AppMainView view;
+    private AppMainView appMainView;
 
     public AppMainPresenter() {
-        NavigationView menu = new NavigationView();
-        NavigationPresenter navigationPresenter = new NavigationPresenter(menu);
-        view = new AppMainView(menu);
-        navigationPresenter.addNavigationListener(menuItem -> view.renderCard(menuItem));
+        NavigationView leftNav = new NavigationView();
+        NavigationPresenter leftNavPresenter = new NavigationPresenter(leftNav);
+        appMainView = new AppMainView(leftNav);
+        leftNavPresenter.addNavigationListener(menuItem -> appMainView.renderCard(menuItem));
     }
 
     public static void main(String[] args) {

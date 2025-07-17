@@ -1,6 +1,6 @@
 package shared;
 
-import app.MenuItem;
+import app.LeftNavItem;
 
 import java.util.function.Consumer;
 
@@ -11,7 +11,7 @@ public class NavigationPresenter {
         this.view = view;
     }
 
-    public void addNavigationListener(Consumer<MenuItem> listener) {
+    public void addNavigationListener(Consumer<LeftNavItem> listener) {
         view.addNavigationListener(listener);
     }
 }

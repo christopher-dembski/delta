@@ -1,7 +1,7 @@
 package app;
 
 
-public enum MenuItem {
+public enum LeftNavItem {
     // root
     MENU_ROOT("Menu Root - Not Visible"),
     // profile submenu
@@ -21,7 +21,7 @@ public enum MenuItem {
 
     private final String label;
 
-    MenuItem(String label) {
+    LeftNavItem(String label) {
         this.label= label;
     }
 
