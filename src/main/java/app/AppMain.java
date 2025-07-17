@@ -59,6 +59,17 @@ public class AppMain extends JFrame {
         return menuTree;
     }
 
+    private JPanel navigate(String menuItemId) {
+        return switch (menuItemId) {
+            case "Select Profile" -> createPlaceholderView("Select Profile View");
+            case "Edit Profile" -> createPlaceholderView("Edit Profile View");
+            case "Create Profile" -> createPlaceholderView("Create Profile View");
+            case "Meals" -> createPlaceholderView("Meals View");
+            case "Swaps" -> createPlaceholderView("Swaps View");
+            default -> null;
+        };
+    }
+
     private static DefaultMutableTreeNode getProfileSubMenu() {
         DefaultMutableTreeNode profileSubMenu = new DefaultMutableTreeNode("Profile");
         DefaultMutableTreeNode selectProfileMenuItem = new DefaultMutableTreeNode("Select Profile");
@@ -70,7 +81,7 @@ public class AppMain extends JFrame {
         return profileSubMenu;
     }
 
-    private JPanel createPlaceholderView(String title) {
+    private static JPanel createPlaceholderView(String title) {
         JPanel placeholderView = new JPanel(new BorderLayout());
         placeholderView.add(new JLabel(title, JLabel.CENTER), BorderLayout.CENTER);
         return placeholderView;
