@@ -42,11 +42,11 @@ public class AppMainView extends JFrame {
         this.setVisible(true);
     }
 
-    public void addCard(JComponent view, LeftNavItem navItem) {
-        mainWindow.add(view, navItem.toString());
-    }
-
-    public void renderCard(LeftNavItem leftNavItem) {
+    public void renderCard(LeftNavItem leftNavItem, JComponent newView) {
+        mainWindow.removeAll();
+        mainWindow.add(newView, leftNavView.toString());
         mainWindowCardLayout.show(mainWindow, leftNavItem.toString());
+        mainWindow.revalidate();
+        mainWindow.repaint();
     }
 }

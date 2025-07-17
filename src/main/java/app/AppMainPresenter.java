@@ -2,6 +2,8 @@ package app;
 
 import shared.navigation.*;
 
+import javax.swing.*;
+
 
 public class AppMainPresenter {
     private static AppMainPresenter instance;
@@ -10,29 +12,28 @@ public class AppMainPresenter {
     private NavigationPresenter leftNavPresenter;
 
     private AppMainPresenter() {
-        initLeftNav();
-        initCards();
-    }
-
-    private void initLeftNav() {
         INavElement<LeftNavItem> leftNavTree = buildLeftNavTree();
         NavigationView<LeftNavItem> leftNav = new NavigationView<>(leftNavTree);
         leftNavPresenter = new NavigationPresenter<>(leftNav);
         appMainView = new AppMainView(leftNav);
         leftNavPresenter.addNavigationListener((leftNavItem) -> {
-            appMainView.renderCard((LeftNavItem) leftNavItem);
+            JComponent newView = buildView((LeftNavItem) leftNavItem);
+            appMainView.renderCard((LeftNavItem) leftNavItem, newView);
         });
     }
 
-    private void initCards() {
-        appMainView.addCard(new PlaceholderView("Select Profile View"), LeftNavItem.SELECT_PROFILE);
-        appMainView.addCard(new PlaceholderView("Edit Profile View"), LeftNavItem.EDIT_PROFILE);
-        appMainView.addCard(new PlaceholderView("Create Profile View"), LeftNavItem.CREATE_PROFILE);
-        appMainView.addCard(new PlaceholderView("Log Meals View"), LeftNavItem.LOG_MEAL);
-        appMainView.addCard(new PlaceholderView("Multiple Meals View"), LeftNavItem.VIEW_MULTIPLE_MEALS);
-        appMainView.addCard(new PlaceholderView("Single Meal View"), LeftNavItem.VIEW_SINGLE_MEAL);
-        appMainView.addCard(new PlaceholderView("Meal Statistics View"), LeftNavItem.VIEW_MEAL_STATISTICS);
-        appMainView.addCard(new PlaceholderView("Explore Swaps View"), LeftNavItem.EXPLORE_INGREDIENT_SWAPS);
+    private JComponent buildView(LeftNavItem navItem) {
+        return switch (navItem) {
+            case SELECT_PROFILE -> new PlaceholderView("Select Profile View");
+            case EDIT_PROFILE -> new PlaceholderView("Edit Profile View");
+            case CREATE_PROFILE -> new PlaceholderView("Create Profile View");
+            case LOG_MEAL -> new PlaceholderView("Log Meals View");
+            case VIEW_MULTIPLE_MEALS -> new PlaceholderView("Multiple Meals View");
+            case VIEW_SINGLE_MEAL -> new PlaceholderView("Single Meal View");
+            case VIEW_MEAL_STATISTICS -> new PlaceholderView("Meal Statistics View");
+            case EXPLORE_INGREDIENT_SWAPS -> new PlaceholderView("Explore Swaps View");
+            default -> new PlaceholderView("Unknown View");
+        };
     }
 
     private static INavElement<LeftNavItem> buildLeftNavTree() {
@@ -73,9 +74,9 @@ public class AppMainPresenter {
 
     public static void main(String[] args) {
         javax.swing.SwingUtilities.invokeLater(() -> {
-            AppMainPresenter.instance();
+            AppMainPresenter presenter = AppMainPresenter.instance();
             // TEMP: just for testing the navigateTo method works
-            instance().navigateTo(LeftNavItem.LOG_MEAL);
+            presenter.navigateTo(LeftNavItem.LOG_MEAL);
         });
     }
 }
