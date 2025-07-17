@@ -2,7 +2,10 @@ package shared.navigation;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 import java.awt.*;
+import java.util.Enumeration;
 import java.util.function.Consumer;
 
 
@@ -23,6 +26,25 @@ public class NavigationView<T> extends JPanel {
             node.add(childNode);
         }
         return node;
+    }
+
+    public void selectNavItem(T targetValue) {
+        DefaultMutableTreeNode node = findNode(targetValue);
+        if (node != null) {
+            navTree.setSelectionPath(new TreePath(node.getPath()));
+        }
+    }
+
+    private DefaultMutableTreeNode findNode(T targetValue) {
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode) navTree.getModel().getRoot();
+        Enumeration<TreeNode> nodes = root.breadthFirstEnumeration();
+        while (nodes.hasMoreElements()) {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) nodes.nextElement();
+            if (node.getUserObject().equals(targetValue)) {
+                return node;
+            }
+        }
+        return null;
     }
 
     public void addNavigationListener(Consumer<T> listener) {

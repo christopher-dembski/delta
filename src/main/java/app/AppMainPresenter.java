@@ -7,13 +7,16 @@ public class AppMainPresenter {
     private static AppMainPresenter instance;
 
     private final AppMainView appMainView;
+    private final NavigationPresenter leftNavPresenter;
 
-    public AppMainPresenter() {
+    private AppMainPresenter() {
         INavElement<LeftNavItem> leftNavTree = buildLeftNavTree();
         NavigationView<LeftNavItem> leftNav = new NavigationView<>(leftNavTree);
-        NavigationPresenter leftNavPresenter = new NavigationPresenter(leftNav);
+        leftNavPresenter = new NavigationPresenter<>(leftNav);
         appMainView = new AppMainView(leftNav);
-        leftNavPresenter.addNavigationListener(appMainView::renderCard);
+        leftNavPresenter.addNavigationListener((leftNavItem) -> {
+            appMainView.renderCard((LeftNavItem) leftNavItem);
+        });
     }
 
     private static INavElement<LeftNavItem> buildLeftNavTree() {
@@ -41,6 +44,10 @@ public class AppMainPresenter {
         return mealsSubMenu;
     }
 
+    public void navigateTo(LeftNavItem leftNavItem) {
+        leftNavPresenter.navigateTo(leftNavItem);
+    }
+
     public static AppMainPresenter instance() {
         if (instance == null) {
             instance = new AppMainPresenter();
@@ -49,6 +56,10 @@ public class AppMainPresenter {
     }
 
     public static void main(String[] args) {
-        javax.swing.SwingUtilities.invokeLater(AppMainPresenter::instance);
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            AppMainPresenter.instance();
+            // TEMP: just for testing the navigateTo method works
+            instance().navigateTo(LeftNavItem.LOG_MEAL);
+        });
     }
 }
