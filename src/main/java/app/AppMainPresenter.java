@@ -6,10 +6,15 @@ import shared.navigation.*;
 public class AppMainPresenter {
     private static AppMainPresenter instance;
 
-    private final AppMainView appMainView;
-    private final NavigationPresenter leftNavPresenter;
+    private AppMainView appMainView;
+    private NavigationPresenter leftNavPresenter;
 
     private AppMainPresenter() {
+        initLeftNav();
+        initCards();
+    }
+
+    private void initLeftNav() {
         INavElement<LeftNavItem> leftNavTree = buildLeftNavTree();
         NavigationView<LeftNavItem> leftNav = new NavigationView<>(leftNavTree);
         leftNavPresenter = new NavigationPresenter<>(leftNav);
@@ -17,6 +22,17 @@ public class AppMainPresenter {
         leftNavPresenter.addNavigationListener((leftNavItem) -> {
             appMainView.renderCard((LeftNavItem) leftNavItem);
         });
+    }
+
+    private void initCards() {
+        appMainView.addCard(new PlaceholderView("Select Profile View"), LeftNavItem.SELECT_PROFILE);
+        appMainView.addCard(new PlaceholderView("Edit Profile View"), LeftNavItem.EDIT_PROFILE);
+        appMainView.addCard(new PlaceholderView("Create Profile View"), LeftNavItem.CREATE_PROFILE);
+        appMainView.addCard(new PlaceholderView("Log Meals View"), LeftNavItem.LOG_MEAL);
+        appMainView.addCard(new PlaceholderView("Multiple Meals View"), LeftNavItem.VIEW_MULTIPLE_MEALS);
+        appMainView.addCard(new PlaceholderView("Single Meal View"), LeftNavItem.VIEW_SINGLE_MEAL);
+        appMainView.addCard(new PlaceholderView("Meal Statistics View"), LeftNavItem.VIEW_MEAL_STATISTICS);
+        appMainView.addCard(new PlaceholderView("Explore Swaps View"), LeftNavItem.EXPLORE_INGREDIENT_SWAPS);
     }
 
     private static INavElement<LeftNavItem> buildLeftNavTree() {

@@ -20,7 +20,6 @@ public class AppMainView extends JFrame {
         initLeftNav(leftNavView);
         initLayout();
         initDivider();
-        initMainWindowCards();
     }
 
     private void initLeftNav(NavigationView leftNavView) {
@@ -43,15 +42,8 @@ public class AppMainView extends JFrame {
         this.setVisible(true);
     }
 
-    private void initMainWindowCards() {
-        mainWindow.add(new PlaceholderView("Select Profile View"), LeftNavItem.SELECT_PROFILE.toString());
-        mainWindow.add(new PlaceholderView("Edit Profile View"), LeftNavItem.EDIT_PROFILE.toString());
-        mainWindow.add(new PlaceholderView("Create Profile View"), LeftNavItem.CREATE_PROFILE.toString());
-        mainWindow.add(new PlaceholderView("Log Meals View"), LeftNavItem.LOG_MEAL.toString());
-        mainWindow.add(new PlaceholderView("Multiple Meals View"), LeftNavItem.VIEW_MULTIPLE_MEALS.toString());
-        mainWindow.add(new PlaceholderView("Single Meal View"), LeftNavItem.VIEW_SINGLE_MEAL.toString());
-        mainWindow.add(new PlaceholderView("Meal Statistics View"), LeftNavItem.VIEW_MEAL_STATISTICS.toString());
-        mainWindow.add(new PlaceholderView("Explore Swaps View"), LeftNavItem.EXPLORE_INGREDIENT_SWAPS.toString());
+    public void addCard(JComponent view, LeftNavItem navItem) {
+        mainWindow.add(view, navItem.toString());
     }
 
     public void renderCard(LeftNavItem leftNavItem) {
