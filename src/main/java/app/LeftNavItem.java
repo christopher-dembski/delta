@@ -1,28 +1,33 @@
 package app;
 
-
+/**
+ * Identifiers for each item in the left navigation menu.
+ */
 public enum LeftNavItem {
-    // root
+
     MENU_ROOT("Menu Root - Not Visible"),
-    // profile submenu
+
     PROFILE_SUBMENU("Profiles"),
     SELECT_PROFILE("Select Profile"),
     EDIT_PROFILE("Edit Profile"),
     CREATE_PROFILE("Create Profile"),
-    // meals submenu
+
     MEALS_SUBMENU("Meals"),
     LOG_MEAL("Log meal"),
     VIEW_MULTIPLE_MEALS("View Multiple Meals"),
     VIEW_SINGLE_MEAL("View Single Meal"),
-    // meal statistics
+
     VIEW_MEAL_STATISTICS("View Meal Stats"),
-    // swaps
+
     EXPLORE_INGREDIENT_SWAPS("Explore Swaps");
 
     private final String label;
 
+    /**
+     * @param label The visual representation of the navigation item used for rendering.
+     */
     LeftNavItem(String label) {
-        this.label= label;
+        this.label = label;
     }
 
     @Override
