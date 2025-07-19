@@ -58,7 +58,9 @@ public class MySQLConfig implements IDatabaseConfig {
         hostName = AppBackend.CI.equals(System.getenv(AppBackend.APP_ENV))
                 ? "db"
                 : "localhost";
-        portNumber = 3306;
+        portNumber = AppBackend.CI.equals(System.getenv(AppBackend.APP_ENV))
+                ? 3306
+                : 3307;
         databaseName = "delta_database";
         serviceAccount = "delta-service-account";
         serviceAccountPassword = "password";
