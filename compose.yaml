@@ -8,7 +8,7 @@ services:
       MYSQL_USER: delta-service-account
       MYSQL_PASSWORD: password
     ports:
-      - "3307:3306"
+      - "3306:3306"
     volumes:
       - ./src/main/java/data/create-database.sql:/docker-entrypoint-initdb.d/1-create-database.sql
       - ./src/main/java/data/seed-database.sql:/docker-entrypoint-initdb.d/2-seed-database.sql
