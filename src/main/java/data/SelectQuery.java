@@ -25,7 +25,7 @@ public class SelectQuery extends Query {
     /**
      * The order to sort by.
      */
-    private Order sortOrder;
+    private SortOrder sortOrder;
 
     /**
      * @param collectionName The name of the database collection to select records from.
@@ -76,7 +76,7 @@ public class SelectQuery extends Query {
      * @param sortOrder The order to sort by.
      * @return The same query instance after setting the sort order.
      */
-    public SelectQuery sortOrder(Order sortOrder) {
+    public SelectQuery sortOrder(SortOrder sortOrder) {
         this.sortOrder = sortOrder;
         return this;
     }
@@ -105,7 +105,7 @@ public class SelectQuery extends Query {
     /**
      * @return The order to sort by.
      */
-    public Order getSortOrder() {
+    public SortOrder getSortOrder() {
         return sortOrder;
     }
 

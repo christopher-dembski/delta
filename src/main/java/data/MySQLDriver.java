@@ -112,15 +112,13 @@ public class MySQLDriver implements IDatabaseDriver {
         StringBuilder selectStatement = new StringBuilder(SELECT_STATEMENT_TEMPLATE.formatted(tableName));
         selectStatement.append(buildWhereClause(query.getFilters()));
         
-        // Add ORDER BY clause if sortColumn is specified
         if (query.getSortColumn() != null) {
             selectStatement.append(" ORDER BY ").append(query.getSortColumn());
             if (query.getSortOrder() != null) {
-                selectStatement.append(" ").append(query.getSortOrder() == Order.ASCENDING ? "ASC" : "DESC");
+                selectStatement.append(" ").append(query.getSortOrder() == SortOrder.ASCENDING ? "ASC" : "DESC");
             }
         }
         
-        // Add LIMIT clause if limit is specified
         if (query.getLimit() != null) {
             selectStatement.append(" LIMIT ").append(query.getLimit());
         }
