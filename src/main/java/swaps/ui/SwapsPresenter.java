@@ -84,21 +84,4 @@ public class SwapsPresenter {
         view.setNextButtonEnabled(currentCardIndex < lastCardIndex);
         view.showCard(CARD_IDS[currentCardIndex]);
     }
-
-    /**
-     * Temporary main method for ad-hoc testing.
-     * @param args Command line arguments (ignored).
-     */
-    public static void main(String[] args) {
-        JFrame frame = new JFrame();
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setLocationRelativeTo(null);
-        frame.setSize(500, 500);
-        // set up view and presenter
-        SwapsView swapsView = new SwapsView(new CreateGoalsView());
-        new SwapsPresenter(swapsView);
-        frame.add(swapsView);
-        // render
-        frame.setVisible(true);
-    }
 }
