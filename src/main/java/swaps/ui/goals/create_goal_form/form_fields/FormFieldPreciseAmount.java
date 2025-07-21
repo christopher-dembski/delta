@@ -9,11 +9,12 @@ import java.awt.*;
  * Form field representing a precise amount.
  */
 public class FormFieldPreciseAmount extends JPanel {
+    private static final int PREFERRED_FORM_FIELD_WIDTH = 10;
+
     public FormFieldPreciseAmount(Nutrient nutrient) {
-        JPanel formField = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        super(new FlowLayout(FlowLayout.CENTER));
         JLabel formLabel = new JLabel("Enter an amount (%s)".formatted(nutrient.getNutrientUnit()));
-        formField.add(formLabel);
-        formField.add(new JTextField(10));
-        this.add(formField);
+        this.add(formLabel);
+        this.add(new JTextField(PREFERRED_FORM_FIELD_WIDTH));
     }
 }

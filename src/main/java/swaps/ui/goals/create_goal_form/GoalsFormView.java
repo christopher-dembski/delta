@@ -3,6 +3,7 @@ package swaps.ui.goals.create_goal_form;
 import meals.models.MockDataFactory;
 import swaps.ui.goals.create_goal_form.form_fields.FormFieldGoalIntensity;
 import swaps.ui.goals.create_goal_form.form_fields.FormFieldGoalType;
+import swaps.ui.goals.create_goal_form.form_fields.FormFieldNutrient;
 import swaps.ui.goals.create_goal_form.form_fields.FormFieldPreciseAmount;
 
 import javax.swing.*;
@@ -13,6 +14,7 @@ import java.awt.*;
  */
 public class GoalsFormView extends JPanel {
     private FormFieldGoalType typeField;
+    private FormFieldNutrient nutrientField;
     private FormFieldPreciseAmount preciseAmountField;
     private FormFieldGoalIntensity intensityField;
 
@@ -42,6 +44,8 @@ public class GoalsFormView extends JPanel {
     private void initFormFields() {
         typeField = new FormFieldGoalType();
         this.add(typeField);
+        nutrientField = new FormFieldNutrient();
+        this.add(nutrientField);
         // TO DO: use nutrient from dropdown
         preciseAmountField = new FormFieldPreciseAmount(MockDataFactory.createMockNutrients().getFirst());
         this.add(preciseAmountField);
