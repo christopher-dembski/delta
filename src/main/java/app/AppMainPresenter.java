@@ -20,6 +20,8 @@ public class AppMainPresenter {
         appMainView = new AppMainView(leftNav);
         leftNavPresenter.addNavigationListener((leftNavItem) -> {
             JComponent newView = buildView(leftNavItem);
+            // null when a sub-menu heading is clicked
+            if (newView == null) return;
             appMainView.renderCard(leftNavItem, newView);
         });
     }
@@ -34,6 +36,7 @@ public class AppMainPresenter {
      *
      * @param navItem The navigation item to build the view for.
      * @return The view corresponding to the navigation item wired up to the presenter.
+     * null if a submenu heading is clicked or the specified view does not exist.
      */
     private JComponent buildView(LeftNavItem navItem) {
         return switch (navItem) {
@@ -45,7 +48,7 @@ public class AppMainPresenter {
             case VIEW_SINGLE_MEAL -> new PlaceholderView("Single Meal View");
             case VIEW_MEAL_STATISTICS -> new PlaceholderView("Meal Statistics View");
             case EXPLORE_INGREDIENT_SWAPS -> new PlaceholderView("Explore Swaps View");
-            default -> new PlaceholderView("Unknown View");
+            default -> null;
         };
     }
 
