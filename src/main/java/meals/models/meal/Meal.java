@@ -1,12 +1,21 @@
 package meals.models.meal;
 
+import data.IRecord;
+
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+
+
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
 /**
  * Represents a meal logged by the user.
  */
-public class Meal {
+public class Meal implements IRecord {
+    private static final String TABLE = "meals";
+
     /**
      * The different types of meals.
      */
@@ -28,9 +37,14 @@ public class Meal {
         }
     }
 
+    public static String getTableName() {
+        return TABLE;
+    }
+
     private final int id;
     private final MealType mealType;
     private final List<MealItem> mealItems;
+    private final Date createdAt;
 
     /**
      * @param id        The unique identifier of the meal.
@@ -41,6 +55,7 @@ public class Meal {
         this.id = id;
         this.mealType = mealType;
         this.mealItems = mealItems;
+        this.createdAt = createdAt;
     }
 
     /**
@@ -62,5 +77,25 @@ public class Meal {
      */
     public List<MealItem> getMealItems() {
         return mealItems;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    @Override
+    public Object getValue(String field) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return switch (field) {
+            case "id" -> id;
+            case "user_id" -> 1; // TO DO: replace with current user
+            case "created_on" -> new SimpleDateFormat("yyyy-MM-dd").format(createdAt);
+            default -> null;
+        };
+    }
+
+    @Override
+    public Collection<String> fieldNames() {
+        return List.of("id", "user_id", "created_on");
     }
 }

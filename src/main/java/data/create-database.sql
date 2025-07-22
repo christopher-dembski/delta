@@ -77,3 +77,23 @@ CREATE TABLE nutrient_amounts
     FOREIGN KEY (FoodID) REFERENCES foods(FoodID),
     FOREIGN KEY (NutrientID) REFERENCES nutrients(NutrientID)
 );
+
+-- Meal tables
+
+CREATE TABLE meals
+(
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL ,
+    created_on DATE NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES profiles(id)
+);
+
+CREATE TABLE meal_items
+(
+    id int PRIMARY KEY AUTO_INCREMENT,
+    meal_id INT,
+    food_id INT NOT NULL,
+    quantity INT NOT NULL,
+    FOREIGN KEY (meal_id) REFERENCES meals(id),
+    FOREIGN KEY (food_id) REFERENCES foods(FoodID)
+);
