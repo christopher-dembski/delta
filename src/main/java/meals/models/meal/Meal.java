@@ -31,6 +31,16 @@ public class Meal implements IRecord {
             this.label = label;
         }
 
+        public static MealType fromString(String mealType) {
+            return switch (mealType) {
+                case "Breakfast" -> MealType.BREAKFAST;
+                case "Lunch" -> MealType.LUNCH;
+                case "Dinner" -> MealType.DINNER;
+                case "Snack" -> MealType.SNACK;
+                default -> null;
+            };
+        }
+
         @Override
         public String toString() {
             return label;
@@ -81,6 +91,11 @@ public class Meal implements IRecord {
 
     public Date getCreatedAt() {
         return createdAt;
+    }
+
+    @Override
+    public String toString() {
+        return "Meal(id: %s, mealType: %s, createdAt: %s)".formatted(id, mealType, createdAt);
     }
 
     @Override

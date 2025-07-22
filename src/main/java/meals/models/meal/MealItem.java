@@ -68,6 +68,11 @@ public class MealItem implements IRecord {
     }
 
     @Override
+    public String toString() {
+        return "MealItem(id: %s, food: %s, quantity: %.2f, measure: %s)".formatted(id, food, quantity, selectedMeasure);
+    }
+
+    @Override
     public Object getValue(String field) {
         return switch (field) {
             case "id" -> id;
