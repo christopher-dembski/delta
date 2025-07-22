@@ -1,12 +1,17 @@
 package swaps.ui;
 
 
+import meals.models.MockDataFactory;
+import swaps.models.Swap;
 import swaps.ui.goals.CreateGoalsPresenter;
 import swaps.ui.goals.CreateGoalsView;
 import swaps.ui.goals.create_goal_form.GoalsFormPresenter;
+import swaps.ui.select_swap.SelectSwapPresenter;
+import swaps.ui.select_swap.SelectSwapView;
 
 import javax.swing.*;
 import java.lang.reflect.Array;
+import java.util.List;
 
 /**
  * The presenter that handles the logic and manages state for navigating between different steps in the swap workflow.
@@ -23,6 +28,8 @@ public class SwapsPresenter {
             SWAP_MEAL_DETAILS_CARD_ID
     };
 
+    private SelectSwapPresenter selectSwapPresenter;
+
     private final SwapsView view;
     private int currentCardIndex;
     private final int lastCardIndex;
@@ -35,6 +42,7 @@ public class SwapsPresenter {
         currentCardIndex = 0;
         lastCardIndex = Array.getLength(CARD_IDS) - 1;
         initDefineGoalsView();
+        initSelectSwapView();
         addPreviousButtonActionListener();
         view.setPreviousButtonEnabled(false);
         addNextButtonActionListener();
@@ -50,6 +58,17 @@ public class SwapsPresenter {
         GoalsFormPresenter goal1Presenter = new GoalsFormPresenter(createGoalsView.getGoal1View());
         GoalsFormPresenter goal2Presenter = new GoalsFormPresenter(createGoalsView.getGoal2View());
         new CreateGoalsPresenter(createGoalsView, goal1Presenter, goal2Presenter);
+    }
+
+    private void initSelectSwapView() {
+        SelectSwapView selectSwapView = view.getSelectSwapView();
+        // TO DO: create list of swaps when swaps generated instead of hard-coding
+        selectSwapPresenter = new SelectSwapPresenter(
+                selectSwapView,
+                List.of(new Swap(
+                        MockDataFactory.generateMockFoods().getFirst(),
+                        MockDataFactory.generateMockFoods().getLast()))
+        );
     }
 
     /**

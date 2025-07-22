@@ -16,7 +16,8 @@ public class SwapsView extends JPanel {
     private static final String NEXT_BUTTON_LABEL = "Next";
     private static final String PREVIOUS_BUTTON_LABEL = "Previous";
 
-    private CreateGoalsView createGoalsView;
+    private final CreateGoalsView createGoalsView;
+    private SelectSwapView selectSwapView;
     private CardLayout cardLayout;
     private JPanel cardPanel;
     private JButton nextButton;
@@ -40,7 +41,8 @@ public class SwapsView extends JPanel {
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
         cardPanel.add(createGoalsView, SwapsPresenter.DEFINE_GOALS_CARD_ID);
-        cardPanel.add(new SelectSwapView(), SwapsPresenter.SELECT_SWAPS_CARD_ID);
+        selectSwapView = new SelectSwapView();
+        cardPanel.add(selectSwapView, SwapsPresenter.SELECT_SWAPS_CARD_ID);
         cardPanel.add(new SwapStatisticsView(), SwapsPresenter.SWAP_STATISTICS_CARD_ID);
         cardPanel.add(new SwapMealDetailsView(), SwapsPresenter.SWAP_MEAL_DETAILS_CARD_ID);
         cardLayout.show(cardPanel, SwapsPresenter.DEFINE_GOALS_CARD_ID);
@@ -104,5 +106,9 @@ public class SwapsView extends JPanel {
      */
     public CreateGoalsView getDefineGoalsView() {
         return createGoalsView;
+    }
+
+    public SelectSwapView getSelectSwapView() {
+        return selectSwapView;
     }
 }
