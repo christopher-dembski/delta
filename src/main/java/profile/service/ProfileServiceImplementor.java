@@ -85,6 +85,37 @@ public class ProfileServiceImplementor implements IProfileService {
     }
 
     @Override
+    public Profile updateUser(Integer profileId, ISignUpView.RawInput rawInput) throws ValidationException, ProfileNotFoundException {
+        // validate that the profile exists
+        if (!getById(profileId).isPresent()) {
+            throw new ProfileNotFoundException("Profile with ID " + profileId + " not found");
+        }
+        
+        // Validate the input data
+        validateProfileData(rawInput);
+        
+        // Create updated profile with calculated age from DOB
+        Profile updatedProfile = createProfile(rawInput);
+        
+        // Create final profile with the existing ID
+        Profile profileWithId = new Profile.Builder()
+            .id(profileId)
+            .name(updatedProfile.getName())
+            .age(updatedProfile.getAge()) 
+            .sex(updatedProfile.getSex())
+            .dateOfBirth(updatedProfile.getDateOfBirth())
+            .height(updatedProfile.getHeight())
+            .weight(updatedProfile.getWeight())
+            .unitSystem(updatedProfile.getUnitSystem())
+            .build();
+        
+        update(profileWithId);
+        
+        
+        return profileWithId;
+    }
+
+    @Override
     public void validateProfileData(ISignUpView.RawInput rawInput) throws ValidationException {
         validateRequiredFields(rawInput);
         validateDateOfBirth(rawInput.dob()); 
