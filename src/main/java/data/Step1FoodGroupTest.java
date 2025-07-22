@@ -18,10 +18,10 @@ public class Step1FoodGroupTest {
         // Check if empty first
         System.out.println("Food groups before import: " + foodGroupDAO.count());
         
-        // Import ONLY food groups CSV (clean version without French newlines)
-        System.out.println("\nImporting FOOD_GROUP_TEMP.csv...");
+        // Import meal logging food groups CSV
+        System.out.println("\nImporting MEAL_LOGGING_FOOD_GROUPS.csv...");
         CSVImportService csvImporter = new CSVImportService(new MySQLDriver(MySQLConfig.instance()));
-        csvImporter.load("src/main/java/csv/FOOD_GROUP_TEMP.csv", "food_groups");
+        csvImporter.load("src/main/java/csv/MEAL_LOGGING_FOOD_GROUPS.csv", "food_groups");
         System.out.println("Import complete!");
         
         // Test our class works
@@ -37,20 +37,20 @@ public class Step1FoodGroupTest {
                              " | Name: " + group.getDisplayName());
         }
         
-        // Test findById functionality
+        // Test findById functionality - using meal logging food groups
         System.out.println("\n=== TESTING findById ===");
-        FoodGroup spicesGroup = foodGroupDAO.findById(2);
-        if (spicesGroup != null) {
-            System.out.println("Found by ID 2: " + spicesGroup.getDisplayName());
-            System.out.println("  Is protein group? " + spicesGroup.isProteinGroup());
-            System.out.println("  Is plant-based? " + spicesGroup.isPlantBased());
+        FoodGroup dairyGroup = foodGroupDAO.findById(1);
+        if (dairyGroup != null) {
+            System.out.println("Found by ID 1: " + dairyGroup.getDisplayName());
+            System.out.println("  Is protein group? " + dairyGroup.isProteinGroup());
+            System.out.println("  Is plant-based? " + dairyGroup.isPlantBased());
         }
         
-        FoodGroup bakedGroup = foodGroupDAO.findById(18);
-        if (bakedGroup != null) {
-            System.out.println("Found by ID 18: " + bakedGroup.getDisplayName());
-            System.out.println("  Is protein group? " + bakedGroup.isProteinGroup());
-            System.out.println("  Is plant-based? " + bakedGroup.isPlantBased());
+        FoodGroup beverageGroup = foodGroupDAO.findById(14);
+        if (beverageGroup != null) {
+            System.out.println("Found by ID 14: " + beverageGroup.getDisplayName());
+            System.out.println("  Is protein group? " + beverageGroup.isProteinGroup());
+            System.out.println("  Is plant-based? " + beverageGroup.isPlantBased());
         }
         
         FoodGroup mixedGroup = foodGroupDAO.findById(22);

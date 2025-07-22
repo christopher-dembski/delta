@@ -18,10 +18,10 @@ public class Step2NutrientTest {
         // Check if empty first
         System.out.println("Nutrients before import: " + nutrientDAO.count());
         
-        // Import nutrients CSV (clean version - no French fields)
-        System.out.println("\nImporting NUTRIENT_NAME_TEMP.csv...");
+        // Import meal logging nutrients CSV (all 153 nutrients)
+        System.out.println("\nImporting MEAL_LOGGING_NUTRIENTS.csv...");
         CSVImportService csvImporter = new CSVImportService(new MySQLDriver(MySQLConfig.instance()));
-        csvImporter.load("src/main/java/csv/NUTRIENT_NAME_TEMP.csv", "nutrients");
+        csvImporter.load("src/main/java/csv/MEAL_LOGGING_NUTRIENTS.csv", "nutrients");
         System.out.println("Import complete!");
         
         // Test our class works

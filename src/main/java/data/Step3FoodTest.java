@@ -21,9 +21,9 @@ public class Step3FoodTest {
             System.out.println("Database connection established.");
             
             // Import CSV data
-            System.out.println("\nImporting FOOD_NAME_TEMP.csv...");
+            System.out.println("\nImporting MEAL_LOGGING_FOODS.csv...");
             CSVImportService csvImporter = new CSVImportService(new MySQLDriver(MySQLConfig.instance()));
-            csvImporter.load("src/main/java/csv/FOOD_NAME_TEMP.csv", "foods");
+            csvImporter.load("src/main/java/csv/MEAL_LOGGING_FOODS.csv", "foods");
             System.out.println("Import complete!");
             
             // Test: Count total foods
@@ -60,9 +60,9 @@ public class Step3FoodTest {
                 System.out.printf("  • %s (ID: %d)\n", food.getFoodDescription(), food.getFoodId());
             }
             
-            // Test: Find foods by ID
-            System.out.println("\n🔍 Testing findById for specific foods:");
-            int[] testIds = {2, 13, 100, 500};
+            // Test: Find foods by ID - using meal logging food IDs
+            System.out.println("\n🔍 Testing findById for specific meal foods:");
+            int[] testIds = {5, 129, 2873, 5575}; // Chow mein, fried egg, coffee, ham
             
             for (int id : testIds) {
                 Food food = foodDAO.findById(id);
