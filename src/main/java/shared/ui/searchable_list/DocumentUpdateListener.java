@@ -3,6 +3,7 @@ package shared.ui.searchable_list;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+
 /**
  * Class that accepts a runnable and implements DocumentListener that calls the runnable for each of the update methods.
  * The purpose of this class is to simplify creating a DocumentListener.
@@ -31,6 +32,7 @@ public class DocumentUpdateListener implements DocumentListener {
     public void changedUpdate(DocumentEvent e) {
         handleUpdate(e);
     }
+
 
     /**
      * Helper function wrapping the call to onUpdate.
