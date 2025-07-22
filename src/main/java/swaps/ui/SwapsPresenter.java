@@ -11,6 +11,7 @@ import swaps.ui.select_swap.SelectSwapView;
 
 import javax.swing.*;
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -66,12 +67,16 @@ public class SwapsPresenter {
     private void initSelectSwapView() {
         SelectSwapView selectSwapView = view.getSelectSwapView();
         // TO DO: create list of swaps when swaps generated instead of hard-coding
-        selectSwapPresenter = new SelectSwapPresenter(
-                selectSwapView,
-                List.of(new Swap(
-                        MockDataFactory.generateMockFoods().getFirst(),
-                        MockDataFactory.generateMockFoods().getLast()))
+        List<Swap> mockSwapList = new ArrayList<>();
+        mockSwapList.add(new Swap(
+                MockDataFactory.generateMockFoods().getFirst(),
+                MockDataFactory.generateMockFoods().getLast())
         );
+        mockSwapList.add(new Swap(
+                MockDataFactory.generateMockFoods().getLast(),
+                MockDataFactory.generateMockFoods().getFirst()
+        ));
+        selectSwapPresenter = new SelectSwapPresenter(selectSwapView, mockSwapList);
     }
 
     /**
