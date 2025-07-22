@@ -88,6 +88,7 @@ public class Meal implements IRecord {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         return switch (field) {
             case "id" -> id;
+            case "meal_type" -> mealType.toString();
             case "user_id" -> 1; // TO DO: replace with current user
             case "created_on" -> new SimpleDateFormat("yyyy-MM-dd").format(createdAt);
             default -> null;
@@ -96,6 +97,6 @@ public class Meal implements IRecord {
 
     @Override
     public Collection<String> fieldNames() {
-        return List.of("id", "user_id", "created_on");
+        return List.of("id", "meal_type", "user_id", "created_on");
     }
 }

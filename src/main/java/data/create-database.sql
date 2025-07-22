@@ -83,6 +83,7 @@ CREATE TABLE nutrient_amounts
 CREATE TABLE meals
 (
     id INT PRIMARY KEY AUTO_INCREMENT,
+    meal_type VARCHAR(10),
     user_id INT NOT NULL ,
     created_on DATE NOT NULL,
     FOREIGN KEY (user_id) REFERENCES profiles(id)
