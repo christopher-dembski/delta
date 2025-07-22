@@ -4,6 +4,7 @@ import data.DatabaseException;
 import data.InsertQuery;
 import meals.models.MockDataFactory;
 import meals.models.meal.Meal;
+import meals.models.meal.MealItem;
 import shared.AppBackend;
 import shared.service_output.ServiceError;
 import shared.service_output.ServiceOutput;
@@ -22,7 +23,8 @@ public class CreateMealService {
 
     private static CreateMealService instance;
 
-    private CreateMealService() {}
+    private CreateMealService() {
+    }
 
     public static CreateMealService instance() {
         if (instance == null) {
@@ -32,8 +34,12 @@ public class CreateMealService {
     }
 
     public CreateMealServiceOutput createMeal(Meal meal) {
+        // TO DO: validate one breakfast/lunch/dinner
         try {
             AppBackend.db().execute(new InsertQuery(Meal.getTableName(), meal));
+            for (MealItem mealItem : meal.getMealItems()) {
+                createMealItem(meal, mealItem);
+            }
         } catch (DatabaseException e) {
             ServiceError serviceError = new ServiceError(DATABASE_ERROR_MESSAGE + e.getMessage());
             return new CreateMealServiceOutput(List.of(serviceError));
@@ -42,13 +48,19 @@ public class CreateMealService {
         return new CreateMealServiceOutput(Collections.emptyList());
     }
 
+    private void createMealItem(Meal meal, MealItem mealItem) throws DatabaseException {
+        // ensure we know which meal the meal items is part of, so we can save the meal_id as a foreign key
+        mealItem.setParentMeal(meal);
+        AppBackend.db().execute(new InsertQuery(MealItem.getTableName(), mealItem));
+    }
+
     public static void main(String[] args) {
+        // INSERT value meal
         CreateMealServiceOutput result =
                 CreateMealService.instance().createMeal(MockDataFactory.createMockMeal(Meal.MealType.LUNCH));
-        if (result.ok()) {
-            System.out.println("Inserted meal into database.");
-        } else {
-            System.out.println(result.errors().getFirst());
-        }
+        if (result.ok()) System.out.println("Inserted meal into database.");
+        else System.out.println(result.errors().getFirst());
+
+
     }
 }

@@ -94,6 +94,8 @@ CREATE TABLE meal_items
     meal_id INT,
     food_id INT NOT NULL,
     quantity INT NOT NULL,
-    FOREIGN KEY (meal_id) REFERENCES meals(id),
-    FOREIGN KEY (food_id) REFERENCES foods(FoodID)
+    FOREIGN KEY (meal_id) REFERENCES meals(id)
+    -- TO DO: disabling foreign key reference temporarily while using mock food data
+    -- until we finalize foods in database and move off of using mocks entirely
+    -- FOREIGN KEY (food_id) REFERENCES foods(FoodID)
 );
