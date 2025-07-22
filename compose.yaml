@@ -7,14 +7,19 @@ services:
       MYSQL_DATABASE: delta_database
       MYSQL_USER: delta-service-account
       MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
     volumes:
       - ./src/main/java/data/create-database.sql:/docker-entrypoint-initdb.d/1-create-database.sql
       - ./src/main/java/data/seed-database.sql:/docker-entrypoint-initdb.d/2-seed-database.sql
+      - mysql_data:/var/lib/mysql
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "delta-service-account", "-ppassword"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
 
   app:
     build: .
@@ -23,3 +28,20 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_NAME=delta_database
+      - DB_USER=delta-service-account
+      - DB_PASSWORD=password
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  mysql_data:
+    driver: local
