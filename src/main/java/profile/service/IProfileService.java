@@ -67,13 +67,12 @@ public interface IProfileService {
     void validateAge(String ageStr) throws ValidationException;
 
     /**
-     * Validates the date of birth field and checks consistency with age.
+     * Validates the date of birth field.
      * 
      * @param dobStr The date of birth string to validate
-     * @param ageStr The age string to check consistency against
      * @throws ValidationException if validation fails
      */
-    void validateDateOfBirth(String dobStr, String ageStr) throws ValidationException;
+    void validateDateOfBirth(String dobStr) throws ValidationException;
 
     /**
      * Validates the height field based on unit system.

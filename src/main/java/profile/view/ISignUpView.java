@@ -21,7 +21,6 @@ public interface ISignUpView {
     /** Simple holder for raw text from the form. */
     record RawInput(
             String fullName,
-            String age,
             String dob,
             String height,
             String weight,
