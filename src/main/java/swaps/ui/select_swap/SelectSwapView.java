@@ -26,12 +26,20 @@ public class SelectSwapView extends JPanel {
         this.add(swapsContainer);
     }
 
+    /**
+     * Sets the list of potential swaps to render.
+     * @param potentialSwaps The list of potential swaps to render.
+     */
     protected void setPotentialSwaps(List<Swap> potentialSwaps) {
         for (Swap swap: potentialSwaps) {
             potentialSwapListModel.addElement(new SwapListItem(swap));
         }
     }
 
+    /**
+     * Adds a listener to be called when a swap is selected form the list.
+     * @param listener The function to be called when a swap is selected form the list.
+     */
     protected void addSelectionListener(Consumer<SwapListItem> listener) {
         potentialSwapList.addListSelectionListener((e) -> {
             listener.accept(potentialSwapList.getSelectedValue());

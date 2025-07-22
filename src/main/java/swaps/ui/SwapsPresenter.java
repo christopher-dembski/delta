@@ -60,6 +60,9 @@ public class SwapsPresenter {
         new CreateGoalsPresenter(createGoalsView, goal1Presenter, goal2Presenter);
     }
 
+    /**
+     * Initializes the select swap view. Helper method to be called in the constructor.
+     */
     private void initSelectSwapView() {
         SelectSwapView selectSwapView = view.getSelectSwapView();
         // TO DO: create list of swaps when swaps generated instead of hard-coding

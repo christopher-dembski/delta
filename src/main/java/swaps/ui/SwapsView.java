@@ -108,6 +108,9 @@ public class SwapsView extends JPanel {
         return createGoalsView;
     }
 
+    /**
+     * @return The view where the user can select a swap.
+     */
     public SelectSwapView getSelectSwapView() {
         return selectSwapView;
     }

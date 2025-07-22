@@ -51,9 +51,6 @@ public class GoalsFormView extends JPanel {
                 .toList();
         SearchableListView<DropdownOptionNutrient> listView = new SearchableListView<>(dropdownOptionNutrientList);
         this.add(listView);
-        // nutrientField = new FormFieldNutrient();
-        // this.add(nutrientField);
-        // TO DO: use nutrient from dropdown
         preciseAmountField = new FormFieldPreciseAmount(MockDataFactory.createMockNutrients().getFirst());
         this.add(preciseAmountField);
         intensityField = new FormFieldGoalIntensity();

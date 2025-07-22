@@ -11,6 +11,9 @@ import java.awt.*;
 public class FormFieldPreciseAmount extends JPanel {
     private static final int PREFERRED_FORM_FIELD_WIDTH = 10;
 
+    /**
+     * @param nutrient The nutrient to select a precise amount for.
+     */
     public FormFieldPreciseAmount(Nutrient nutrient) {
         super(new FlowLayout(FlowLayout.CENTER));
         JLabel formLabel = new JLabel("Enter an amount (%s)".formatted(nutrient.getNutrientUnit()));
