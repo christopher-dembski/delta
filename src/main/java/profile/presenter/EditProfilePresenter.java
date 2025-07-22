@@ -58,7 +58,6 @@ public class EditProfilePresenter {
             // Close the edit form
             view.close();
             
-            // navigate back to profile selection to see the updated profile
             try {
                 AppMainPresenter.instance().navigateTo(LeftNavItem.SELECT_PROFILE);
             } catch (Exception navException) {
@@ -79,7 +78,6 @@ public class EditProfilePresenter {
 
     private void handleCancel() {
         try {
-            // Navigate back to profile selection without saving changes
             AppMainPresenter.instance().navigateTo(LeftNavItem.SELECT_PROFILE);
         } catch (Exception e) {
             view.showError("Failed to cancel: " + e.getMessage());
