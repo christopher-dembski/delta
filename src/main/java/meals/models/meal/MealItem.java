@@ -59,10 +59,18 @@ public class MealItem implements IRecord {
         return quantity;
     }
 
+    /**
+     * @return The measure the user selected for this meal item.
+     */
     public Measure getSelectedMeasure() {
         return selectedMeasure;
     }
 
+    /**
+     * Sets the meal this meal item is part of.
+     * This is not often needed, but necessary to save the meal_id column in the database.
+     * @param parentMeal The meal this meal item is part of.
+     */
     public void setParentMeal(Meal parentMeal) {
         this.parentMeal = parentMeal;
     }

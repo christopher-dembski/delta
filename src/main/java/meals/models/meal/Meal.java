@@ -31,6 +31,13 @@ public class Meal implements IRecord {
             this.label = label;
         }
 
+        /**
+         * Returns the meal type corresponding to the given string.
+         * Necessary to build a meal type from the string representation in the database.
+         *
+         * @param mealType The type of meal in string format.
+         * @return The enum corresponding to this string value.
+         */
         public static MealType fromString(String mealType) {
             return switch (mealType) {
                 case "Breakfast" -> MealType.BREAKFAST;
@@ -47,6 +54,9 @@ public class Meal implements IRecord {
         }
     }
 
+    /**
+     * @return The name of the database table where meals are stored.
+     */
     public static String getTableName() {
         return TABLE;
     }
@@ -89,6 +99,9 @@ public class Meal implements IRecord {
         return mealItems;
     }
 
+    /**
+     * @return The date of the meal.
+     */
     public Date getCreatedAt() {
         return createdAt;
     }

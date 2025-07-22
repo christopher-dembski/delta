@@ -17,10 +17,16 @@ import shared.utils.DateToString;
 
 import java.util.*;
 
+/**
+ * Service to query meals from the database.
+ */
 public class QueryMealsService {
     private static final String DATABASE_EXCEPTION_MESSAGE = "An error occurred when fetching meals from the database.";
     private static QueryMealsService instance;
 
+    /**
+     * Output of the service consisting of a list of meals and errors.
+     */
     public static class QueryMealsServiceOutput extends ServiceOutput {
         private final List<Meal> meals;
 
@@ -34,6 +40,9 @@ public class QueryMealsService {
         }
     }
 
+    /**
+     * @return Singleton instance of the service.
+     */
     public static QueryMealsService instance() {
         if (instance == null) {
             instance = new QueryMealsService();
@@ -41,8 +50,17 @@ public class QueryMealsService {
         return instance;
     }
 
+    /**
+     * Prevent instantiation by clients following singleton pattern.
+     */
     private QueryMealsService() {}
 
+    /**
+     * Queries the database and builds a list of meals for the specified date.
+     * @param fromDate The start date to query (inclusive).
+     * @param toDate The end date to query (inclusive).
+     * @return A list of meals for the specified date range.
+     */
     public QueryMealsServiceOutput getMealsByDate(Date fromDate, Date toDate) {
         try {
             List<IRecord> mealRecords = AppBackend.db().execute(
@@ -61,6 +79,12 @@ public class QueryMealsService {
         }
     }
 
+    /**
+     * Builds a meal object given a record containing the raw data.
+     * @param mealRecord The raw meal data.
+     * @return A meal object built using the raw data.
+     * @throws DatabaseException Thrown if a database error occurs when querying the database.
+     */
     private static Meal buildMealForRecord(IRecord mealRecord) throws DatabaseException {
         Integer id = (Integer) mealRecord.getValue("id");
         Meal.MealType mealType = Meal.MealType.fromString((String) mealRecord.getValue("meal_type"));
@@ -69,8 +93,17 @@ public class QueryMealsService {
         return new Meal(id, mealType,mealItems, createdAt);
     }
 
+    /**
+     * Builds a list of meal items for the given meal record.
+     * @param mealRecord The raw data for the meal item.
+     * @return A meal item built using the raw data.
+     * @throws DatabaseException Thrown if a database error occurs when querying the database.
+     */
     private static List<MealItem> buildMealItemsForMeal(IRecord mealRecord) throws DatabaseException {
-        List<IRecord> mealItemRecords = AppBackend.db().execute(new SelectQuery(MealItem.getTableName()));
+        List<IRecord> mealItemRecords = AppBackend.db().execute(
+                new SelectQuery(MealItem.getTableName())
+                        .filter("meal_id", Comparison.EQUAL, mealRecord.getValue("id"))
+        );
         List<MealItem> mealItems = new ArrayList<>();
         for (IRecord mealItemRecord: mealItemRecords) {
             mealItems.add(buildMealItemForRecord(mealItemRecord));
@@ -78,6 +111,11 @@ public class QueryMealsService {
         return mealItems;
     }
 
+    /**
+     * Builds a meal item for the given record.
+     * @param mealItemRecord The raw data to use to build the meal item.
+     * @return The meal item built using the raw data.
+     */
     private static MealItem buildMealItemForRecord(IRecord mealItemRecord) {
         Integer id = (Integer) mealItemRecord.getValue("id");
         // TO DO: query using food service
@@ -88,6 +126,10 @@ public class QueryMealsService {
         return new MealItem(id, food, quantity, measure);
     }
 
+    /**
+     * Example script demonstrating usage of the service.
+     * @param args Command line args (unused).
+     */
     public static void main(String[] args) {
         QueryMealsServiceOutput result = QueryMealsService.instance().getMealsByDate(new Date(), new Date());
         if (result.ok()) {
