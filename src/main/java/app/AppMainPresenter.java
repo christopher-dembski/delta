@@ -1,8 +1,15 @@
 package app;
 
-import shared.navigation.*;
+import javax.swing.JComponent;
 
-import javax.swing.*;
+import profile.presenter.UserSignUpPresenter;
+import profile.view.UserSignUpPanel;
+import shared.ServiceFactory;
+import shared.navigation.INavElement;
+import shared.navigation.NavItem;
+import shared.navigation.NavSubMenu;
+import shared.navigation.NavigationPresenter;
+import shared.navigation.NavigationView;
 
 /**
  * Presenter for the main UI of the app.
@@ -39,7 +46,17 @@ public class AppMainPresenter {
         return switch (navItem) {
             case SELECT_PROFILE -> new PlaceholderView("Select Profile View");
             case EDIT_PROFILE -> new PlaceholderView("Edit Profile View");
-            case CREATE_PROFILE -> new PlaceholderView("Create Profile View");
+            case CREATE_PROFILE -> {
+                try {
+                    UserSignUpPanel view = new UserSignUpPanel();
+                    UserSignUpPresenter presenter = new UserSignUpPresenter(view, ServiceFactory.getProfileService());
+                    presenter.initialize();
+                    yield view;
+                } catch (Exception e) {
+                    System.err.println("Failed to initialize sign up panel: " + e.getMessage());
+                    yield new PlaceholderView("Error loading Create Profile form");
+                }
+            }
             case LOG_MEAL -> new PlaceholderView("Log Meals View");
             case VIEW_MULTIPLE_MEALS -> new PlaceholderView("Multiple Meals View");
             case VIEW_SINGLE_MEAL -> new PlaceholderView("Single Meal View");

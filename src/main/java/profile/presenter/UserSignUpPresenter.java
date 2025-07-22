@@ -3,8 +3,6 @@ package profile.presenter;
 import profile.model.Profile;
 import profile.service.IProfileService;
 import profile.view.ISignUpView;
-import profile.view.UserSignUp;
-import shared.ServiceFactory;
 
 public class UserSignUpPresenter {
     private final ISignUpView view;
@@ -47,32 +45,5 @@ public class UserSignUpPresenter {
             // generic error for unexpected issues
             view.showError("An unexpected error occurred: " + e.getMessage());
         }
-    }
-
-    /**
-     * Test main method for creating a profile.
-     * @param args Command line args (unused).
-     */
-    public static void main(String[] args) {
-        javax.swing.SwingUtilities.invokeLater(() -> {
-            try {
-                // Get service instances from factory
-                IProfileService profileService = ServiceFactory.getProfileService();
-
-                // Create the view
-                UserSignUp view = new UserSignUp();
-
-                // Create and initialize the presenter
-                UserSignUpPresenter presenter = new UserSignUpPresenter(view, profileService);
-                presenter.initialize();
-
-                // Show the view
-                view.setVisible(true);
-            } catch (Exception e) {
-                System.err.println("Failed to initialize application: " + e.getMessage());
-                e.printStackTrace();
-                System.exit(1);
-            }
-        });
     }
 }
