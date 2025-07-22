@@ -13,7 +13,7 @@ import profile.model.UnitSystem;
 /**
  * Panel-based implementation of the user sign up view 
  */
-public class UserSignUpPanel extends JPanel implements ISignUpView {
+public class SignUpView extends JPanel implements ISignUpView {
 
     private JTextField fullNameField;
     private JTextField ageField;
@@ -31,7 +31,7 @@ public class UserSignUpPanel extends JPanel implements ISignUpView {
     private Runnable onSubmit;
 
     //constructor
-    public UserSignUpPanel() {
+    public SignUpView() {
         initializeComponents();
         hookButtons();
     }

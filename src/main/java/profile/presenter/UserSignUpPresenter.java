@@ -1,5 +1,7 @@
 package profile.presenter;
 
+import app.AppMainPresenter;
+import app.LeftNavItem;
 import profile.model.Profile;
 import profile.service.IProfileService;
 import profile.view.ISignUpView;
@@ -32,8 +34,15 @@ public class UserSignUpPresenter {
             // show success message through the view
             view.showSuccess("Profile created successfully for " + createdProfile.getName() + "!");
             
-            // Close the signup window
+            // Close the signup form (clears form for panel version)
             view.close();
+            
+            // Navigate back to profile selection to see the new profile
+            try {
+                AppMainPresenter.instance().navigateTo(LeftNavItem.SELECT_PROFILE);
+            } catch (Exception navException) {
+                System.out.println("Navigation after profile creation failed");
+            }
             
         } catch (IProfileService.ValidationException e) {
             // Show validation error to user
