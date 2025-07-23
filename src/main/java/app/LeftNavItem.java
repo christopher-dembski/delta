@@ -17,7 +17,9 @@ public enum LeftNavItem {
     VIEW_MULTIPLE_MEALS("View Multiple Meals"),
     VIEW_SINGLE_MEAL("View Single Meal"),
 
+    MEAL_STATISTICS_SUBMENU("Meal Statistics"),
     VIEW_MEAL_STATISTICS("View Meal Stats"),
+    VIEW_SWAP_STATISTICS("View Swap Stats"),
 
     EXPLORE_INGREDIENT_SWAPS("Explore Swaps");
 

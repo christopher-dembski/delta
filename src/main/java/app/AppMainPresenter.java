@@ -2,6 +2,10 @@ package app;
 
 import javax.swing.JComponent;
 
+import statistics.presenters.NutrientBreakdownPresenter;
+import statistics.presenters.SwapComparisonPresenter;
+import meals.services.QueryMealsService;
+import meals.models.meal.Meal;
 import profile.presenter.ProfileSelectorPresenter;
 import profile.presenter.UserSignUpPresenter;
 import profile.view.SplashView;
@@ -12,6 +16,10 @@ import shared.navigation.NavItem;
 import shared.navigation.NavSubMenu;
 import shared.navigation.NavigationPresenter;
 import shared.navigation.NavigationView;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import shared.AppBackend;
+import data.IDatabaseDriver;
 
 /**
  * Presenter for the main UI of the app.
@@ -75,7 +83,32 @@ public class AppMainPresenter {
             case LOG_MEAL -> new PlaceholderView("Log Meals View");
             case VIEW_MULTIPLE_MEALS -> new PlaceholderView("Multiple Meals View");
             case VIEW_SINGLE_MEAL -> new PlaceholderView("Single Meal View");
-            case VIEW_MEAL_STATISTICS -> new PlaceholderView("Meal Statistics View");
+            case VIEW_MEAL_STATISTICS -> {
+                try {
+                    // Fetch meals for a sample date range
+                    String startDateStr = "2024-01-15";
+                    String endDateStr = "2024-01-17";
+                    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+                    java.util.Date startDate = sdf.parse(startDateStr);
+                    java.util.Date endDate = sdf.parse(endDateStr);
+
+                    IDatabaseDriver driver = shared.AppBackend.db();
+                    NutrientBreakdownPresenter presenter = new NutrientBreakdownPresenter();
+                    yield presenter.presentStatistics(startDateStr, endDateStr);
+                } catch (Exception e) {
+                    System.err.println("Failed to initialize meal statistics: " + e.getMessage());
+                    yield new PlaceholderView("Error loading Meal Statistics: " + e.getMessage());
+                }
+            }
+            case VIEW_SWAP_STATISTICS -> {
+                try {
+                    SwapComparisonPresenter presenter = new SwapComparisonPresenter();
+                    yield presenter.presentSwapComparison();
+                } catch (Exception e) {
+                    System.err.println("Failed to initialize swap comparison: " + e.getMessage());
+                    yield new PlaceholderView("Error loading Swap Comparison: " + e.getMessage());
+                }
+            }
             case EXPLORE_INGREDIENT_SWAPS -> new PlaceholderView("Explore Swaps View");
             default -> null;
         };
@@ -88,7 +121,7 @@ public class AppMainPresenter {
         NavSubMenu<LeftNavItem> leftNavRoot = new NavSubMenu<>(LeftNavItem.MENU_ROOT);
         leftNavRoot.addNavElement(buildLeftNavProfileSubMenu());
         leftNavRoot.addNavElement(buildLeftNavMealsSubmenu());
-        leftNavRoot.addNavElement(new NavItem<>(LeftNavItem.VIEW_MEAL_STATISTICS));
+        leftNavRoot.addNavElement(buildLeftNavMealStatisticsSubmenu());
         leftNavRoot.addNavElement(new NavItem<>(LeftNavItem.EXPLORE_INGREDIENT_SWAPS));
         return leftNavRoot;
     }
@@ -113,6 +146,16 @@ public class AppMainPresenter {
         mealsSubMenu.addNavElement(new NavItem<>(LeftNavItem.VIEW_MULTIPLE_MEALS));
         mealsSubMenu.addNavElement(new NavItem<>(LeftNavItem.VIEW_SINGLE_MEAL));
         return mealsSubMenu;
+    }
+    
+    /**
+     * @return The mealStatistics submenu for the left navigation bar.
+     */
+    private static INavElement<LeftNavItem> buildLeftNavMealStatisticsSubmenu() {
+        NavSubMenu<LeftNavItem> mealStatisticsSubMenu = new NavSubMenu<>(LeftNavItem.MEAL_STATISTICS_SUBMENU);
+        mealStatisticsSubMenu.addNavElement(new NavItem<>(LeftNavItem.VIEW_MEAL_STATISTICS));
+        mealStatisticsSubMenu.addNavElement(new NavItem<>(LeftNavItem.VIEW_SWAP_STATISTICS));
+        return mealStatisticsSubMenu;
     }
 
     /**
