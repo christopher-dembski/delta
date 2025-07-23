@@ -77,3 +77,24 @@ CREATE TABLE nutrient_amounts
     FOREIGN KEY (FoodID) REFERENCES foods(FoodID),
     FOREIGN KEY (NutrientID) REFERENCES nutrients(NutrientID)
 );
+
+CREATE TABLE measures
+(
+    MeasureID           int PRIMARY KEY,
+    MeasureDescription  varchar(255),
+    MeasureDescriptionF varchar(255) DEFAULT NULL,  -- Nullable - Java ignores this
+    CommonName          varchar(255)
+);
+
+-- Conversion Factors table (allows converting between different serving sizes)
+CREATE TABLE conversion_factors
+(
+    FoodID                   int,
+    MeasureID               int,
+    ConversionFactorValue   double,
+    ConvFactorDateOfEntry   varchar(20) DEFAULT NULL, -- Nullable - Java ignores this
+
+    PRIMARY KEY (FoodID, MeasureID),
+    FOREIGN KEY (FoodID) REFERENCES foods(FoodID),
+    FOREIGN KEY (MeasureID) REFERENCES measures(MeasureID)
+);
