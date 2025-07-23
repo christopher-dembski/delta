@@ -1,4 +1,4 @@
-FoodID,MeasureID,ConversionFactorValue
+food_id,measure_id,conversion_factor_value
 5,341,0.92989
 5,383,1.16236
 5,415,2.32472

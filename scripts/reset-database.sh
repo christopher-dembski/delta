@@ -29,7 +29,7 @@ fi
 
 echo "Step 4: Seed Nutrition Data"
 echo "This may take a while..."
-mvn clean compile exec:java -Dexec.mainClass="csv.LoadNutritionDataService"
+mvn clean compile exec:java -Dexec.mainClass="csv.LoadNutritionDataService" -e
 if [ $? -eq 0 ]; then
   echo "Database nutrition data seeded successfully!"
 else

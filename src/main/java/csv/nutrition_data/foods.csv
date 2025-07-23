@@ -1,4 +1,4 @@
-FoodID,FoodGroupID,FoodDescription
+id,food_group_id,description
 5,22,"Chinese dish, chow mein, chicken"
 7,22,"Beef pot roast, with browned potatoes, peas and corn"
 8,22,"Fried chicken, mashed potatoes and vegetables"

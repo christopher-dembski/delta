@@ -1,4 +1,4 @@
-NutrientID,NutrientSymbol,NutrientUnit,NutrientName
+id,symbol,unit,name
 203,PROT,g,PROTEIN
 204,FAT,g,FAT (TOTAL LIPIDS)
 205,CARB,g,"CARBOHYDRATE, TOTAL (BY DIFFERENCE)"

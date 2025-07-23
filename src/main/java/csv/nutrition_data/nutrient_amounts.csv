@@ -1,4 +1,4 @@
-FoodID,NutrientID,NutrientValue
+food_id,nutrient_id,nutrient_value
 5,203,6.76
 5,204,2.8
 5,205,8.29
