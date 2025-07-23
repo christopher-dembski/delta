@@ -1,10 +1,13 @@
 package meals.ui;
 
 
+import app.AppMainPresenter;
+import app.LeftNavItem;
 import meals.models.food.Food;
 import meals.models.meal.Meal;
 import meals.models.meal.MealItem;
 import meals.services.CreateMealService;
+import shared.navigation.NavigationPresenter;
 
 import java.util.*;
 
@@ -47,7 +50,16 @@ public class LogMealPresenter {
         Meal.MealType mealType = view.getSelectedMealType();
         Date today = new Date();
         Meal meal = new Meal(randomId, mealType, mealItems, today);
-        CreateMealService.instance().createMeal(meal);
+        CreateMealService.CreateMealServiceOutput result = CreateMealService.instance().createMeal(meal);
+        if (result.ok()) {
+            AppMainPresenter.instance().navigateTo(LeftNavItem.VIEW_MULTIPLE_MEALS);
+        } else {
+            List<String> errors = result.errors()
+                    .stream()
+                    .map(Object::toString)
+                    .toList();
+            view.showErrorMessage(String.join("\n", errors));
+        }
     }
 
     /**
