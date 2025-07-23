@@ -98,3 +98,26 @@ CREATE TABLE conversion_factors
     FOREIGN KEY (FoodID) REFERENCES foods(FoodID),
     FOREIGN KEY (MeasureID) REFERENCES measures(MeasureID)
 );
+  
+-- Meal tables
+
+CREATE TABLE meals
+(
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    meal_type VARCHAR(10),
+    user_id INT NOT NULL ,
+    created_on DATE NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES profiles(id)
+);
+
+CREATE TABLE meal_items
+(
+    id int PRIMARY KEY AUTO_INCREMENT,
+    meal_id INT,
+    food_id INT NOT NULL,
+    quantity FLOAT NOT NULL,
+    FOREIGN KEY (meal_id) REFERENCES meals(id)
+    -- TO DO: disabling foreign key reference temporarily while using mock food data
+    -- until we finalize foods in database and move off of using mocks entirely
+    -- FOREIGN KEY (food_id) REFERENCES foods(FoodID)
+);
