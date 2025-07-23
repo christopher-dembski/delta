@@ -2,15 +2,12 @@ package app;
 
 import javax.swing.JComponent;
 
-
 import meals.ui.LogMealPresenter;
 import meals.ui.LogMealView;
-
 
 import swaps.ui.SwapsPresenter;
 import swaps.ui.SwapsView;
 import swaps.ui.goals.CreateGoalsView;
-
 
 import profile.presenter.EditProfilePresenter;
 import profile.presenter.ProfileSelectorPresenter;
@@ -18,6 +15,7 @@ import profile.presenter.UserSignUpPresenter;
 import profile.view.EditProfileView;
 import profile.view.SignUpView;
 import profile.view.SplashView;
+
 import shared.ServiceFactory;
 import shared.navigation.INavElement;
 import shared.navigation.NavItem;
