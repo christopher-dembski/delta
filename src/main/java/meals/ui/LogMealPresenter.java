@@ -8,12 +8,19 @@ import meals.services.CreateMealService;
 
 import java.util.*;
 
+/**
+ * Controls the meal logging view.
+ * Handles front-end logic and making calls to the backend for creating a meal given the information entered via the UI.
+ */
 public class LogMealPresenter {
     private static final String INVALID_QUANTITY_MESSAGE = "Invalid quantity. Value must be a number > 0.";
     private static final String DUPLICATE_FOOD_MESSAGE = "Foods for a meal must be unique.";
 
     private final LogMealView view;
 
+    /**
+     * @param view The view to control.
+     */
     public LogMealPresenter(LogMealView view) {
         this.view = view;
         view.registerAddFoodListener(this::addFoodListener);
@@ -27,10 +34,13 @@ public class LogMealPresenter {
         if (initial != null) {
             view.setAvailableMeasures(initial.food().getPossibleMeasures());
         }
-        view.registerCreateMealButtonListener(this::createFood);
+        view.registerCreateMealButtonListener(this::createMeal);
     }
 
-    private void createFood() {
+    /**
+     * Handles the logic for creating a meal given the information entered via the UI using the backend service.
+     */
+    private void createMeal() {
         // TO DO: add dropdown for meal type
         List<MealItem> mealItems = new ArrayList<>();
         for (SelectedFoodListItem selectedFoodListItem: view.getSelectedItemsAddedToMeal()) {
@@ -45,6 +55,9 @@ public class LogMealPresenter {
         CreateMealService.instance().createMeal(meal);
     }
 
+    /**
+     * Adds the selected food to the meal if the information entered is valid.
+     */
     private void addFoodListener() {
         Food selectedFood = view.getSelectedFood().food();
         Float quantity = view.getSelectedQuantity();
@@ -52,14 +65,19 @@ public class LogMealPresenter {
             view.showErrorMessage(INVALID_QUANTITY_MESSAGE);
             return;
         }
-        if (duplicateFood(selectedFood)) {
+        if (foodAlreadyPartOfMeal(selectedFood)) {
             view.showErrorMessage(DUPLICATE_FOOD_MESSAGE);
             return;
         }
         view.addSelectedFood(new SelectedFoodListItem(selectedFood, quantity, view.getSelectedMeasure()));
     }
 
-    private boolean duplicateFood(Food food) {
+    /**
+     * Helper function to determine whether the selected food is already part of the meal.
+     * @param food The food to check if it is already part of the meal.
+     * @return True if the food is already part of the meal and false otherwise.
+     */
+    private boolean foodAlreadyPartOfMeal(Food food) {
         List<SelectedFoodListItem> currentFoods = view.getSelectedItemsAddedToMeal();
         for (SelectedFoodListItem lisItem: currentFoods) {
             // we can compare IDs, since we know foods are frozen records that are never updated in the database
@@ -70,8 +88,11 @@ public class LogMealPresenter {
         return false;
     }
 
+    /**
+     * Removes the selected food from the meal.
+     */
     private void removeItemListener() {
-        SelectedFoodListItem selectedFoodListItem = view.getSelectedFoodAddedToMeal();
+        SelectedFoodListItem selectedFoodListItem = view.getSelectedItemAddedToMeal();
         view.removeItem(selectedFoodListItem);
     }
 }

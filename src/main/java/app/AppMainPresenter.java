@@ -95,6 +95,10 @@ public class AppMainPresenter {
         };
     }
 
+    /**
+     * Creates the view to log meals initialized with the corresponding presenter.
+     * @return The view enabling the user to log meals through the UI.
+     */
     private LogMealView initializeLogMealView() {
         LogMealView logMealView = new LogMealView();
         new LogMealPresenter(logMealView); // register event listeners

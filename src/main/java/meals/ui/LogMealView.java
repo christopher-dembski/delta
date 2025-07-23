@@ -13,6 +13,9 @@ import java.util.List;
 
 import static shared.ui.searchable_list.UIConstants.*;
 
+/**
+ * View enabling the user to create a meal through the UI.
+ */
 public class LogMealView extends JPanel {
     private static final String TITLE = "Log Meal";
     private static final String ADD_FOOD_BUTTON_LABEL = "Add Food";
@@ -44,6 +47,12 @@ public class LogMealView extends JPanel {
         initComponents();
     }
 
+    /* constructor helper methods */
+
+    /**
+     * Adds components to the UI.
+     * Helper method to be called in the constructor.
+     */
     private void initComponents() {
         this.add(new JLabel(TITLE));
         this.add(quantityFormFieldContainer);
@@ -55,6 +64,10 @@ public class LogMealView extends JPanel {
         this.add(createMealButton);
     }
 
+    /**
+     * Initializes the quantity field.
+     * Helper method to be called in the constructor.
+     */
     private void initQuantityField() {
         quantityFormFieldContainer = new JPanel(new FlowLayout(FlowLayout.CENTER));
         quantityField = new JTextField(DEFAULT_QUANTITY_TEXT_FIELD_VALUE);
@@ -64,6 +77,10 @@ public class LogMealView extends JPanel {
         quantityFormFieldContainer.add(quantityField);
     }
 
+    /**
+     * Initializes the search box allowing the user to search for foods.
+     * Helper method to be called in the constructor.
+     */
     private void initFoodSearchBox() {
         // TO DO: use food query service instead of mock food when service implemented
         // and move this logic to the presenter
@@ -73,25 +90,57 @@ public class LogMealView extends JPanel {
         foodSearchBox = new SearchableListView<>(foodSearchBoxOptions);
     }
 
+    /**
+     * Initializes the list of selected foods to be part of the meal.
+     * Helper method to be called in the constructor.
+     */
     private void initSelectedFoodList() {
         selectedFoodListModel = new DefaultListModel<>();
         selectedFoodList = new JList<>(selectedFoodListModel);
     }
 
+    /* methods handling listener registration */
+
+    /**
+     * Registers a listener to be run when the add food button is clicked.
+     * @param listener The function to run when the add food button is clicked.
+     */
     protected void registerAddFoodListener(Runnable listener) {
         addFoodButton.addActionListener((e) -> {
             listener.run();
         });
     }
 
+    /**
+     * Registers a listener to run when the user clicks the remove item button.
+     * @param listener The listener to run when the user clicks the remove item button.
+     */
+    protected void registerRemoveItemListener(Runnable listener) {
+        removeFoodButton.addActionListener((e) -> {
+            listener.run();
+        });
+    }
+
+    /**
+     * Registers a listener to run when the user clicks the create meal button.
+     * @param listener The listener to run when the user clicks the create meal button.
+     */
+    protected void registerCreateMealButtonListener(Runnable listener) {
+        createMealButton.addActionListener((e) -> listener.run());
+    }
+
+    /*  methods handling adding items to a meal */
+
+    /**
+     * @return The selected food to be added to the meal.
+     */
     protected FoodSearchBoxOption getSelectedFood() {
         return foodSearchBox.getSelectedItem();
     }
 
-    protected void addSelectedFood(SelectedFoodListItem selectedFoodListItem) {
-        selectedFoodListModel.addElement(selectedFoodListItem);
-    }
-
+    /**
+     * @return The quantity selected from the dropdown. null if the quantity is invalid.
+     */
     protected Float getSelectedQuantity() {
         float quantityFromFormField;
         try {
@@ -102,40 +151,33 @@ public class LogMealView extends JPanel {
         return quantityFromFormField > 0 ? quantityFromFormField : null;
     }
 
-    protected void showErrorMessage(String message) {
-        JOptionPane.showMessageDialog(this, message, ERROR_FLASH_MESSAGE_TITLE, JOptionPane.ERROR_MESSAGE);
+    /**
+     * Adds the selected food to the meal, along with the quantity and selected measure.
+     * @param selectedFoodListItem The food to add to the meal.
+     */
+    protected void addSelectedFood(SelectedFoodListItem selectedFoodListItem) {
+        selectedFoodListModel.addElement(selectedFoodListItem);
     }
 
-    protected void registerRemoveItemListener(Runnable listener) {
-        removeFoodButton.addActionListener((e) -> {
-            listener.run();
-        });
-    }
-
-    protected List<SelectedFoodListItem> getSelectedItemsAddedToMeal() {
-        List<SelectedFoodListItem> list = new ArrayList<>();
-        for (int i = 0; i < selectedFoodListModel.size(); i ++) {
-            list.add(selectedFoodListModel.getElementAt(i));
-        }
-        return list;
-    }
-
-    protected SelectedFoodListItem getSelectedFoodAddedToMeal() {
-        return selectedFoodList.getSelectedValue();
-    }
-
-    protected void removeItem(SelectedFoodListItem selectedFoodListItem) {
-        selectedFoodListModel.removeElement(selectedFoodListItem);
-    }
-
+    /**
+     * @return The search box allowing the user to search and select foods.
+     */
     protected SearchableListView<FoodSearchBoxOption> getFoodSearchBox() {
         return foodSearchBox;
     }
 
+    /**
+     * @return The selected measure for the meal item. (ex. "1 Cup")
+     */
     protected Measure getSelectedMeasure() {
         return (Measure) measureOptions.getSelectedItem();
     }
 
+    /**
+     * Sets the list of measures to appear in the dropdown. This list will differ for different foods.
+     * Selects the first item by default.
+     * @param measures The list of measures to appear in the dropdown.
+     */
     protected void setAvailableMeasures(List<Measure> measures) {
         measureOptions.removeAllItems();
         for (Measure measure: measures) {
@@ -146,7 +188,43 @@ public class LogMealView extends JPanel {
         }
     }
 
-    protected void registerCreateMealButtonListener(Runnable listener) {
-        createMealButton.addActionListener((e) -> listener.run());
+    /*  methods for items already added to meal */
+
+    /**
+     * Gets the list of foods added to the meal, along with the quantity and selected measure.
+     * @return The list of selected foods.
+     */
+    protected List<SelectedFoodListItem> getSelectedItemsAddedToMeal() {
+        List<SelectedFoodListItem> list = new ArrayList<>();
+        for (int i = 0; i < selectedFoodListModel.size(); i ++) {
+            list.add(selectedFoodListModel.getElementAt(i));
+        }
+        return list;
+    }
+
+    /**
+     * Get the meal item that the user has selected.
+     * @return The meal item that the user has selected. null if no meal item is selected
+     */
+    protected SelectedFoodListItem getSelectedItemAddedToMeal() {
+        return selectedFoodList.getSelectedValue();
+    }
+
+    /**
+     * Removes an item from the meal.
+     * @param selectedFoodListItem The item to remove from the meal.
+     */
+    protected void removeItem(SelectedFoodListItem selectedFoodListItem) {
+        selectedFoodListModel.removeElement(selectedFoodListItem);
+    }
+
+    /* other methods */
+
+    /**
+     * Renders a flash message showing an error.
+     * @param message The error message to render.
+     */
+    protected void showErrorMessage(String message) {
+        JOptionPane.showMessageDialog(this, message, ERROR_FLASH_MESSAGE_TITLE, JOptionPane.ERROR_MESSAGE);
     }
 }
