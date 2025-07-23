@@ -65,7 +65,7 @@ CREATE TABLE nutrient_amounts
 CREATE TABLE measures
 (
     MeasureID           int PRIMARY KEY,
-    MeasureDescription  varchar(255)
+    CommonName  varchar(255)
 );
 
 -- Conversion Factors table (allows converting between different serving sizes)
