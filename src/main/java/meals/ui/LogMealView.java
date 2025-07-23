@@ -4,7 +4,9 @@ package meals.ui;
 import meals.models.MockDataFactory;
 import meals.models.food.Food;
 import meals.models.food.Measure;
+import meals.models.meal.Meal;
 import shared.ui.searchable_list.SearchableListView;
+import shared.ui.searchable_list.UIConstants;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,6 +33,7 @@ public class LogMealView extends JPanel {
     private DefaultListModel<SelectedFoodListItem> selectedFoodListModel;
     private JList<SelectedFoodListItem> selectedFoodList;
     private JPanel quantityFormFieldContainer;
+    private JComboBox<Meal.MealType> mealTypeDropdown;
     private JTextField quantityField;
     private final JButton createMealButton;
 
@@ -41,6 +44,7 @@ public class LogMealView extends JPanel {
         createMealButton = new JButton(CREATE_MEAL_BUTTON_LABEL);
         measureOptions = new JComboBox<>();
         measureOptions.setMaximumSize(new Dimension(DEFAULT_TEXT_FIELD_WIDTH, DEFAULT_TEXT_FIELD_HEIGHT));
+        initializeMealTypeDropdown();
         initSelectedFoodList();
         initQuantityField();
         initFoodSearchBox();
@@ -51,10 +55,11 @@ public class LogMealView extends JPanel {
 
     /**
      * Adds components to the UI.
-     * Helper method to be called in the constructor.
+     * Helper method to be called in the constructor. To be called after each component is initialized.
      */
     private void initComponents() {
         this.add(new JLabel(TITLE));
+        this.add(mealTypeDropdown);
         this.add(quantityFormFieldContainer);
         this.add(measureOptions);
         this.add(foodSearchBox);
@@ -62,6 +67,18 @@ public class LogMealView extends JPanel {
         this.add(addFoodButton);
         this.add(removeFoodButton);
         this.add(createMealButton);
+    }
+
+    /**
+     * Initializes the meal type dropdown.
+     */
+    private void initializeMealTypeDropdown() {
+        mealTypeDropdown = new JComboBox<>();
+        mealTypeDropdown.addItem(Meal.MealType.BREAKFAST);
+        mealTypeDropdown.addItem(Meal.MealType.LUNCH);
+        mealTypeDropdown.addItem(Meal.MealType.DINNER);
+        mealTypeDropdown.addItem(Meal.MealType.SNACK);
+        mealTypeDropdown.setMaximumSize(new Dimension(DEFAULT_TEXT_FIELD_WIDTH, DEFAULT_TEXT_FIELD_HEIGHT));
     }
 
     /**
@@ -216,6 +233,13 @@ public class LogMealView extends JPanel {
      */
     protected void removeItem(SelectedFoodListItem selectedFoodListItem) {
         selectedFoodListModel.removeElement(selectedFoodListItem);
+    }
+
+    /**
+     * @return The selected type of the meal.
+     */
+    protected Meal.MealType getSelectedMealType() {
+        return (Meal.MealType) mealTypeDropdown.getSelectedItem();
     }
 
     /* other methods */

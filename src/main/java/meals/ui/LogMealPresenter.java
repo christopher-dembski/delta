@@ -41,7 +41,19 @@ public class LogMealPresenter {
      * Handles the logic for creating a meal given the information entered via the UI using the backend service.
      */
     private void createMeal() {
-        // TO DO: add dropdown for meal type
+        List<MealItem> mealItems = buildMealItemsFromForm();
+        // only support logging meals for the current day
+        int randomId = new Random().nextInt(10_000);
+        Meal.MealType mealType = view.getSelectedMealType();
+        Date today = new Date();
+        Meal meal = new Meal(randomId, mealType, mealItems, today);
+        CreateMealService.instance().createMeal(meal);
+    }
+
+    /**
+     * Builds a list of meal items from the form input.
+     */
+    private List<MealItem> buildMealItemsFromForm() {
         List<MealItem> mealItems = new ArrayList<>();
         for (SelectedFoodListItem selectedFoodListItem: view.getSelectedItemsAddedToMeal()) {
             mealItems.add(
@@ -51,8 +63,7 @@ public class LogMealPresenter {
                             selectedFoodListItem.measure())
             );
         }
-        Meal meal = new Meal(new Random().nextInt(10000), Meal.MealType.SNACK, mealItems, new Date());
-        CreateMealService.instance().createMeal(meal);
+        return mealItems;
     }
 
     /**
