@@ -10,8 +10,6 @@ VALUES (3, 'Jae');
 INSERT INTO students
 VALUES (4, 'Abdullah');
 
--- seed profiles table with 1 test user
-INSERT INTO profiles (full_name, age, sex, dob, height, weight, unit_system)
-VALUES 
-    ('John Doe', 25, 'MALE', '1999-07-22', 175.0, 70.0, 'METRIC')
 
+INSERT INTO profiles
+VALUES (1, 'Test User', 25, 'Male', '2000-01-01', 1.34, 130, 'Metric')
