@@ -13,14 +13,9 @@ public class Measure {
     private final String name;
     private final float conversionValue;
 
-    public static String getMeasuresTableName() {
-        return MEASURES_TABLE_NAME;
-    }
-
-    public static String getConversionFactorsTableName() {
-        return CONVERSION_FACTORS_TABLE_NAME;
-    }
-
+    /**
+     * @return The name of the table containing conversion factors and their associated measure name.
+     */
     public static String getConversionFactorsMeasuresTableName() {
         return MEASURES_CONVERSION_FACTORS_VIEW_NAME;
     }

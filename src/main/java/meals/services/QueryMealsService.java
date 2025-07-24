@@ -121,7 +121,7 @@ public class QueryMealsService {
         Food food = QueryFoodsService.instance().findById(id);
         Float quantity = (Float) mealItemRecord.getValue("quantity");
         Integer measureId = (Integer) mealItemRecord.getValue("measure_id");
-        // we know the measure belonging to the meal item also belong to the food,
+        // we know the measure belonging to the meal item also belongs to the food,
         // so we can search the list of measures for the food instead of querying the database
         Measure measure = food.getPossibleMeasures()
                 .stream()

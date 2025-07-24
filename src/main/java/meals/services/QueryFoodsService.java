@@ -12,9 +12,15 @@ import shared.AppBackend;
 
 import java.util.*;
 
+/**
+ * Service that queries foods.
+ */
 public class QueryFoodsService {
     private static final String QUERY_FOODS_SERVICE_ERROR_MESSAGE = "An error occurred when fetching foods.";
 
+    /**
+     * Exception raised if an error occurs while executing the service.
+     */
     public static class QueryFoodsServiceException extends Exception {
         public QueryFoodsServiceException(String errorMessage) {
             super(errorMessage);
@@ -26,11 +32,19 @@ public class QueryFoodsService {
     private QueryFoodsService() {
     }
 
+    /**
+     * @return Singleton instance of the service.
+     */
     public static QueryFoodsService instance() {
         if (instance == null) instance = new QueryFoodsService();
         return instance;
     }
 
+    /**
+     * Returns a list of all foods.
+     * @return A list of all foods in the database.
+     * @throws QueryFoodsServiceException Thrown if an error occurs while executing the service.
+     */
     public List<Food> fetchAll() throws QueryFoodsServiceException {
         try {
             List<IRecord> records = AppBackend.db().execute(new SelectQuery(Food.getTableName()));
@@ -43,6 +57,12 @@ public class QueryFoodsService {
         }
     }
 
+    /**
+     * Queries for the food with the specified id.
+     * @param id The id of the food to query for.
+     * @return The food with the specified id.
+     * @throws QueryFoodsServiceException Thrown if an error occurs while executing the service.
+     */
     public Food findById(int id) throws QueryFoodsServiceException {
         try {
             SelectQuery query = new SelectQuery(Food.getTableName()).filter("id", Comparison.EQUAL, id);
@@ -54,6 +74,11 @@ public class QueryFoodsService {
         }
     }
 
+    /**
+     * Builds a food instance from a database record.
+     * @param food The raw data of the food.
+     * @return The food instance corresponding to the record.
+     */
     private static Food buildFoodFromRecord(IRecord food) throws QueryFoodGroupsService.QueryFoodGroupServiceException, DatabaseException, QueryNutrientsService.QueryNutrientServiceException {
         int foodId = (int) food.getValue("id");
         String description = (String) food.getValue("description");
@@ -63,6 +88,11 @@ public class QueryFoodsService {
         return new Food(foodId, description, foodGroup, nutrientAmounts, getMeasures(foodId));
     }
 
+    /**
+     * Returns a list of measures for the specified food.
+     * @param foodId The food to find the measures for.
+     * @return The measures used for the specified food.
+     */
     private static List<Measure> getMeasures(int foodId) throws DatabaseException {
         SelectQuery query = new SelectQuery(Measure.getConversionFactorsMeasuresTableName())
                 .filter("food_id", Comparison.EQUAL, foodId);

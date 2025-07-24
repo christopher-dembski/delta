@@ -12,6 +12,9 @@ public class FoodGroup {
     private Integer foodGroupId;
     private String foodGroupName;
 
+    /**
+     * @return The table name for food groups.
+     */
     public static String getTableName() {
         return TABLE_NAME;
     }
@@ -24,16 +27,24 @@ public class FoodGroup {
         this.foodGroupName = foodGroupName;
     }
 
+    /**
+     * @param record The database record to use to construct a food group.
+     */
     public FoodGroup(IRecord record) {
         this.foodGroupId = (int) record.getValue("id");
         this.foodGroupName = (String) record.getValue("name");
     }
 
-    // Getters and setters
+    /**
+     * @return The unique identifier of the food group.
+     */
     public Integer getFoodGroupId() {
         return foodGroupId;
     }
 
+    /**
+     * @return The name of the food group.
+     */
     public String getFoodGroupName() {
         return foodGroupName;
     }
