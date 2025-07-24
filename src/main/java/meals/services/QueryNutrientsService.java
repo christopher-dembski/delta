@@ -7,12 +7,13 @@ import data.SelectQuery;
 import meals.models.nutrient.Nutrient;
 import shared.AppBackend;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 public class QueryNutrientsService {
-    private static final String NUTRIENT_SERVICE_ERROR_MESSAGE = "An error occurred when fetching nutrients";
+    private static final String QUERY_NUTRIENT_SERVICE_ERROR_MESSAGE = "An error occurred when fetching nutrients";
 
     private static final Map<Integer, Nutrient> cache = new TreeMap<>();
 
@@ -43,7 +44,7 @@ public class QueryNutrientsService {
             for (Nutrient nutrient : nutrients) cache.put(nutrient.getNutrientId(), nutrient);
             return nutrients;
         } catch (DatabaseException e) {
-            throw new QueryNutrientServiceException(NUTRIENT_SERVICE_ERROR_MESSAGE);
+            throw new QueryNutrientServiceException(QUERY_NUTRIENT_SERVICE_ERROR_MESSAGE);
         }
     }
 
@@ -61,7 +62,25 @@ public class QueryNutrientsService {
             cache.put(id, nutrient);
             return nutrient;
         } catch (DatabaseException e) {
-            throw new QueryNutrientServiceException(NUTRIENT_SERVICE_ERROR_MESSAGE);
+            throw new QueryNutrientServiceException(QUERY_NUTRIENT_SERVICE_ERROR_MESSAGE);
         }
+    }
+
+    public Map<Nutrient, Float> findNutrientQuantitiesForFood(int foodId) throws QueryNutrientServiceException {
+        Map<Nutrient, Float> nutrientAmountsMap = new HashMap<>();
+        try {
+            SelectQuery query = new SelectQuery(Nutrient.getNutrientAmountsTableName())
+                    .filter("food_id", Comparison.EQUAL, foodId);
+            List<IRecord> nutrientAmountRecords = AppBackend.db().execute(query);
+            for (IRecord nutrientAmountRecord : nutrientAmountRecords) {
+                Float amount = ((Double) nutrientAmountRecord.getValue("nutrient_value")).floatValue();
+                Nutrient nutrient = QueryNutrientsService.instance()
+                        .findById((int) nutrientAmountRecord.getValue("nutrient_id"));
+                nutrientAmountsMap.put(nutrient, amount);
+            }
+        } catch (DatabaseException e) {
+            throw new QueryNutrientServiceException(QUERY_NUTRIENT_SERVICE_ERROR_MESSAGE);
+        }
+        return nutrientAmountsMap;
     }
 }

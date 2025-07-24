@@ -7,6 +7,7 @@ import data.SelectQuery;
 import meals.models.food.Food;
 import meals.models.food.FoodGroup;
 import meals.models.food.Measure;
+import meals.models.nutrient.Nutrient;
 import shared.AppBackend;
 
 import java.util.*;
@@ -36,7 +37,8 @@ public class QueryFoodsService {
             List<Food> foods = new ArrayList<>();
             for (IRecord record : records) foods.add(buildFoodFromRecord(record));
             return foods;
-        } catch (DatabaseException | QueryFoodGroupsService.QueryFoodGroupServiceException e) {
+        } catch (DatabaseException | QueryFoodGroupsService.QueryFoodGroupServiceException |
+                 QueryNutrientsService.QueryNutrientServiceException e) {
             throw new QueryFoodsServiceException(QUERY_FOODS_SERVICE_ERROR_MESSAGE);
         }
     }
@@ -46,18 +48,19 @@ public class QueryFoodsService {
             SelectQuery query = new SelectQuery(Food.getTableName()).filter("id", Comparison.EQUAL, id);
             IRecord record = AppBackend.db().execute(query).getFirst();
             return buildFoodFromRecord(record);
-        } catch (DatabaseException | QueryFoodGroupsService.QueryFoodGroupServiceException e) {
+        } catch (DatabaseException | QueryFoodGroupsService.QueryFoodGroupServiceException |
+                 QueryNutrientsService.QueryNutrientServiceException e) {
             throw new QueryFoodsServiceException(QUERY_FOODS_SERVICE_ERROR_MESSAGE);
         }
     }
 
-    private static Food buildFoodFromRecord(IRecord food) throws QueryFoodGroupsService.QueryFoodGroupServiceException, DatabaseException {
+    private static Food buildFoodFromRecord(IRecord food) throws QueryFoodGroupsService.QueryFoodGroupServiceException, DatabaseException, QueryNutrientsService.QueryNutrientServiceException {
         int foodId = (int) food.getValue("id");
         String description = (String) food.getValue("description");
         int foodGroupId = (int) food.getValue("food_group_id");
         FoodGroup foodGroup = QueryFoodGroupsService.instance().findById(foodGroupId);
-        // TO DO: load nutrients
-        return new Food(foodId, description, foodGroup, new HashMap<>(), getMeasures(foodId));
+        Map<Nutrient, Float> nutrientAmounts = QueryNutrientsService.instance().findNutrientQuantitiesForFood(foodId);
+        return new Food(foodId, description, foodGroup, nutrientAmounts, getMeasures(foodId));
     }
 
     private static List<Measure> getMeasures(int foodId) throws DatabaseException {

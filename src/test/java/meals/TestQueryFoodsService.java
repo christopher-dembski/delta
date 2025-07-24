@@ -4,6 +4,7 @@ import meals.models.food.Food;
 import meals.models.food.FoodGroup;
 import meals.models.food.Measure;
 import meals.services.QueryFoodsService;
+import meals.services.QueryNutrientsService;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -20,7 +21,7 @@ public class TestQueryFoodsService {
         );
         FoodGroup foodGroup = new FoodGroup(14, "Beverages");
         return new Food(
-            5589,
+                5589,
                 "Chocolate flavour drink, whey and milk based",
                 foodGroup,
                 Collections.emptyMap(),
@@ -43,7 +44,7 @@ public class TestQueryFoodsService {
     }
 
     @Test
-    void testFindById() throws QueryFoodsService.QueryFoodsServiceException {
+    void testFindById() throws QueryFoodsService.QueryFoodsServiceException, QueryNutrientsService.QueryNutrientServiceException {
         Food chocolateDrink = buildChocolateDrink();
         Food food5589 = QueryFoodsService.instance().findById(5589);
         assertEquals(chocolateDrink.getFoodId(), food5589.getFoodId());
@@ -51,8 +52,10 @@ public class TestQueryFoodsService {
         // associations
         compareFoodGroups(chocolateDrink.getFoodGroup(), food5589.getFoodGroup());
         compareMeasureList(chocolateDrink.getPossibleMeasures(), food5589.getPossibleMeasures());
+        // FATTY ACIDS, MONOUNSATURATED, TOTAL
+        float actualAmount = food5589.getNutrientAmount(QueryNutrientsService.instance().findById(645));
+        assertEquals(0.049F, actualAmount, 0001F);
     }
-
 
     void compareFoodGroups(FoodGroup expectedFoodGroup, FoodGroup actualFoodGroup) {
         assertEquals(expectedFoodGroup.getFoodGroupId(), actualFoodGroup.getFoodGroupId());

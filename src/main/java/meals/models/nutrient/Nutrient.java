@@ -9,6 +9,7 @@ import data.IRecord;
  */
 public class Nutrient {
     private static final String TABLE_NAME = "nutrients";
+    private static final String NUTRIENT_AMOUNTS_TABLE_NAME = "nutrient_amounts";
 
     private Integer nutrientId;
     private String nutrientSymbol;
@@ -18,6 +19,10 @@ public class Nutrient {
 
     public static String getTableName() {
         return TABLE_NAME;
+    }
+
+    public static String getNutrientAmountsTableName() {
+        return NUTRIENT_AMOUNTS_TABLE_NAME;
     }
 
     /**
