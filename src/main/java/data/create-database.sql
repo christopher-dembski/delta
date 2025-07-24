@@ -36,10 +36,10 @@ CREATE TABLE meals
 -- One item within a meal
 CREATE TABLE meal_items
 (
-    id       INT PRIMARY KEY AUTO_INCREMENT,
-    meal_id  INT,
-    food_id  INT   NOT NULL,
-    quantity FLOAT NOT NULL,
+    id         INT PRIMARY KEY AUTO_INCREMENT,
+    meal_id    INT,
+    food_id    INT   NOT NULL,
+    quantity   FLOAT NOT NULL,
     -- TO DO: disabling NOT NULL check until the create meal service is updated
     -- to include the measure ID when saving a record to the database
     measure_id INT,
@@ -93,7 +93,7 @@ CREATE TABLE nutrient_amounts
 -- Food measurement (ex. "1 Cup")
 CREATE TABLE measures
 (
-    id  INT PRIMARY KEY,
+    id          INT PRIMARY KEY,
     common_name VARCHAR(255)
 );
 
@@ -108,3 +108,12 @@ CREATE TABLE conversion_factors
     FOREIGN KEY (food_id) REFERENCES foods (id),
     FOREIGN KEY (measure_id) REFERENCES measures (id)
 );
+
+-- View to get conversion factors and measure name in single query
+CREATE VIEW conversion_factors_with_measure_details AS
+SELECT cf.food_id AS food_id,
+       cf.measure_id AS measure_id,
+       m.common_name AS measure_name,
+       cf.conversion_factor_value AS conversion_factor_value
+FROM conversion_factors cf
+JOIN measures m ON cf.measure_id = m.id

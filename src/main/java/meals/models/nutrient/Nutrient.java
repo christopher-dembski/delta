@@ -1,16 +1,24 @@
 package meals.models.nutrient;
 
 
+import data.IRecord;
+
 /**
  * Represents a nutrient entity (e.g., "PROTEIN", "CALCIUM", "VITAMIN C").
  * This class implements IRecord to integrate with the database layer.
  */
 public class Nutrient {
+    private static final String TABLE_NAME = "nutrients";
+
     private Integer nutrientId;
     private String nutrientSymbol;
     private String nutrientUnit;
     private String nutrientName;
 
+
+    public static String getTableName() {
+        return TABLE_NAME;
+    }
 
     /**
      * Constructor for creating a nutrient with all details.
@@ -21,6 +29,13 @@ public class Nutrient {
         this.nutrientSymbol = nutrientSymbol;
         this.nutrientUnit = nutrientUnit;
         this.nutrientName = nutrientName;
+    }
+
+    public Nutrient(IRecord record) {
+        this.nutrientId = (int) record.getValue("id");
+        this.nutrientSymbol = (String) record.getValue("symbol");
+        this.nutrientUnit = (String) record.getValue("unit");
+        this.nutrientName = (String) record.getValue("unit");
     }
 
     // Getters and setters
