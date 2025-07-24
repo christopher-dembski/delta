@@ -36,10 +36,13 @@ CREATE TABLE meals
 -- One item within a meal
 CREATE TABLE meal_items
 (
-    id       int PRIMARY KEY AUTO_INCREMENT,
+    id       INT PRIMARY KEY AUTO_INCREMENT,
     meal_id  INT,
     food_id  INT   NOT NULL,
     quantity FLOAT NOT NULL,
+    -- TO DO: disabling NOT NULL check until the create meal service is updated
+    -- to include the measure ID when saving a record to the database
+    measure_id INT,
     FOREIGN KEY (meal_id) REFERENCES meals (id)
     -- TO DO: disabling foreign key reference temporarily while using mock food data
     -- until we finalize foods in database and move off of using mocks entirely
