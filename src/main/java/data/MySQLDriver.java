@@ -8,7 +8,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * An opinionated database driver for MySQL.
@@ -59,15 +58,6 @@ public class MySQLDriver implements IDatabaseDriver {
     private final Connection connection;
 
     /**
-     * Return type consisting of a list of columns and their corresponding values formatted correctly to be executed in MySQL.
-     *
-     * @param columnNames  The column names.
-     * @param columnValues The column values formatted correctly to be executed in MySQL.
-     */
-    private record ColumnNamesAndValues(List<String> columnNames, List<String> columnValues) {
-    }
-
-    /**
      * @throws DatabaseException Thrown if a connection to the database cannot be established.
      */
     public MySQLDriver(MySQLConfig config) throws DatabaseException {
@@ -93,11 +83,22 @@ public class MySQLDriver implements IDatabaseDriver {
 
     @Override
     public void execute(InsertQuery query) throws DatabaseException {
-        IRecord IRecord = query.getRecord();
-        ColumnNamesAndValues columnNamesAndValues = MySQLDriver.getColumnNamesAndFormattedValues(IRecord);
-        String columnNames = "(%s)".formatted(String.join(", ", columnNamesAndValues.columnNames));
-        String columnValues = "(%s)".formatted(String.join(", ", columnNamesAndValues.columnValues));
-        String insertStatement = INSERT_STATEMENT_TEMPLATE.formatted(query.getCollectionName(), columnNames, columnValues) + SEMICOLON;
+        List<IRecord> records = query.getRecords();
+        // build INSERT statement
+        List<String> orderedColumnNames = List.copyOf(records.getFirst().fieldNames());
+        List<String> tuples = new ArrayList<>();
+        for (IRecord record : records) {
+            List<String> values = MySQLDriver.getColumnValuesAsStrings(orderedColumnNames, record);
+            String tuple = "(%s)".formatted(String.join(", ", values));
+            tuples.add(tuple);
+        }
+        String insertStatement = INSERT_STATEMENT_TEMPLATE.formatted(
+                query.getCollectionName(),
+                "(%s)".formatted(String.join(", ", orderedColumnNames)),
+                String.join(", ", tuples)
+        );
+        insertStatement += SEMICOLON;
+        // execute INSERT statement
         try {
             connection.createStatement().execute(insertStatement);
         } catch (SQLException e) {
@@ -144,22 +145,22 @@ public class MySQLDriver implements IDatabaseDriver {
 
     @Override
     public void execute(UpdateQuery query) throws DatabaseException {
-        IRecord IRecord = query.getRecord();
-        ColumnNamesAndValues columnNamesAndValues = MySQLDriver.getColumnNamesAndFormattedValues(IRecord);
+        IRecord record = query.getRecord();
+        // build UPDATE statement
         List<String> columnNameValuePairs = new ArrayList<>();
-        List<String> columnNames = columnNamesAndValues.columnNames;
-        List<String> columnValues = columnNamesAndValues.columnValues;
-        for (int i = 0; i < columnNames.size(); i++) {
-            columnNameValuePairs.add("%s = %s".formatted(columnNames.get(i), columnValues.get(i)));
+        List<String> orderedColumnNames = List.copyOf(record.fieldNames());
+        List<String> values = MySQLDriver.getColumnValuesAsStrings(orderedColumnNames, record);
+        for (int i = 0; i < orderedColumnNames.size(); i++) {
+            columnNameValuePairs.add("%s = %s".formatted(orderedColumnNames.get(i), values.get(i)));
         }
-        StringBuilder updateStatement = new StringBuilder();
-        updateStatement.append(UPDATE_STATEMENT_TEMPLATE.formatted(
+        String updateStatement = UPDATE_STATEMENT_TEMPLATE.formatted(
                 query.getCollectionName(),
                 String.join(", ", columnNameValuePairs)
-        ));
-        updateStatement.append(WHERE_CLAUSE_TEMPLATE.formatted("id", "=", IRecord.getValue("id")));
+        );
+        updateStatement += WHERE_CLAUSE_TEMPLATE.formatted("id", "=", record.getValue("id"));
+        // execute UPDATE statement
         try {
-            connection.createStatement().execute(updateStatement.toString());
+            connection.createStatement().execute(updateStatement);
         } catch (SQLException e) {
             throw new DatabaseException("An error occurred while executing %s:\n%s".formatted(query, e));
         }
@@ -210,17 +211,15 @@ public class MySQLDriver implements IDatabaseDriver {
     }
 
     /**
-     * @param IRecord The column names and their corresponding values formatted correctly to be executed in MySQL.
-     * @return a list of columns and their corresponding values formatted correctly to be executed in MySQL.
+     * @param orderedColumnNames The column names to return the values for in the specified order.
+     * @param record             The record to provide the formatted values for.
+     * @return a list of values formatted as Strings that can be used in a MySQL query.
      */
-    private static ColumnNamesAndValues getColumnNamesAndFormattedValues(IRecord IRecord) {
-        List<String> formattedColumns = new ArrayList<>();
-        List<String> formattedValues = new ArrayList<>();
-        for (String columnName : IRecord.fieldNames()) {
-            formattedColumns.add(columnName);
-            formattedValues.add(formatSQLValue(IRecord.getValue(columnName)));
-        }
-        return new ColumnNamesAndValues(formattedColumns, formattedValues);
+    private static List<String> getColumnValuesAsStrings(List<String> orderedColumnNames, IRecord record) {
+        return orderedColumnNames
+                .stream()
+                .map(columnName -> formatSQLValue(record.getValue(columnName)))
+                .toList();
     }
 
     /**
@@ -276,62 +275,5 @@ public class MySQLDriver implements IDatabaseDriver {
     @Override
     public String toString() {
         return "MySQLDriver()";
-    }
-
-    /**
-     * Example script demonstrating usage of the MySQLDriver.
-     *
-     * @param args Command line Args (unused).
-     */
-    public static void main(String[] args) throws DatabaseException {
-        // Instantiate Driver
-        IDatabaseDriver driver = new MySQLDriver(MySQLConfig.instance());
-        // Table names are stored in the MySQL config,
-        // but the students table is just an example table and is not stored in the config
-        String studentsTable = "students";
-
-        // SELECT
-        List<IRecord> students = driver.execute(
-                new SelectQuery(studentsTable)
-                        .filter("id", Comparison.LESS_THAN, 3)
-        );
-        System.out.printf("Students with ids less than 3: %s%n", students);
-
-        // UPDATE
-        Map<String, Object> chrisData = new HashMap<>();
-        chrisData.put("id", 1);
-        chrisData.put("name", "Kris");
-        IRecord chris = new Record(chrisData);
-        driver.execute(new UpdateQuery(studentsTable, chris));
-        chris = driver.execute(
-                new SelectQuery(studentsTable)
-                        .filter("id", Comparison.EQUAL, 1)
-        ).getFirst();
-        System.out.printf("Student after updating name to 'Kris': %s%n", chris);
-
-        // DELETE
-        System.out.printf(
-                "Number of records before deleting record: %d%n",
-                driver.execute(new SelectQuery(studentsTable)).size()
-        );
-        driver.execute(
-                new DeleteQuery(studentsTable)
-                        .filter("id", Comparison.EQUAL, 1)
-        );
-        System.out.printf(
-                "Number of students after deleting record: %d%n",
-                driver.execute(new SelectQuery(studentsTable)).size()
-        );
-
-        // INSERT
-        chrisData = new HashMap<>();
-        chrisData.put("id", 1);
-        chrisData.put("name", "Chris");
-        chris = new Record(chrisData);
-        driver.execute(new InsertQuery(studentsTable, chris));
-        System.out.printf(
-                "Number of students after inserting record: %d%n",
-                driver.execute(new SelectQuery(studentsTable)).size()
-        );
     }
 }
