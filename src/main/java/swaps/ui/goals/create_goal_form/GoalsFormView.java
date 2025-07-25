@@ -17,6 +17,7 @@ public class GoalsFormView extends JPanel {
     private FormFieldNutrient nutrientField;
     private FormFieldPreciseAmount preciseAmountField;
     private FormFieldGoalIntensity intensityField;
+    private FormFieldGoalDirection directionField;
 
     /**
      * @param header The header to display for the form.
@@ -44,6 +45,10 @@ public class GoalsFormView extends JPanel {
     private void initFormFields() {
         typeField = new FormFieldGoalType();
         this.add(typeField);
+        
+        directionField = new FormFieldGoalDirection();
+        this.add(directionField);
+        
         List<DropdownOptionNutrient> dropdownOptionNutrientList = MockDataFactory
                 .createMockNutrients()
                 .stream()
@@ -85,5 +90,12 @@ public class GoalsFormView extends JPanel {
      */
     public FormFieldGoalIntensity getIntensityField() {
         return intensityField;
+    }
+
+    /**
+     * @return The field for selecting the goal direction (increase/decrease).
+     */
+    public FormFieldGoalDirection getDirectionField() {
+        return directionField;
     }
 }

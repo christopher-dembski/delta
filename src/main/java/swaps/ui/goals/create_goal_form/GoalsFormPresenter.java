@@ -1,5 +1,6 @@
 package swaps.ui.goals.create_goal_form;
 
+import swaps.ui.goals.create_goal_form.form_fields.DropdownOptionGoalDirection;
 import swaps.ui.goals.create_goal_form.form_fields.DropdownOptionGoalIntensity;
 import swaps.ui.goals.create_goal_form.form_fields.DropdownOptionGoalType;
 
@@ -10,6 +11,7 @@ public class GoalsFormPresenter {
     private GoalsFormView view;
     private DropdownOptionGoalType type;
     private DropdownOptionGoalIntensity intensity;
+    private DropdownOptionGoalDirection direction;
 
     /**
      * @param view The goal creation form to manage.
@@ -29,6 +31,8 @@ public class GoalsFormPresenter {
         view.getTypeField().setSelectedGoalType(type);
         intensity = DropdownOptionGoalIntensity.HIGH;
         view.getIntensityField().setSelectedGoalIntensity(intensity);
+        direction = DropdownOptionGoalDirection.INCREASE;
+        view.getDirectionField().setSelectedGoalDirection(direction);
         view.setIntensityFieldVisibility(type.equals(DropdownOptionGoalType.IMPRECISE));
         view.setPreciseAmountFieldVisibility(type.equals(DropdownOptionGoalType.PRECISE));
     }
@@ -50,6 +54,9 @@ public class GoalsFormPresenter {
         view.getIntensityField().addListener(intensityFromDropdown -> {
             intensity = intensityFromDropdown;
         });
+        view.getDirectionField().addListener(directionFromDropdown -> {
+            direction = directionFromDropdown;
+        });
     }
 
     /**
@@ -58,5 +65,12 @@ public class GoalsFormPresenter {
      */
     public void setFormVisibility(boolean isVisible) {
         view.setVisible(isVisible);
+    }
+
+    /**
+     * @return The selected goal direction (increase/decrease).
+     */
+    public DropdownOptionGoalDirection getDirection() {
+        return direction;
     }
 }
