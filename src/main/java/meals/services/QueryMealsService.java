@@ -118,7 +118,8 @@ public class QueryMealsService {
      */
     private static MealItem buildMealItemForRecord(IRecord mealItemRecord) throws QueryFoodsService.QueryFoodsServiceException {
         Integer id = (Integer) mealItemRecord.getValue("id");
-        Food food = QueryFoodsService.instance().findById(id);
+        Integer foodId = (Integer) mealItemRecord.getValue("food_id");
+        Food food = QueryFoodsService.instance().findById(foodId);
         Float quantity = (Float) mealItemRecord.getValue("quantity");
         Integer measureId = (Integer) mealItemRecord.getValue("measure_id");
         // we know the measure belonging to the meal item also belongs to the food,
