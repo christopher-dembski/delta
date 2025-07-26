@@ -18,12 +18,16 @@ import profile.view.EditProfileView;
 import profile.view.SignUpView;
 import profile.view.SplashView;
 
+import statistics.presenter.NutrientBreakdownPresenter;
+
 import shared.ServiceFactory;
 import shared.navigation.INavElement;
 import shared.navigation.NavItem;
 import shared.navigation.NavSubMenu;
 import shared.navigation.NavigationPresenter;
 import shared.navigation.NavigationView;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Presenter for the main UI of the app.
@@ -97,7 +101,8 @@ public class AppMainPresenter {
             case LOG_MEAL -> initializeLogMealView();
             case VIEW_MULTIPLE_MEALS -> initializeMealListView();
             case VIEW_SINGLE_MEAL -> new PlaceholderView("Single Meal View");
-            case VIEW_MEAL_STATISTICS -> new PlaceholderView("Meal Statistics View");
+            case VIEW_NUTRIENT_BREAKDOWN -> initializeNutrientBreakdownView();
+            case VIEW_SWAP_COMPARISON -> new PlaceholderView("Swap Comparison View");
             case EXPLORE_INGREDIENT_SWAPS -> initializeSwapsView();
             default -> null;
         };
@@ -126,13 +131,31 @@ public class AppMainPresenter {
     }
 
     /**
+     * Creates the view for nutrient breakdown statistics.
+     * @return The panel containing the nutrient breakdown visualization.
+     */
+    private JComponent initializeNutrientBreakdownView() {
+        try {
+            NutrientBreakdownPresenter presenter = new NutrientBreakdownPresenter();
+            // Use the actual meal date from your database (2025-07-24)
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            Date startDate = sdf.parse("2025-07-24");
+            Date endDate = sdf.parse("2025-07-25");
+            return presenter.presentNutrientBreakdown(startDate, endDate);
+        } catch (Exception e) {
+            System.err.println("Failed to initialize nutrient breakdown view: " + e.getMessage());
+            return new PlaceholderView("Error loading Nutrient Breakdown");
+        }
+    }
+
+    /**
      * @return The tree representing the menu for the left navigation bar.
      */
     private static INavElement<LeftNavItem> buildLeftNavTree() {
         NavSubMenu<LeftNavItem> leftNavRoot = new NavSubMenu<>(LeftNavItem.MENU_ROOT);
         leftNavRoot.addNavElement(buildLeftNavProfileSubMenu());
         leftNavRoot.addNavElement(buildLeftNavMealsSubmenu());
-        leftNavRoot.addNavElement(new NavItem<>(LeftNavItem.VIEW_MEAL_STATISTICS));
+        leftNavRoot.addNavElement(buildLeftNavMealStatisticsSubmenu());
         leftNavRoot.addNavElement(new NavItem<>(LeftNavItem.EXPLORE_INGREDIENT_SWAPS));
         return leftNavRoot;
     }
@@ -157,6 +180,16 @@ public class AppMainPresenter {
         mealsSubMenu.addNavElement(new NavItem<>(LeftNavItem.VIEW_MULTIPLE_MEALS));
         mealsSubMenu.addNavElement(new NavItem<>(LeftNavItem.VIEW_SINGLE_MEAL));
         return mealsSubMenu;
+    }
+
+    /**
+     * @return The meal statistics submenu for the left navigation bar.
+     */
+    private static INavElement<LeftNavItem> buildLeftNavMealStatisticsSubmenu() {
+        NavSubMenu<LeftNavItem> statisticsSubMenu = new NavSubMenu<>(LeftNavItem.MEAL_STATISTICS_SUBMENU);
+        statisticsSubMenu.addNavElement(new NavItem<>(LeftNavItem.VIEW_NUTRIENT_BREAKDOWN));
+        statisticsSubMenu.addNavElement(new NavItem<>(LeftNavItem.VIEW_SWAP_COMPARISON));
+        return statisticsSubMenu;
     }
 
     /**
