@@ -7,13 +7,20 @@ import meals.models.food.Food;
 import meals.models.nutrient.Nutrient;
 import meals.models.food.Measure;
 
+import statistics.service.StatisticsService;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.general.DefaultPieDataset;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Date;
 import java.util.List;
@@ -23,6 +30,156 @@ import java.util.stream.Collectors;
  * Presenter for creating nutrient breakdown visualizations from real meal data.
  */
 public class NutrientBreakdownPresenter {
+
+    private JPanel chartDisplayPanel;
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+    /**
+     * Creates a complete UI with date selection controls and chart display area.
+     * @return JPanel containing the full nutrient breakdown UI
+     */
+    public JPanel createNutrientBreakdownUI() {
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBorder(BorderFactory.createTitledBorder("Nutrient Breakdown Analysis"));
+        
+        // Create date selection panel at the top
+        JPanel dateSelectionPanel = createDateSelectionPanel();
+        mainPanel.add(dateSelectionPanel, BorderLayout.NORTH);
+        
+        // Create chart display area
+        chartDisplayPanel = new JPanel(new BorderLayout());
+        chartDisplayPanel.setPreferredSize(new Dimension(800, 600));
+        chartDisplayPanel.setBorder(BorderFactory.createTitledBorder("Chart Display"));
+        
+        // Show initial message
+        JLabel initialLabel = new JLabel("<html><div style='text-align: center;'>" +
+                "<h2>📊 Nutrient Breakdown</h2>" +
+                "<p>Select a date range above and click 'Generate Chart' to view nutrient analysis.</p>" +
+                "</div></html>");
+        initialLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        chartDisplayPanel.add(initialLabel, BorderLayout.CENTER);
+        
+        mainPanel.add(chartDisplayPanel, BorderLayout.CENTER);
+        
+        return mainPanel;
+    }
+    
+    /**
+     * Creates the date selection panel with calendar controls.
+     */
+    private JPanel createDateSelectionPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createTitledBorder("Date Range Selection"));
+        
+        // Main row with date controls
+        JPanel mainRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
+        
+        // Start Date
+        JLabel startLabel = new JLabel("From:");
+        startLabel.setFont(startLabel.getFont().deriveFont(Font.BOLD, 11f));
+        
+        // Default to 7 days ago
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -7);
+        Date defaultStartDate = cal.getTime();
+        
+        JSpinner startDateSpinner = new JSpinner(new SpinnerDateModel());
+        startDateSpinner.setEditor(new JSpinner.DateEditor(startDateSpinner, "yyyy-MM-dd"));
+        startDateSpinner.setValue(defaultStartDate);
+        startDateSpinner.setPreferredSize(new Dimension(110, 25));
+        
+        // End Date  
+        JLabel endLabel = new JLabel("To:");
+        endLabel.setFont(endLabel.getFont().deriveFont(Font.BOLD, 11f));
+        
+        Date defaultEndDate = new Date(); // Today
+        
+        JSpinner endDateSpinner = new JSpinner(new SpinnerDateModel());
+        endDateSpinner.setEditor(new JSpinner.DateEditor(endDateSpinner, "yyyy-MM-dd"));
+        endDateSpinner.setValue(defaultEndDate);
+        endDateSpinner.setPreferredSize(new Dimension(110, 25));
+        
+        // Generate Button (smaller)
+        JButton generateButton = new JButton("Generate");
+        generateButton.setFont(generateButton.getFont().deriveFont(Font.BOLD, 11f));
+        generateButton.setBackground(new Color(70, 130, 180));
+        generateButton.setForeground(Color.WHITE);
+        generateButton.setPreferredSize(new Dimension(90, 25));
+        
+        // Today quick button (bigger)
+        JButton todayButton = createQuickDateButton("Today", startDateSpinner, endDateSpinner, 0);
+        todayButton.setPreferredSize(new Dimension(80, 25));
+        todayButton.setFont(todayButton.getFont().deriveFont(10f));
+        
+        // Last 7 days button
+        JButton last7DaysButton = createQuickDateButton("Last 7 days", startDateSpinner, endDateSpinner, -7);
+        last7DaysButton.setPreferredSize(new Dimension(90, 25));
+        last7DaysButton.setFont(last7DaysButton.getFont().deriveFont(10f));
+        
+        // Add action listener to generate button
+        generateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Date startDate = (Date) startDateSpinner.getValue();
+                Date endDate = (Date) endDateSpinner.getValue();
+                
+                System.out.println("🗓️ Generating chart for date range: " + 
+                                 dateFormat.format(startDate) + " to " + dateFormat.format(endDate));
+                
+                // Generate and display the chart
+                JPanel chartPanel = presentNutrientBreakdown(startDate, endDate);
+                
+                // Update the display area
+                chartDisplayPanel.removeAll();
+                chartDisplayPanel.add(chartPanel, BorderLayout.CENTER);
+                chartDisplayPanel.revalidate();
+                chartDisplayPanel.repaint();
+            }
+        });
+        
+        // Add components to main row
+        mainRow.add(startLabel);
+        mainRow.add(startDateSpinner);
+        mainRow.add(endLabel);
+        mainRow.add(endDateSpinner);
+        mainRow.add(generateButton);
+        mainRow.add(todayButton);
+        mainRow.add(last7DaysButton);
+        
+        panel.add(mainRow, BorderLayout.CENTER);
+        return panel;
+    }
+    
+    /**
+     * Creates quick date selection buttons.
+     */
+    private JButton createQuickDateButton(String text, JSpinner startSpinner, JSpinner endSpinner, int daysBack) {
+        JButton button = new JButton(text);
+        button.setFont(button.getFont().deriveFont(10f));
+        button.addActionListener(e -> {
+            Calendar cal = Calendar.getInstance();
+            Date endDate = new Date();
+            
+            if (text.equals("Today")) {
+                // Today only: start and end are the same
+                startSpinner.setValue(endDate);
+                endSpinner.setValue(endDate);
+            } else if (daysBack == 0) {
+                // This month
+                cal.set(Calendar.DAY_OF_MONTH, 1);
+                Date startDate = cal.getTime();
+                startSpinner.setValue(startDate);
+                endSpinner.setValue(endDate);
+            } else {
+                // Days back
+                cal.add(Calendar.DAY_OF_MONTH, daysBack);
+                Date startDate = cal.getTime();
+                startSpinner.setValue(startDate);
+                endSpinner.setValue(endDate);
+            }
+        });
+        return button;
+    }
 
     /**
      * Creates a nutrient breakdown visualization from meal data for the specified date range.
@@ -47,7 +204,7 @@ public class NutrientBreakdownPresenter {
             }
             
             // Calculate nutrient totals from real meal data
-            Map<String, Double> nutrientTotals = calculateNutrientTotalsFromMeals(meals);
+            Map<String, Double> nutrientTotals = StatisticsService.instance().calculateNutrientTotalsFromMeals(meals);
             
             if (nutrientTotals.isEmpty()) {
                 return createNoDataPanel("No nutrient data available for the selected meals.");
@@ -60,149 +217,6 @@ public class NutrientBreakdownPresenter {
             e.printStackTrace();
             return createErrorPanel("Error generating nutrient breakdown: " + e.getMessage());
         }
-    }
-    
-    /**
-     * Calculates total nutrients from all meals, converting units to grams for comparison.
-     */
-    private Map<String, Double> calculateNutrientTotalsFromMeals(List<Meal> meals) {
-        Map<String, Double> allNutrientTotals = new HashMap<>();
-        
-        System.out.println("🧮 Calculating nutrient totals from " + meals.size() + " meals...");
-        
-        for (Meal meal : meals) {
-            System.out.println("🔍 Processing meal: " + meal.getMealType() + " on " + meal.getCreatedAt());
-            
-            for (MealItem mealItem : meal.getMealItems()) {
-                Food food = mealItem.getFood();
-                Float quantity = mealItem.getQuantity();
-                Measure measure = mealItem.getSelectedMeasure();
-                Float conversionFactor = measure.getConversionValue();
-                
-                System.out.println("   FOOD: Processing food: " + food.getFoodDescription());
-                System.out.println("        Quantity: " + quantity + " x " + measure.getName());
-                System.out.println("        Conversion factor: " + conversionFactor);
-                
-                Map<Nutrient, Float> nutrients = food.getNutrientAmounts();
-                System.out.println("        Found " + nutrients.size() + " nutrients for this food");
-                
-                for (Map.Entry<Nutrient, Float> entry : nutrients.entrySet()) {
-                    Nutrient nutrient = entry.getKey();
-                    Float amount = entry.getValue();
-                    
-                    if (amount != null && amount > 0) {
-                        String nutrientName = nutrient.getNutrientName();
-                        String nutrientUnit = nutrient.getNutrientUnit();
-                        
-                        System.out.println("      DEBUG: Processing nutrient '" + nutrientName + "' (" + nutrientUnit + ")");
-                        
-                        // Skip water and bulk nutrients that would skew visualization
-                        if (isWaterOrBulk(nutrientName)) {
-                            continue;
-                        }
-                        
-                        // Correct scaling: base_amount × conversion_factor × quantity
-                        double scaledAmount = amount * conversionFactor * quantity;
-                        
-                        // Convert to grams for consistent comparison
-                        double amountInGrams = convertToGrams(scaledAmount, nutrientUnit);
-                        
-                        // Debug for carbohydrate specifically
-                        if (nutrientName.toUpperCase().contains("CARBOHYDRATE")) {
-                            System.out.println("      >>> CARB DEBUG: '" + nutrientName + "'");
-                            System.out.println("          Base amount: " + amount + " " + nutrientUnit);
-                            System.out.println("          Conversion factor: " + conversionFactor);
-                            System.out.println("          Quantity: " + quantity);
-                            System.out.println("          Scaled amount: " + scaledAmount + " " + nutrientUnit + " (= " + amount + " × " + conversionFactor + " × " + quantity + ")");
-                            System.out.println("          Converted to grams: " + amountInGrams + "g");
-                        }
-                        
-                        // Accumulate totals
-                        System.out.println("      DEBUG: Adding nutrient '" + nutrientName + "' = " + amountInGrams + "g");
-                        allNutrientTotals.merge(nutrientName, amountInGrams, Double::sum);
-                    }
-                }
-            }
-        }
-        
-        System.out.println("TOTAL: Total unique nutrients collected: " + allNutrientTotals.size());
-        
-        // DEBUG: Show what's actually in the map
-        System.out.println("DEBUG: Final nutrient map contents:");
-        for (Map.Entry<String, Double> entry : allNutrientTotals.entrySet()) {
-            System.out.println("  '" + entry.getKey() + "' = " + entry.getValue() + "g");
-        }
-        
-        // Get top 7 nutrients and group the rest
-        return getTopNutrientsWithOthers(allNutrientTotals, 7);
-    }
-    
-    /**
-     * Takes the top N nutrients by amount and groups the rest as "Other nutrients".
-     */
-    private Map<String, Double> getTopNutrientsWithOthers(Map<String, Double> allNutrients, int topCount) {
-        Map<String, Double> result = new HashMap<>();
-        double otherSum = 0.0;
-        
-        List<Map.Entry<String, Double>> sortedEntries = allNutrients.entrySet().stream()
-                .sorted((e1, e2) -> Double.compare(e2.getValue(), e1.getValue()))
-                .collect(Collectors.toList());
-        
-        for (int i = 0; i < sortedEntries.size(); i++) {
-            Map.Entry<String, Double> entry = sortedEntries.get(i);
-            
-            if (i < topCount) {
-                result.put(entry.getKey(), entry.getValue());
-                System.out.println("🥇 Top " + (i+1) + ": " + entry.getKey() + " = " + 
-                                 String.format("%.3f", entry.getValue()) + "g");
-            } else {
-                otherSum += entry.getValue();
-            }
-        }
-        
-        if (otherSum > 0) {
-            result.put("Other nutrients", otherSum);
-            System.out.println("📦 Other nutrients: " + String.format("%.3f", otherSum) + "g");
-        }
-        
-        return result;
-    }
-    
-    /**
-     * Converts nutrient amounts to grams for consistent comparison.
-     */
-    private double convertToGrams(double value, String unit) {
-        if (unit == null) return value;
-        
-        return switch (unit.toLowerCase()) {
-            case "g" -> value;                          // Already in grams
-            case "mg" -> value / 1000.0;               // Milligrams to grams
-            case "µg", "ug", "mcg" -> value / 1000000.0; // Micrograms to grams
-            case "iu" -> value / 1000.0;               // International Units (rough conversion)
-            case "re" -> value / 1000.0;               // Retinol Equivalents (rough conversion)
-            case "dfe" -> value / 1000.0;              // Dietary Folate Equivalents (rough conversion)
-            case "nfe" -> value / 1000.0;              // Niacin Equivalents (rough conversion)
-            case "te" -> value / 1000.0;               // Tocopherol Equivalents (rough conversion)
-            case "kcal", "cal" -> value / 1000.0;      // Calories (treat as grams for visualization)
-            case "kj" -> value / 4184.0;               // Kilojoules to grams (rough energy conversion)
-            case "ne" -> value / 1000.0;               // Niacin Equivalent (mg to g)
-            default -> {
-                System.out.println("⚠️  Unknown unit '" + unit + "', treating as grams");
-                yield value;
-            }
-        };
-    }
-    
-    /**
-     * Filters out water and bulk nutrients that would dominate the visualization.
-     */
-    private boolean isWaterOrBulk(String nutrientName) {
-        String name = nutrientName.toLowerCase();
-        return name.contains("moisture") || 
-               name.contains("ash") || 
-               name.contains("alcohol") ||
-               name.contains("caffeine") ||
-               name.contains("theobromine");
     }
     
     /**
@@ -312,4 +326,4 @@ public class NutrientBreakdownPresenter {
         
         return panel;
     }
-} 
+}

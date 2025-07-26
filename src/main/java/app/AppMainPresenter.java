@@ -19,6 +19,7 @@ import profile.view.SignUpView;
 import profile.view.SplashView;
 
 import statistics.presenter.NutrientBreakdownPresenter;
+import statistics.presenter.SwapComparisonPresenter;
 
 import shared.ServiceFactory;
 import shared.navigation.INavElement;
@@ -102,7 +103,7 @@ public class AppMainPresenter {
             case VIEW_MULTIPLE_MEALS -> initializeMealListView();
             case VIEW_SINGLE_MEAL -> new PlaceholderView("Single Meal View");
             case VIEW_NUTRIENT_BREAKDOWN -> initializeNutrientBreakdownView();
-            case VIEW_SWAP_COMPARISON -> new PlaceholderView("Swap Comparison View");
+            case VIEW_SWAP_COMPARISON -> initializeSwapComparisonView();
             case EXPLORE_INGREDIENT_SWAPS -> initializeSwapsView();
             default -> null;
         };
@@ -131,20 +132,30 @@ public class AppMainPresenter {
     }
 
     /**
-     * Creates the view for nutrient breakdown statistics.
-     * @return The panel containing the nutrient breakdown visualization.
+     * Creates the view for nutrient breakdown statistics with date selection UI.
+     * @return The panel containing the nutrient breakdown visualization with date controls.
      */
     private JComponent initializeNutrientBreakdownView() {
         try {
             NutrientBreakdownPresenter presenter = new NutrientBreakdownPresenter();
-            // Use the actual meal date from your database (2025-07-24)
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            Date startDate = sdf.parse("2025-07-24");
-            Date endDate = sdf.parse("2025-07-25");
-            return presenter.presentNutrientBreakdown(startDate, endDate);
+            return presenter.createNutrientBreakdownUI();
         } catch (Exception e) {
             System.err.println("Failed to initialize nutrient breakdown view: " + e.getMessage());
             return new PlaceholderView("Error loading Nutrient Breakdown");
+        }
+    }
+
+    /**
+     * Creates the view for swap comparison statistics with date selection UI.
+     * @return The panel containing the swap comparison visualization with date controls.
+     */
+    private JComponent initializeSwapComparisonView() {
+        try {
+            SwapComparisonPresenter presenter = new SwapComparisonPresenter();
+            return presenter.createSwapComparisonUI();
+        } catch (Exception e) {
+            System.err.println("Failed to initialize swap comparison view: " + e.getMessage());
+            return new PlaceholderView("Error loading Swap Comparison");
         }
     }
 
