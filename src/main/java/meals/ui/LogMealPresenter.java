@@ -4,6 +4,7 @@ package meals.ui;
 import app.AppMainPresenter;
 import app.LeftNavItem;
 import meals.models.food.Food;
+import meals.models.food.Measure;
 import meals.models.meal.Meal;
 import meals.models.meal.MealItem;
 import meals.services.CreateMealService;
@@ -51,13 +52,35 @@ public class LogMealPresenter {
         int randomId = new Random().nextInt(10_000);
         Meal.MealType mealType = view.getSelectedMealType();
         Date today = new Date();
-        Meal meal = new Meal(randomId, mealType, mealItems, today);
+        
+        // Get current user ID from profile service
+        int currentUserId = 1; // Default fallback
+        try {
+            var currentUser = shared.ServiceFactory.getProfileService().getCurrentSession();
+            if (currentUser.isPresent()) {
+                currentUserId = currentUser.get().getId();
+                System.out.println("👤 Using current user ID: " + currentUserId);
+            } else {
+                System.out.println("⚠️ No active user session, using default user ID: " + currentUserId);
+            }
+        } catch (Exception e) {
+            System.out.println("❌ Error getting current user: " + e.getMessage());
+        }
+        
+        Meal meal = new Meal(randomId, mealType, mealItems, today, currentUserId);
         
         System.out.println("📋 Meal Details:");
         System.out.println("   🆔 ID: " + randomId);
         System.out.println("   🍳 Type: " + mealType);
         System.out.println("   📅 Date: " + today);
         System.out.println("   🥘 Items: " + mealItems.size());
+        
+        if (mealItems.isEmpty()) {
+            System.out.println("❌ ERROR: No meal items to create meal!");
+            view.showErrorMessage("Please add at least one food item to the meal.");
+            return;
+        }
+        
         for (int i = 0; i < mealItems.size(); i++) {
             MealItem item = mealItems.get(i);
             System.out.println("      " + (i+1) + ". " + item.getFood().getFoodDescription() + 
@@ -88,14 +111,32 @@ public class LogMealPresenter {
      */
     private List<MealItem> buildMealItemsFromForm() {
         List<MealItem> mealItems = new ArrayList<>();
-        for (SelectedFoodListItem selectedFoodListItem: view.getSelectedItemsAddedToMeal()) {
-            mealItems.add(
-                    new MealItem(new Random().nextInt(10000),
-                            selectedFoodListItem.food(),
-                            selectedFoodListItem.quantity(),
-                            selectedFoodListItem.measure())
+        System.out.println("🔍 Building meal items from form...");
+        System.out.println("📋 Selected items count: " + view.getSelectedItemsAddedToMeal().size());
+        
+        for (int i = 0; i < view.getSelectedItemsAddedToMeal().size(); i++) {
+            SelectedFoodListItem selectedFoodListItem = view.getSelectedItemsAddedToMeal().get(i);
+            System.out.println("   Item " + (i+1) + ":");
+            System.out.println("     Food: " + selectedFoodListItem.food().getFoodDescription());
+            System.out.println("     Quantity: " + selectedFoodListItem.quantity());
+            System.out.println("     Measure: " + (selectedFoodListItem.measure() != null ? selectedFoodListItem.measure().getName() : "NULL"));
+            
+            if (selectedFoodListItem.measure() == null) {
+                System.out.println("❌ ERROR: Measure is null for food: " + selectedFoodListItem.food().getFoodDescription());
+                continue; // Skip this item to avoid null pointer exception
+            }
+            
+            MealItem mealItem = new MealItem(
+                new Random().nextInt(10000),
+                selectedFoodListItem.food(),
+                selectedFoodListItem.quantity(),
+                selectedFoodListItem.measure()
             );
+            mealItems.add(mealItem);
+            System.out.println("     ✅ Created meal item with ID: " + mealItem.getId());
         }
+        
+        System.out.println("📦 Total meal items created: " + mealItems.size());
         return mealItems;
     }
 
@@ -103,17 +144,43 @@ public class LogMealPresenter {
      * Adds the selected food to the meal if the information entered is valid.
      */
     private void addFoodListener() {
+        System.out.println("➕ === ADDING FOOD TO MEAL ===");
+        
         Food selectedFood = view.getSelectedFood().food();
+        System.out.println("🍽️ Selected food: " + selectedFood.getFoodDescription());
+        
         Float quantity = view.getSelectedQuantity();
+        System.out.println("📊 Selected quantity: " + quantity);
+        
         if (quantity == null) {
+            System.out.println("❌ Invalid quantity - showing error message");
             view.showErrorMessage(INVALID_QUANTITY_MESSAGE);
             return;
         }
+        
         if (foodAlreadyPartOfMeal(selectedFood)) {
+            System.out.println("❌ Food already in meal - showing error message");
             view.showErrorMessage(DUPLICATE_FOOD_MESSAGE);
             return;
         }
-        view.addSelectedFood(new SelectedFoodListItem(selectedFood, quantity, view.getSelectedMeasure()));
+        
+        Measure selectedMeasure = view.getSelectedMeasure();
+        System.out.println("📏 Selected measure: " + (selectedMeasure != null ? selectedMeasure.getName() : "NULL"));
+        
+        if (selectedMeasure == null) {
+            System.out.println("❌ ERROR: Selected measure is null!");
+            view.showErrorMessage("Please select a measure for the food.");
+            return;
+        }
+        
+        SelectedFoodListItem newItem = new SelectedFoodListItem(selectedFood, quantity, selectedMeasure);
+        System.out.println("✅ Created SelectedFoodListItem:");
+        System.out.println("   Food: " + newItem.food().getFoodDescription());
+        System.out.println("   Quantity: " + newItem.quantity());
+        System.out.println("   Measure: " + newItem.measure().getName());
+        
+        view.addSelectedFood(newItem);
+        System.out.println("➕ === FOOD ADDED SUCCESSFULLY ===\n");
     }
 
     /**

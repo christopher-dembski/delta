@@ -127,9 +127,39 @@ public class CreateMealService {
      * @throws DatabaseException Thrown if a database error occurs when querying the meals.
      */
     private static boolean validateNoneOfSpecifiedMealType(Meal.MealType mealType, Date date) throws DatabaseException {
+        // Get current user ID
+        int currentUserId = 1; // Default fallback
+        try {
+            var currentUser = shared.ServiceFactory.getProfileService().getCurrentSession();
+            if (currentUser.isPresent()) {
+                currentUserId = currentUser.get().getId();
+            }
+        } catch (Exception e) {
+            System.out.println("❌ Error getting current user for validation: " + e.getMessage());
+        }
+        
+        // Create proper datetime range for validation (entire day)
+        java.util.Calendar startCal = java.util.Calendar.getInstance();
+        startCal.setTime(date);
+        startCal.set(java.util.Calendar.HOUR_OF_DAY, 0);
+        startCal.set(java.util.Calendar.MINUTE, 0);
+        startCal.set(java.util.Calendar.SECOND, 0);
+        startCal.set(java.util.Calendar.MILLISECOND, 0);
+        Date startOfDay = startCal.getTime();
+        
+        java.util.Calendar endCal = java.util.Calendar.getInstance();
+        endCal.setTime(date);
+        endCal.set(java.util.Calendar.HOUR_OF_DAY, 23);
+        endCal.set(java.util.Calendar.MINUTE, 59);
+        endCal.set(java.util.Calendar.SECOND, 59);
+        endCal.set(java.util.Calendar.MILLISECOND, 999);
+        Date endOfDay = endCal.getTime();
+        
         List<IRecord> rawMeals = AppBackend.db().execute(
                 new SelectQuery("meals")
-                        .filter("created_on", Comparison.EQUAL, DateToString.call(date))
+                        .filter("created_on", Comparison.GREATER_EQUAL, DateToString.call(startOfDay))
+                        .filter("created_on", Comparison.LESS_EQUAL, DateToString.call(endOfDay))
+                        .filter("user_id", Comparison.EQUAL, currentUserId)
         );
         String mealTypeString = mealType.toString();
         long count = rawMeals

@@ -48,6 +48,8 @@ public class MealListPresenter {
             
         } catch (Exception e) {
             System.out.println("❌ Exception while loading meals: " + e.getMessage());
+            System.out.println("🔍 Exception details:");
+            e.printStackTrace();
             view.showError("Failed to load meals: " + e.getMessage());
         }
         System.out.println("📅 === MEAL LOADING COMPLETE ===\n");

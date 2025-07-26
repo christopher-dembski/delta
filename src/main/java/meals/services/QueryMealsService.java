@@ -62,11 +62,44 @@ public class QueryMealsService {
      */
     public QueryMealsServiceOutput getMealsByDate(Date fromDate, Date toDate) {
         try {
-            // TO DO: filter on current user id
+            // Get current user ID
+            int currentUserId = 1; // Default fallback
+            try {
+                var currentUser = shared.ServiceFactory.getProfileService().getCurrentSession();
+                if (currentUser.isPresent()) {
+                    currentUserId = currentUser.get().getId();
+                    System.out.println("🔍 Querying meals for user ID: " + currentUserId);
+                } else {
+                    System.out.println("⚠️ No active user session, using default user ID: " + currentUserId);
+                }
+            } catch (Exception e) {
+                System.out.println("❌ Error getting current user: " + e.getMessage());
+            }
+            
+            // Create proper datetime ranges for the query
+            // For the start of the day (fromDate), we want 00:00:00
+            java.util.Calendar startCal = java.util.Calendar.getInstance();
+            startCal.setTime(fromDate);
+            startCal.set(java.util.Calendar.HOUR_OF_DAY, 0);
+            startCal.set(java.util.Calendar.MINUTE, 0);
+            startCal.set(java.util.Calendar.SECOND, 0);
+            startCal.set(java.util.Calendar.MILLISECOND, 0);
+            Date startOfDay = startCal.getTime();
+            
+            // For the end of the day (toDate), we want 23:59:59
+            java.util.Calendar endCal = java.util.Calendar.getInstance();
+            endCal.setTime(toDate);
+            endCal.set(java.util.Calendar.HOUR_OF_DAY, 23);
+            endCal.set(java.util.Calendar.MINUTE, 59);
+            endCal.set(java.util.Calendar.SECOND, 59);
+            endCal.set(java.util.Calendar.MILLISECOND, 999);
+            Date endOfDay = endCal.getTime();
+            
             List<IRecord> mealRecords = AppBackend.db().execute(
                     new SelectQuery(Meal.getTableName())
-                            .filter("created_on", Comparison.GREATER_EQUAL, DateToString.call(fromDate))
-                            .filter("created_on", Comparison.LESS_EQUAL, DateToString.call(toDate))
+                            .filter("created_on", Comparison.GREATER_EQUAL, DateToString.call(startOfDay))
+                            .filter("created_on", Comparison.LESS_EQUAL, DateToString.call(endOfDay))
+                            .filter("user_id", Comparison.EQUAL, currentUserId)
             );
             List<Meal> meals = new ArrayList<>();
             for (IRecord mealRecord: mealRecords) {
@@ -74,6 +107,10 @@ public class QueryMealsService {
             }
             return new QueryMealsServiceOutput(meals, Collections.emptyList());
         } catch (DatabaseException | QueryFoodsService.QueryFoodsServiceException e) {
+            System.out.println("❌ Database/Service Exception in QueryMealsService:");
+            System.out.println("   Error: " + e.getMessage());
+            System.out.println("   Exception type: " + e.getClass().getSimpleName());
+            e.printStackTrace();
             List<ServiceError> errors = List.of(new ServiceError(DATABASE_EXCEPTION_MESSAGE + e.getMessage()));
             return new QueryMealsServiceOutput(Collections.emptyList(), errors);
         }
@@ -89,9 +126,20 @@ public class QueryMealsService {
         Integer id = (Integer) mealRecord.getValue("id");
         String mealTypeString = (String) mealRecord.getValue("meal_type");
         Meal.MealType mealType = Meal.MealType.fromString(mealTypeString);
-        Date createdAt = (Date) mealRecord.getValue("created_on");
+        
+        // Handle both Date and LocalDateTime for created_on field
+        Object createdAtObj = mealRecord.getValue("created_on");
+        Date createdAt;
+        if (createdAtObj instanceof java.time.LocalDateTime) {
+            java.time.LocalDateTime localDateTime = (java.time.LocalDateTime) createdAtObj;
+            createdAt = Date.from(localDateTime.atZone(java.time.ZoneId.systemDefault()).toInstant());
+        } else {
+            createdAt = (Date) createdAtObj;
+        }
+        
+        Integer userId = (Integer) mealRecord.getValue("user_id");
         List<MealItem> mealItems = buildMealItemsForMeal(mealRecord);
-        return new Meal(id, mealType,mealItems, createdAt);
+        return new Meal(id, mealType, mealItems, createdAt, userId);
     }
 
     /**
@@ -118,19 +166,41 @@ public class QueryMealsService {
      * @return The meal item built using the raw data.
      */
     private static MealItem buildMealItemForRecord(IRecord mealItemRecord) throws QueryFoodsService.QueryFoodsServiceException {
-        Integer id = (Integer) mealItemRecord.getValue("id");
-        Integer foodId = (Integer) mealItemRecord.getValue("food_id");
-        Food food = QueryFoodsService.instance().findById(foodId);
-        Float quantity = (Float) mealItemRecord.getValue("quantity");
-        Integer measureId = (Integer) mealItemRecord.getValue("measure_id");
-        // we know the measure belonging to the meal item also belongs to the food,
-        // so we can search the list of measures for the food instead of querying the database
-        Measure measure = food.getPossibleMeasures()
-                .stream()
-                .filter(possibleMeasure -> possibleMeasure.getId() == measureId)
-                .toList()
-                .getFirst();
-        return new MealItem(id, food, quantity, measure);
+        try {
+            Integer id = (Integer) mealItemRecord.getValue("id");
+            Integer foodId = (Integer) mealItemRecord.getValue("food_id");
+            System.out.println("🔍 Building meal item - ID: " + id + ", Food ID: " + foodId);
+            
+            Food food = QueryFoodsService.instance().findById(foodId);
+            if (food == null) {
+                System.out.println("❌ Food not found for ID: " + foodId);
+                throw new QueryFoodsService.QueryFoodsServiceException("Food not found for ID: " + foodId);
+            }
+            System.out.println("✅ Found food: " + food.getFoodDescription());
+            
+            Float quantity = (Float) mealItemRecord.getValue("quantity");
+            Integer measureId = (Integer) mealItemRecord.getValue("measure_id");
+            System.out.println("🔍 Looking for measure ID: " + measureId + " in food's possible measures");
+            
+            // we know the measure belonging to the meal item also belongs to the food,
+            // so we can search the list of measures for the food instead of querying the database
+            Measure measure = food.getPossibleMeasures()
+                    .stream()
+                    .filter(possibleMeasure -> possibleMeasure.getId() == measureId)
+                    .toList()
+                    .getFirst();
+            
+            if (measure == null) {
+                System.out.println("❌ Measure not found for ID: " + measureId + " in food: " + food.getFoodDescription());
+                throw new QueryFoodsService.QueryFoodsServiceException("Measure not found for ID: " + measureId);
+            }
+            System.out.println("✅ Found measure: " + measure.getName());
+            
+            return new MealItem(id, food, quantity, measure);
+        } catch (Exception e) {
+            System.out.println("❌ Error building meal item: " + e.getMessage());
+            throw e;
+        }
     }
 
     /**
