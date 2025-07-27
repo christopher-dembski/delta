@@ -8,6 +8,7 @@ import shared.AppBackend;
 import shared.service_output.ServiceError;
 import shared.service_output.ServiceOutput;
 import shared.utils.DateToString;
+import shared.utils.DateRangeUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -135,25 +136,12 @@ public class CreateMealService {
                 currentUserId = currentUser.get().getId();
             }
         } catch (Exception e) {
-            System.out.println("❌ Error getting current user for validation: " + e.getMessage());
+            System.out.println("ERROR: Error getting current user for validation: " + e.getMessage());
         }
         
-        // Create proper datetime range for validation (entire day)
-        java.util.Calendar startCal = java.util.Calendar.getInstance();
-        startCal.setTime(date);
-        startCal.set(java.util.Calendar.HOUR_OF_DAY, 0);
-        startCal.set(java.util.Calendar.MINUTE, 0);
-        startCal.set(java.util.Calendar.SECOND, 0);
-        startCal.set(java.util.Calendar.MILLISECOND, 0);
-        Date startOfDay = startCal.getTime();
-        
-        java.util.Calendar endCal = java.util.Calendar.getInstance();
-        endCal.setTime(date);
-        endCal.set(java.util.Calendar.HOUR_OF_DAY, 23);
-        endCal.set(java.util.Calendar.MINUTE, 59);
-        endCal.set(java.util.Calendar.SECOND, 59);
-        endCal.set(java.util.Calendar.MILLISECOND, 999);
-        Date endOfDay = endCal.getTime();
+        // Create proper datetime range for validation using utility methods
+        Date startOfDay = DateRangeUtils.getStartOfDay(date);
+        Date endOfDay = DateRangeUtils.getEndOfDay(date);
         
         List<IRecord> rawMeals = AppBackend.db().execute(
                 new SelectQuery("meals")

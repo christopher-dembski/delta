@@ -4,16 +4,22 @@ import meals.models.meal.Meal;
 import meals.models.meal.MealItem;
 import meals.models.food.Food;
 import meals.models.nutrient.Nutrient;
+import shared.utils.NutritionCalculator;
+import shared.utils.NutritionCalculator.NutrientEntry;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MealDetailView extends JPanel {
     private static final String TITLE = "Meal Details";
     private static final String BACK_BUTTON_LABEL = "← Back to Meal List";
+    
+
     
     private Meal currentMeal;
     private JLabel titleLabel;
@@ -95,10 +101,8 @@ public class MealDetailView extends JPanel {
         // Update food items
         updateFoodItems();
         
-        // Clear nutrition panel initially
-        nutritionPanel.removeAll();
-        nutritionPanel.revalidate();
-        nutritionPanel.repaint();
+        // Show aggregate nutrition for the entire meal
+        showAggregateNutrition();
     }
     
     private void updateMealInfo() {
@@ -237,24 +241,18 @@ public class MealDetailView extends JPanel {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createTitledBorder("Nutrient Details"));
         
-        // Filter out zero values and sort by amount (highest to lowest)
-        java.util.List<Map.Entry<Nutrient, Float>> sortedNutrients = nutrientAmounts.entrySet().stream()
-                .filter(entry -> (entry.getValue() * quantity) > 0.001) // Filter out essentially zero values
-                .sorted((e1, e2) -> Float.compare(e2.getValue() * quantity, e1.getValue() * quantity)) // Sort by amount descending
-                .collect(java.util.stream.Collectors.toList());
+        // Use utility class for calculations
+        List<NutrientEntry> nutrientEntries = NutritionCalculator.calculateNutrientsForItem(nutrientAmounts, quantity);
         
         // Create table model
         String[] columnNames = {"Nutrient", "Amount", "Unit"};
-        Object[][] data = new Object[sortedNutrients.size()][3];
+        Object[][] data = new Object[nutrientEntries.size()][3];
         
-        for (int i = 0; i < sortedNutrients.size(); i++) {
-            Map.Entry<Nutrient, Float> entry = sortedNutrients.get(i);
-            Nutrient nutrient = entry.getKey();
-            Float amount = entry.getValue() * quantity; // Adjust for quantity
-            
-            data[i][0] = nutrient.getNutrientName();
-            data[i][1] = String.format("%.2f", amount);
-            data[i][2] = nutrient.getNutrientUnit();
+        for (int i = 0; i < nutrientEntries.size(); i++) {
+            NutrientEntry entry = nutrientEntries.get(i);
+            data[i][0] = entry.getNutrientName();
+            data[i][1] = entry.getFormattedAmount();
+            data[i][2] = entry.getUnit();
         }
         
         JTable table = new JTable(data, columnNames);
@@ -264,6 +262,78 @@ public class MealDetailView extends JPanel {
         // Set column widths
         table.getColumnModel().getColumn(0).setPreferredWidth(200); // Nutrient name
         table.getColumnModel().getColumn(1).setPreferredWidth(80);  // Amount
+        table.getColumnModel().getColumn(2).setPreferredWidth(60);  // Unit
+        
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setPreferredSize(new Dimension(350, 250));
+        
+        panel.add(scrollPane, BorderLayout.CENTER);
+        return panel;
+    }
+    
+    private void showAggregateNutrition() {
+        nutritionPanel.removeAll();
+        
+        // Title for aggregate nutrition
+        JLabel titleLabel = new JLabel("Total Meal Nutrition");
+        titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 14f));
+        nutritionPanel.add(titleLabel);
+        nutritionPanel.add(Box.createVerticalStrut(10));
+        
+        // Calculate aggregate nutrients for the entire meal
+        List<NutrientEntry> aggregateNutrients = NutritionCalculator.calculateAggregateNutrientsForMeal(currentMeal);
+        
+        if (!aggregateNutrients.isEmpty()) {
+            // Create pie chart for aggregate nutrients
+            try {
+                Map<Nutrient, Float> aggregateNutrientMap = new HashMap<>();
+                for (NutrientEntry entry : aggregateNutrients) {
+                    aggregateNutrientMap.put(entry.getNutrient(), entry.getAmount());
+                }
+                
+                NutritionalPieChart pieChart = new NutritionalPieChart(aggregateNutrientMap, 1.0f);
+                nutritionPanel.add(pieChart);
+                nutritionPanel.add(Box.createVerticalStrut(10));
+            } catch (Exception e) {
+                JLabel errorLabel = new JLabel("Error creating chart: " + e.getMessage());
+                errorLabel.setForeground(Color.RED);
+                nutritionPanel.add(errorLabel);
+            }
+            
+            // Create aggregate nutrient table
+            JPanel nutrientTablePanel = createAggregateNutrientTable(aggregateNutrients);
+            nutritionPanel.add(nutrientTablePanel);
+        } else {
+            JLabel noDataLabel = new JLabel("No nutritional data available for this meal.");
+            nutritionPanel.add(noDataLabel);
+        }
+        
+        nutritionPanel.revalidate();
+        nutritionPanel.repaint();
+    }
+    
+    private JPanel createAggregateNutrientTable(List<NutrientEntry> nutrientEntries) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createTitledBorder("Total Nutrients"));
+        
+        // Create table model
+        String[] columnNames = {"Nutrient", "Total Amount", "Unit"};
+        Object[][] data = new Object[nutrientEntries.size()][3];
+        
+        for (int i = 0; i < nutrientEntries.size(); i++) {
+            NutrientEntry entry = nutrientEntries.get(i);
+            data[i][0] = entry.getNutrientName();
+            data[i][1] = entry.getFormattedAmount();
+            data[i][2] = entry.getUnit();
+        }
+        
+        JTable table = new JTable(data, columnNames);
+        table.setFillsViewportHeight(true);
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        
+        // Set column widths
+        table.getColumnModel().getColumn(0).setPreferredWidth(200); // Nutrient name
+        table.getColumnModel().getColumn(1).setPreferredWidth(100); // Total amount
         table.getColumnModel().getColumn(2).setPreferredWidth(60);  // Unit
         
         JScrollPane scrollPane = new JScrollPane(table);

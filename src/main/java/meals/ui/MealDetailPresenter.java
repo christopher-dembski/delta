@@ -19,8 +19,6 @@ public class MealDetailPresenter {
     }
     
     private void navigateBack() {
-        // Clear the selected meal state when navigating back
-        MealStateManager.getInstance().clearSelectedMeal();
         AppMainPresenter.instance().navigateTo(LeftNavItem.VIEW_MULTIPLE_MEALS);
     }
 } 

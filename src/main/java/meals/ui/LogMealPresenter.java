@@ -19,6 +19,7 @@ import java.util.*;
 public class LogMealPresenter {
     private static final String INVALID_QUANTITY_MESSAGE = "Invalid quantity. Value must be a number > 0.";
     private static final String DUPLICATE_FOOD_MESSAGE = "Foods for a meal must be unique.";
+    private static final int MAX_RANDOM_ID = 10_000;
 
     private final LogMealView view;
 
@@ -45,11 +46,11 @@ public class LogMealPresenter {
      * Handles the logic for creating a meal given the information entered via the UI using the backend service.
      */
     private void createMeal() {
-        System.out.println("🍽️ === STARTING MEAL CREATION ===");
+        System.out.println("=== STARTING MEAL CREATION ===");
         
         List<MealItem> mealItems = buildMealItemsFromForm();
         // only support logging meals for the current day
-        int randomId = new Random().nextInt(10_000);
+        int randomId = new Random().nextInt(MAX_RANDOM_ID);
         Meal.MealType mealType = view.getSelectedMealType();
         Date today = new Date();
         
@@ -61,25 +62,19 @@ public class LogMealPresenter {
                 currentUserId = currentUser.get().getId();
                 System.out.println("👤 Using current user ID: " + currentUserId);
             } else {
-                System.out.println("⚠️ No active user session, using default user ID: " + currentUserId);
+                System.out.println("WARNING: No active user session, using default user ID: " + currentUserId);
             }
         } catch (Exception e) {
-            System.out.println("❌ Error getting current user: " + e.getMessage());
+            System.out.println("ERROR: Error getting current user: " + e.getMessage());
         }
         
         Meal meal = new Meal(randomId, mealType, mealItems, today, currentUserId);
         
-        System.out.println("📋 Meal Details:");
-        System.out.println("   🆔 ID: " + randomId);
-        System.out.println("   🍳 Type: " + mealType);
-        System.out.println("   📅 Date: " + today);
-        System.out.println("   🥘 Items: " + mealItems.size());
-        
-        if (mealItems.isEmpty()) {
-            System.out.println("❌ ERROR: No meal items to create meal!");
-            view.showErrorMessage("Please add at least one food item to the meal.");
-            return;
-        }
+        System.out.println("Meal Details:");
+        System.out.println("   ID: " + randomId);
+        System.out.println("   Type: " + mealType);
+        System.out.println("   Date: " + today);
+        System.out.println("   Items: " + mealItems.size());
         
         for (int i = 0; i < mealItems.size(); i++) {
             MealItem item = mealItems.get(i);
@@ -87,15 +82,15 @@ public class LogMealPresenter {
                              " (" + item.getQuantity() + " " + item.getSelectedMeasure().getName() + ")");
         }
         
-        System.out.println("💾 Saving meal to database...");
+        System.out.println("Saving meal to database...");
         CreateMealService.CreateMealServiceOutput result = CreateMealService.instance().createMeal(meal);
         
         if (result.ok()) {
-            System.out.println("✅ SUCCESS: Meal created successfully!");
-            System.out.println("🧭 Navigating to meal list view...");
+            System.out.println("SUCCESS: Meal created successfully!");
+            System.out.println("Navigating to meal list view...");
             AppMainPresenter.instance().navigateTo(LeftNavItem.VIEW_MULTIPLE_MEALS);
         } else {
-            System.out.println("❌ FAILED: Meal creation failed with errors:");
+            System.out.println("FAILED: Meal creation failed with errors:");
             result.errors().forEach(error -> System.out.println("   - " + error));
             List<String> errors = result.errors()
                     .stream()
@@ -103,7 +98,7 @@ public class LogMealPresenter {
                     .toList();
             view.showErrorMessage(String.join("\n", errors));
         }
-        System.out.println("🍽️ === MEAL CREATION COMPLETE ===\n");
+        System.out.println("=== MEAL CREATION COMPLETE ===\n");
     }
 
     /**
@@ -111,8 +106,8 @@ public class LogMealPresenter {
      */
     private List<MealItem> buildMealItemsFromForm() {
         List<MealItem> mealItems = new ArrayList<>();
-        System.out.println("🔍 Building meal items from form...");
-        System.out.println("📋 Selected items count: " + view.getSelectedItemsAddedToMeal().size());
+        System.out.println("Building meal items from form...");
+        System.out.println("Selected items count: " + view.getSelectedItemsAddedToMeal().size());
         
         for (int i = 0; i < view.getSelectedItemsAddedToMeal().size(); i++) {
             SelectedFoodListItem selectedFoodListItem = view.getSelectedItemsAddedToMeal().get(i);
@@ -122,21 +117,21 @@ public class LogMealPresenter {
             System.out.println("     Measure: " + (selectedFoodListItem.measure() != null ? selectedFoodListItem.measure().getName() : "NULL"));
             
             if (selectedFoodListItem.measure() == null) {
-                System.out.println("❌ ERROR: Measure is null for food: " + selectedFoodListItem.food().getFoodDescription());
+                System.out.println("ERROR: Measure is null for food: " + selectedFoodListItem.food().getFoodDescription());
                 continue; // Skip this item to avoid null pointer exception
             }
             
             MealItem mealItem = new MealItem(
-                new Random().nextInt(10000),
+                new Random().nextInt(MAX_RANDOM_ID),
                 selectedFoodListItem.food(),
                 selectedFoodListItem.quantity(),
                 selectedFoodListItem.measure()
             );
             mealItems.add(mealItem);
-            System.out.println("     ✅ Created meal item with ID: " + mealItem.getId());
+            System.out.println("     Created meal item with ID: " + mealItem.getId());
         }
         
-        System.out.println("📦 Total meal items created: " + mealItems.size());
+        System.out.println("Total meal items created: " + mealItems.size());
         return mealItems;
     }
 
@@ -144,43 +139,43 @@ public class LogMealPresenter {
      * Adds the selected food to the meal if the information entered is valid.
      */
     private void addFoodListener() {
-        System.out.println("➕ === ADDING FOOD TO MEAL ===");
+        System.out.println("=== ADDING FOOD TO MEAL ===");
         
         Food selectedFood = view.getSelectedFood().food();
-        System.out.println("🍽️ Selected food: " + selectedFood.getFoodDescription());
+        System.out.println("Selected food: " + selectedFood.getFoodDescription());
         
         Float quantity = view.getSelectedQuantity();
-        System.out.println("📊 Selected quantity: " + quantity);
+        System.out.println("Selected quantity: " + quantity);
         
         if (quantity == null) {
-            System.out.println("❌ Invalid quantity - showing error message");
+            System.out.println("Invalid quantity - showing error message");
             view.showErrorMessage(INVALID_QUANTITY_MESSAGE);
             return;
         }
         
         if (foodAlreadyPartOfMeal(selectedFood)) {
-            System.out.println("❌ Food already in meal - showing error message");
+            System.out.println("Food already in meal - showing error message");
             view.showErrorMessage(DUPLICATE_FOOD_MESSAGE);
             return;
         }
         
         Measure selectedMeasure = view.getSelectedMeasure();
-        System.out.println("📏 Selected measure: " + (selectedMeasure != null ? selectedMeasure.getName() : "NULL"));
+        System.out.println("Selected measure: " + (selectedMeasure != null ? selectedMeasure.getName() : "NULL"));
         
         if (selectedMeasure == null) {
-            System.out.println("❌ ERROR: Selected measure is null!");
+            System.out.println("ERROR: Selected measure is null!");
             view.showErrorMessage("Please select a measure for the food.");
             return;
         }
         
         SelectedFoodListItem newItem = new SelectedFoodListItem(selectedFood, quantity, selectedMeasure);
-        System.out.println("✅ Created SelectedFoodListItem:");
+        System.out.println("Created SelectedFoodListItem:");
         System.out.println("   Food: " + newItem.food().getFoodDescription());
         System.out.println("   Quantity: " + newItem.quantity());
         System.out.println("   Measure: " + newItem.measure().getName());
         
         view.addSelectedFood(newItem);
-        System.out.println("➕ === FOOD ADDED SUCCESSFULLY ===\n");
+        System.out.println("=== FOOD ADDED SUCCESSFULLY ===\n");
     }
 
     /**

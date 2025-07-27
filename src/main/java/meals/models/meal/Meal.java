@@ -86,15 +86,7 @@ public class Meal implements IRecord {
         this.userId = userId;
     }
 
-    /**
-     * @param id        The unique identifier of the meal.
-     * @param mealType  The type of meal.
-     * @param mealItems The list of items for the meal (foods and their respective quantities).
-     * @param createdAt The date when the meal was created.
-     */
-    public Meal(int id, MealType mealType, List<MealItem> mealItems, Date createdAt) {
-        this(id, mealType, mealItems, createdAt, 1); // Default to user 1 for backward compatibility
-    }
+
 
     /**
      * @return The unique identifier of the meal.

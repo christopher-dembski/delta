@@ -2,10 +2,6 @@ package meals.ui;
 
 import meals.models.meal.Meal;
 
-/**
- * Simple state manager for meal selection.
- * This avoids using static fields for state sharing.
- */
 public class MealStateManager {
     private static MealStateManager instance;
     private Meal selectedMeal;
