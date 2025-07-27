@@ -81,22 +81,7 @@ public class SwapComparisonPresenter {
         
         return mainPanel;
     }
-    
-    /**
-     * Creates an info panel explaining the demo.
-     */
-    private JPanel createInfoPanel() {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        panel.setBorder(BorderFactory.createTitledBorder("Demo Comparison"));
-        
-        JLabel infoLabel = new JLabel("<html>" +
-                "<b>Demo:</b> Real meals from database (2025-07-25 to 2025-07-26) vs 10 servings of Chow Mein<br/>" +
-                "<i>This shows how nutrient intake changes when comparing real meal data to a modified portion</i>" +
-                "</html>");
-        
-        panel.add(infoLabel);
-        return panel;
-    }
+
     
     /**
      * Creates and returns a panel with bar chart comparing nutrition before/after swap.
@@ -235,17 +220,6 @@ public class SwapComparisonPresenter {
         double change = afterTotal - beforeTotal;
         
         StringBuilder html = new StringBuilder("<html><div style='text-align: center;'>");
-        html.append("<b>Total Nutrition Change: ");
-        
-        if (change > 0) {
-            html.append("<font color='green'>+").append(String.format("%.2f", change)).append("g</font>");
-        } else if (change < 0) {
-            html.append("<font color='red'>").append(String.format("%.2f", change)).append("g</font>");
-        } else {
-            html.append("<font color='gray'>No change</font>");
-        }
-        
-        html.append("</b><br/>");
         
         // Add goal nutrient specific changes
         if (!goalNutrientNames.isEmpty()) {
@@ -554,19 +528,6 @@ public class SwapComparisonPresenter {
         foodInfoPanel.add(afterLabel);
         
         summaryPanel.add(foodInfoPanel, BorderLayout.CENTER);
-        
-        // Calculate and show total nutrition change
-        double beforeTotal = beforeNutrients.values().stream().mapToDouble(Double::doubleValue).sum();
-        double afterTotal = afterNutrients.values().stream().mapToDouble(Double::doubleValue).sum();
-        double change = afterTotal - beforeTotal;
-        String changeText = change >= 0 ? 
-            String.format("+%.1fg total nutrients", change) : 
-            String.format("%.1fg total nutrients", change);
-        
-        JLabel changeLabel = new JLabel("Net change: " + changeText, JLabel.CENTER);
-        changeLabel.setFont(changeLabel.getFont().deriveFont(Font.BOLD));
-        changeLabel.setForeground(change >= 0 ? Color.GREEN.darker() : Color.RED.darker());
-        summaryPanel.add(changeLabel, BorderLayout.SOUTH);
         
         return summaryPanel;
     }

@@ -19,7 +19,6 @@ public enum LeftNavItem {
 
     MEAL_STATISTICS_SUBMENU("Meal Statistics"),
     VIEW_NUTRIENT_BREAKDOWN("View Nutrient Breakdown"),
-    VIEW_SWAP_COMPARISON("View Swap Comparison"),
 
     EXPLORE_INGREDIENT_SWAPS("Explore Swaps");
 
