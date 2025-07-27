@@ -28,19 +28,56 @@ public class SwapComparisonPresenter {
     
     /**
      * Creates a complete UI for swap comparison with demo data.
-     * @return JPanel containing the swap comparison UI
      */
     public JPanel createSwapComparisonUI() {
         JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBorder(BorderFactory.createTitledBorder("Swap Comparison Analysis"));
+        mainPanel.setBorder(BorderFactory.createTitledBorder("Food Swap Comparison"));
         
-        // Create info panel at the top
-        JPanel infoPanel = createInfoPanel();
-        mainPanel.add(infoPanel, BorderLayout.NORTH);
+        try {
+            // Use the demo method for standalone usage
+            JPanel chartPanel = presentDemoSwapComparison();
+            mainPanel.add(chartPanel, BorderLayout.CENTER);
+        } catch (Exception e) {
+            JLabel errorLabel = new JLabel("Error loading swap comparison: " + e.getMessage());
+            errorLabel.setHorizontalAlignment(JLabel.CENTER);
+            mainPanel.add(errorLabel, BorderLayout.CENTER);
+        }
         
-        // Create and display demo comparison
-        JPanel chartPanel = presentDemoSwapComparison();
-        mainPanel.add(chartPanel, BorderLayout.CENTER);
+        return mainPanel;
+    }
+    
+    /**
+     * Creates a swap comparison chart directly from two Food objects.
+     * This is used for real swap workflow integration.
+     * 
+     * @param beforeFood The original food being replaced
+     * @param afterFood The new food being swapped to
+     * @param beforeLabel Label for the before food
+     * @param afterLabel Label for the after food
+     * @return JPanel containing the comparison chart
+     */
+    public JPanel createSwapComparisonFromFoods(Food beforeFood, Food afterFood, String beforeLabel, String afterLabel) {
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBorder(BorderFactory.createTitledBorder("Nutritional Comparison"));
+        
+        try {
+            // Calculate nutrient totals for each food (using standard serving size)
+            Map<String, Double> beforeNutrients = calculateNutrientTotalsFromFood(beforeFood);
+            Map<String, Double> afterNutrients = calculateNutrientTotalsFromFood(afterFood);
+            
+            // Create the comparison chart
+            JPanel chartPanel = createBarChartPanel(beforeNutrients, afterNutrients);
+            mainPanel.add(chartPanel, BorderLayout.CENTER);
+            
+            // Add summary information
+            JPanel summaryPanel = createFoodComparisonSummary(beforeFood, afterFood, beforeNutrients, afterNutrients);
+            mainPanel.add(summaryPanel, BorderLayout.SOUTH);
+            
+        } catch (Exception e) {
+            JLabel errorLabel = new JLabel("Error creating food comparison: " + e.getMessage());
+            errorLabel.setHorizontalAlignment(JLabel.CENTER);
+            mainPanel.add(errorLabel, BorderLayout.CENTER);
+        }
         
         return mainPanel;
     }
@@ -244,5 +281,111 @@ public class SwapComparisonPresenter {
         );
         
         return List.of(breakfast);
+    }
+    
+    /**
+     * Calculates nutrient totals from a single Food object using standard serving size.
+     */
+    private Map<String, Double> calculateNutrientTotalsFromFood(Food food) {
+        Map<String, Double> nutrientTotals = new HashMap<>();
+        
+        // Use standard serving size (100g equivalent)
+        float quantity = 1.0f;
+        float conversionFactor = 1.0f; // Assume 100g serving
+        
+        Map<Nutrient, Float> nutrients = food.getNutrientAmounts();
+        
+        for (Map.Entry<Nutrient, Float> entry : nutrients.entrySet()) {
+            Nutrient nutrient = entry.getKey();
+            Float amount = entry.getValue();
+            
+            if (amount != null && amount > 0) {
+                String nutrientName = nutrient.getNutrientName();
+                String nutrientUnit = nutrient.getNutrientUnit();
+                
+                // Skip water and bulk nutrients
+                if (StatisticsService.instance().isWaterOrBulk(nutrientName)) {
+                    continue;
+                }
+                
+                // Scale and convert to grams
+                double scaledAmount = amount * conversionFactor * quantity;
+                double amountInGrams = StatisticsService.instance().convertToGrams(scaledAmount, nutrientUnit);
+                
+                // Accumulate totals
+                nutrientTotals.merge(nutrientName, amountInGrams, Double::sum);
+            }
+        }
+        
+        return getTopNutrientsWithOthers(nutrientTotals, 7);
+    }
+    
+    /**
+     * Takes the top N nutrients by amount and groups the rest as "Other nutrients".
+     * Copied from StatisticsService.
+     */
+    private Map<String, Double> getTopNutrientsWithOthers(Map<String, Double> allNutrients, int topCount) {
+        Map<String, Double> result = new HashMap<>();
+        double otherSum = 0.0;
+        
+        List<Map.Entry<String, Double>> sortedEntries = allNutrients.entrySet().stream()
+                .sorted((e1, e2) -> Double.compare(e2.getValue(), e1.getValue()))
+                .collect(Collectors.toList());
+        
+        for (int i = 0; i < sortedEntries.size(); i++) {
+            Map.Entry<String, Double> entry = sortedEntries.get(i);
+            
+            if (i < topCount) {
+                result.put(entry.getKey(), entry.getValue());
+            } else {
+                otherSum += entry.getValue();
+            }
+        }
+        
+        if (otherSum > 0) {
+            result.put("Other nutrients", otherSum);
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Creates a summary panel for food comparison.
+     */
+    private JPanel createFoodComparisonSummary(Food beforeFood, Food afterFood, 
+                                              Map<String, Double> beforeNutrients, 
+                                              Map<String, Double> afterNutrients) {
+        JPanel summaryPanel = new JPanel(new BorderLayout());
+        summaryPanel.setBorder(BorderFactory.createTitledBorder("Comparison Summary"));
+        summaryPanel.setPreferredSize(new Dimension(800, 80));
+        
+        // Create before/after food info
+        JPanel foodInfoPanel = new JPanel(new GridLayout(1, 2));
+        
+        JLabel beforeLabel = new JLabel("<html><b>Before:</b> " + beforeFood.getFoodDescription() + "</html>");
+        beforeLabel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        
+        JLabel afterLabel = new JLabel("<html><b>After:</b> " + afterFood.getFoodDescription() + "</html>");
+        afterLabel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        
+        foodInfoPanel.add(beforeLabel);
+        foodInfoPanel.add(afterLabel);
+        
+        summaryPanel.add(foodInfoPanel, BorderLayout.CENTER);
+        
+        // Calculate and show total nutrition change
+        double beforeTotal = beforeNutrients.values().stream().mapToDouble(Double::doubleValue).sum();
+        double afterTotal = afterNutrients.values().stream().mapToDouble(Double::doubleValue).sum();
+        double change = afterTotal - beforeTotal;
+        String changeText = change >= 0 ? 
+            String.format("+%.1fg total nutrients", change) : 
+            String.format("%.1fg total nutrients", change);
+        
+        JLabel changeLabel = new JLabel("Net change: " + changeText, JLabel.CENTER);
+        changeLabel.setFont(changeLabel.getFont().deriveFont(Font.BOLD));
+        changeLabel.setForeground(change >= 0 ? Color.GREEN.darker() : Color.RED.darker());
+        summaryPanel.add(changeLabel, BorderLayout.SOUTH);
+        
+        return summaryPanel;
     }
 } 

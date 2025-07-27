@@ -123,6 +123,11 @@ public class SwapsPresenter {
                 prepareMealDetailsView();
             }
             
+            // Update statistics view when moving to statistics card
+            if (currentCardIndex == 2 && CARD_IDS[3].equals(SWAP_STATISTICS_CARD_ID)) {
+                prepareStatisticsView();
+            }
+            
             currentCardIndex++;
             updateVisibleCardAndNavigationControls();
         });
@@ -282,13 +287,23 @@ public class SwapsPresenter {
     }
 
     /**
-     * Prepares the meal details view with the selected swap information.
+     * Prepares the meal details view with the selected swap.
+     * Called when navigating to the meal details card.
      */
     private void prepareMealDetailsView() {
         SwapWithMealContext selectedSwap = selectSwapPresenter.getSelectedSwap();
-        
-        // Initialize the meal details view with the selected swap
-        swapMealDetailsPresenter.setSwap(selectedSwap);
+        if (selectedSwap != null) {
+            swapMealDetailsPresenter.setSwap(selectedSwap);
+        }
+    }
+    
+    /**
+     * Prepares the statistics view with the selected swap.
+     * Called when navigating to the statistics card.
+     */
+    private void prepareStatisticsView() {
+        SwapWithMealContext selectedSwap = selectSwapPresenter.getSelectedSwap();
+        view.getSwapStatisticsView().updateSwapComparison(selectedSwap);
     }
 
     /**
