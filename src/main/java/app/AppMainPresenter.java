@@ -6,6 +6,8 @@ import meals.ui.LogMealPresenter;
 import meals.ui.LogMealView;
 import meals.ui.MealListView;
 import meals.ui.MealListPresenter;
+import meals.models.meal.Meal;
+import meals.ui.MealStateManager;
 
 import swaps.ui.SwapsPresenter;
 import swaps.ui.SwapsView;
@@ -130,8 +132,9 @@ public class AppMainPresenter {
         new meals.ui.MealDetailPresenter(view);
         
         // Display the selected meal if available
-        if (meals.ui.MealDetailView.selectedMeal != null) {
-            view.displayMeal(meals.ui.MealDetailView.selectedMeal);
+        Meal selectedMeal = MealStateManager.getInstance().getSelectedMeal();
+        if (selectedMeal != null) {
+            view.displayMeal(selectedMeal);
         }
         
         return view;

@@ -15,9 +15,6 @@ public class MealDetailView extends JPanel {
     private static final String TITLE = "Meal Details";
     private static final String BACK_BUTTON_LABEL = "← Back to Meal List";
     
-    // Static field to store the selected meal from meal list
-    public static Meal selectedMeal;
-    
     private Meal currentMeal;
     private JLabel titleLabel;
     private JPanel mealInfoPanel;

@@ -73,7 +73,7 @@ public class MealListPresenter {
             System.out.println("👆 === SELECTION COMPLETE ===\n");
             
             // Store the selected meal for the detail view
-            MealDetailView.selectedMeal = selectedMeal;
+            MealStateManager.getInstance().setSelectedMeal(selectedMeal);
             AppMainPresenter.instance().navigateTo(LeftNavItem.VIEW_SINGLE_MEAL);
         }
     }
