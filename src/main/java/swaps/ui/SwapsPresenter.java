@@ -458,7 +458,8 @@ public class SwapsPresenter {
                 originalMeal.getId(),
                 originalMeal.getMealType(),
                 swappedItems,
-                originalMeal.getCreatedAt()
+                originalMeal.getCreatedAt(),
+                originalMeal.getUserId()
             );
             
             afterSwapMeals.add(swappedMeal);
