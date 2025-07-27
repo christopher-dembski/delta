@@ -23,7 +23,9 @@ import profile.view.EditProfileView;
 import profile.view.SignUpView;
 import profile.view.SplashView;
 
-import shared.ServiceFactory;
+import statistics.presenter.NutrientBreakdownPresenter;
+import statistics.presenter.SwapComparisonPresenter;
+
 import shared.navigation.INavElement;
 import shared.navigation.NavItem;
 import shared.navigation.NavSubMenu;
@@ -77,7 +79,8 @@ public class AppMainPresenter {
             case LOG_MEAL,
                     VIEW_MULTIPLE_MEALS,
                     VIEW_SINGLE_MEAL,
-                    VIEW_MEAL_STATISTICS,
+                    VIEW_NUTRIENT_BREAKDOWN,
+                    VIEW_SWAP_COMPARISON,
                     EXPLORE_INGREDIENT_SWAPS -> true;
             default -> false;
         };
@@ -130,7 +133,8 @@ public class AppMainPresenter {
             case LOG_MEAL -> initializeLogMealView();
             case VIEW_MULTIPLE_MEALS -> initializeMealListView();
             case VIEW_SINGLE_MEAL -> initializeMealDetailView();
-            case VIEW_MEAL_STATISTICS -> new PlaceholderView("Meal Statistics View");
+            case VIEW_NUTRIENT_BREAKDOWN -> initializeNutrientBreakdownView();
+            case VIEW_SWAP_COMPARISON -> initializeSwapComparisonView();
             case EXPLORE_INGREDIENT_SWAPS -> initializeSwapsView();
 
             default -> null;
@@ -172,12 +176,40 @@ public class AppMainPresenter {
         return view;
     }
 
+    /**
+     * Creates the view for nutrient breakdown statistics with date selection UI.
+     * @return The panel containing the nutrient breakdown visualization with date controls.
+     */
+    private JComponent initializeNutrientBreakdownView() {
+        try {
+            NutrientBreakdownPresenter presenter = new NutrientBreakdownPresenter();
+            return presenter.createNutrientBreakdownUI();
+        } catch (Exception e) {
+            System.err.println("Failed to initialize nutrient breakdown view: " + e.getMessage());
+            return new PlaceholderView("Error loading Nutrient Breakdown");
+        }
+    }
+
+    /**
+     * Creates the view for swap comparison statistics with date selection UI.
+     * @return The panel containing the swap comparison visualization with date controls.
+     */
+    private JComponent initializeSwapComparisonView() {
+        try {
+            SwapComparisonPresenter presenter = new SwapComparisonPresenter();
+            return presenter.createSwapComparisonUI();
+        } catch (Exception e) {
+            System.err.println("Failed to initialize swap comparison view: " + e.getMessage());
+            return new PlaceholderView("Error loading Swap Comparison");
+        }
+    }
+
     /** @return The tree representing the menu for the left navigation bar. */
     private static INavElement<LeftNavItem> buildLeftNavTree() {
         NavSubMenu<LeftNavItem> leftNavRoot = new NavSubMenu<>(LeftNavItem.MENU_ROOT);
         leftNavRoot.addNavElement(buildLeftNavProfileSubMenu());
         leftNavRoot.addNavElement(buildLeftNavMealsSubmenu());
-        leftNavRoot.addNavElement(new NavItem<>(LeftNavItem.VIEW_MEAL_STATISTICS));
+        leftNavRoot.addNavElement(buildLeftNavMealStatisticsSubmenu());
         leftNavRoot.addNavElement(new NavItem<>(LeftNavItem.EXPLORE_INGREDIENT_SWAPS));
         return leftNavRoot;
     }
@@ -198,6 +230,16 @@ public class AppMainPresenter {
         mealsSubMenu.addNavElement(new NavItem<>(LeftNavItem.VIEW_MULTIPLE_MEALS));
         mealsSubMenu.addNavElement(new NavItem<>(LeftNavItem.VIEW_SINGLE_MEAL));
         return mealsSubMenu;
+    }
+
+    /**
+     * @return The meal statistics submenu for the left navigation bar.
+     */
+    private static INavElement<LeftNavItem> buildLeftNavMealStatisticsSubmenu() {
+        NavSubMenu<LeftNavItem> statisticsSubMenu = new NavSubMenu<>(LeftNavItem.MEAL_STATISTICS_SUBMENU);
+        statisticsSubMenu.addNavElement(new NavItem<>(LeftNavItem.VIEW_NUTRIENT_BREAKDOWN));
+        statisticsSubMenu.addNavElement(new NavItem<>(LeftNavItem.VIEW_SWAP_COMPARISON));
+        return statisticsSubMenu;
     }
 
     /**
