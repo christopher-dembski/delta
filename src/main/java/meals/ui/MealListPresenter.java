@@ -2,6 +2,8 @@ package meals.ui;
 
 import meals.models.meal.Meal;
 import meals.services.QueryMealsService;
+import app.LeftNavItem;
+import app.AppMainPresenter;
 
 import java.util.Date;
 
@@ -67,10 +69,12 @@ public class MealListPresenter {
                 System.out.println("   " + (i+1) + ". " + item.getFood().getFoodDescription() + 
                                  " (" + item.getQuantity() + " " + item.getSelectedMeasure().getName() + ")");
             }
-            System.out.println("💡 TODO: Navigate to detailed meal view in future PR");
+            System.out.println("🧭 Navigating to detailed meal view...");
             System.out.println("👆 === SELECTION COMPLETE ===\n");
-            // TODO: In future PR, navigate to detailed meal view
-            // AppMainPresenter.instance().navigateTo(LeftNavItem.VIEW_SINGLE_MEAL);
+            
+            // Store the selected meal for the detail view
+            MealDetailView.selectedMeal = selectedMeal;
+            AppMainPresenter.instance().navigateTo(LeftNavItem.VIEW_SINGLE_MEAL);
         }
     }
 } 

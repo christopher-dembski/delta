@@ -96,7 +96,7 @@ public class AppMainPresenter {
             }
             case LOG_MEAL -> initializeLogMealView();
             case VIEW_MULTIPLE_MEALS -> initializeMealListView();
-            case VIEW_SINGLE_MEAL -> new PlaceholderView("Single Meal View");
+            case VIEW_SINGLE_MEAL -> initializeMealDetailView();
             case VIEW_MEAL_STATISTICS -> new PlaceholderView("Meal Statistics View");
             case EXPLORE_INGREDIENT_SWAPS -> initializeSwapsView();
             default -> null;
@@ -123,6 +123,18 @@ public class AppMainPresenter {
         MealListView mealListView = new MealListView();
         new MealListPresenter(mealListView);
         return mealListView;
+    }
+    
+    private meals.ui.MealDetailView initializeMealDetailView() {
+        meals.ui.MealDetailView view = new meals.ui.MealDetailView();
+        new meals.ui.MealDetailPresenter(view);
+        
+        // Display the selected meal if available
+        if (meals.ui.MealDetailView.selectedMeal != null) {
+            view.displayMeal(meals.ui.MealDetailView.selectedMeal);
+        }
+        
+        return view;
     }
 
     /**
