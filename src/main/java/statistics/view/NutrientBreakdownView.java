@@ -1,13 +1,6 @@
-package statistics.presenter;
+package statistics.view;
 
-import meals.services.QueryMealsService;
-import meals.models.meal.Meal;
-import meals.models.meal.MealItem;
-import meals.models.food.Food;
-import meals.models.nutrient.Nutrient;
-import meals.models.food.Measure;
-
-import statistics.service.StatisticsService;
+import statistics.model.NutrientSummary;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -15,8 +8,6 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.data.general.DefaultPieDataset;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -24,27 +15,38 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Presenter for creating nutrient breakdown visualizations from real meal data.
+ * Concrete view implementation for nutrient breakdown.
+ * Contains all UI creation and layout logic.
  */
-public class NutrientBreakdownPresenter {
-
+public class NutrientBreakdownView extends JPanel implements INutrientBreakdownView {
+    
     private JPanel chartDisplayPanel;
+    private JSpinner startDateSpinner;
+    private JSpinner endDateSpinner;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
+    
+    // Callbacks set by presenter
+    private GenerateChartCallback generateChartCallback;
+    private QuickDateCallback quickDateCallback;
+    
+    public NutrientBreakdownView() {
+        initializeUI();
+    }
+    
     /**
-     * Creates a complete UI with date selection controls and chart display area.
-     * @return JPanel containing the full nutrient breakdown UI
+     * Initialize the complete UI layout.
      */
-    public JPanel createNutrientBreakdownUI() {
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBorder(BorderFactory.createTitledBorder("Nutrient Breakdown Analysis"));
+    private void initializeUI() {
+        setLayout(new BorderLayout());
+        setBorder(BorderFactory.createTitledBorder("Nutrient Breakdown Analysis"));
         
         // Create date selection panel at the top
         JPanel dateSelectionPanel = createDateSelectionPanel();
-        mainPanel.add(dateSelectionPanel, BorderLayout.NORTH);
+        add(dateSelectionPanel, BorderLayout.NORTH);
         
         // Create chart display area
         chartDisplayPanel = new JPanel(new BorderLayout());
@@ -52,16 +54,9 @@ public class NutrientBreakdownPresenter {
         chartDisplayPanel.setBorder(BorderFactory.createTitledBorder("Chart Display"));
         
         // Show initial message
-        JLabel initialLabel = new JLabel("<html><div style='text-align: center;'>" +
-                "<h2>📊 Nutrient Breakdown</h2>" +
-                "<p>Select a date range above and click 'Generate Chart' to view nutrient analysis.</p>" +
-                "</div></html>");
-        initialLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        chartDisplayPanel.add(initialLabel, BorderLayout.CENTER);
+        showInitialMessage();
         
-        mainPanel.add(chartDisplayPanel, BorderLayout.CENTER);
-        
-        return mainPanel;
+        add(chartDisplayPanel, BorderLayout.CENTER);
     }
     
     /**
@@ -83,7 +78,7 @@ public class NutrientBreakdownPresenter {
         cal.add(Calendar.DAY_OF_MONTH, -7);
         Date defaultStartDate = cal.getTime();
         
-        JSpinner startDateSpinner = new JSpinner(new SpinnerDateModel());
+        startDateSpinner = new JSpinner(new SpinnerDateModel());
         startDateSpinner.setEditor(new JSpinner.DateEditor(startDateSpinner, "yyyy-MM-dd"));
         startDateSpinner.setValue(defaultStartDate);
         startDateSpinner.setPreferredSize(new Dimension(110, 25));
@@ -94,7 +89,7 @@ public class NutrientBreakdownPresenter {
         
         Date defaultEndDate = new Date(); // Today
         
-        JSpinner endDateSpinner = new JSpinner(new SpinnerDateModel());
+        endDateSpinner = new JSpinner(new SpinnerDateModel());
         endDateSpinner.setEditor(new JSpinner.DateEditor(endDateSpinner, "yyyy-MM-dd"));
         endDateSpinner.setValue(defaultEndDate);
         endDateSpinner.setPreferredSize(new Dimension(110, 25));
@@ -106,34 +101,19 @@ public class NutrientBreakdownPresenter {
         generateButton.setForeground(Color.WHITE);
         generateButton.setPreferredSize(new Dimension(90, 25));
         
-        // Today quick button
-        JButton todayButton = createQuickDateButton("Today", startDateSpinner, endDateSpinner, 0);
-        todayButton.setPreferredSize(new Dimension(90, 25));
-        todayButton.setFont(todayButton.getFont().deriveFont(10f));
-        
-        // Last 7 days button
-        JButton last7DaysButton = createQuickDateButton("Last 7 days", startDateSpinner, endDateSpinner, -7);
-        last7DaysButton.setPreferredSize(new Dimension(90, 25));
-        last7DaysButton.setFont(last7DaysButton.getFont().deriveFont(10f));
+        // Quick date buttons
+        JButton todayButton = createQuickDateButton("Today", 0);
+        JButton last7DaysButton = createQuickDateButton("Last 7 days", -7);
         
         // Add action listener to generate button
         generateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Date startDate = (Date) startDateSpinner.getValue();
-                Date endDate = (Date) endDateSpinner.getValue();
-                
-                System.out.println("🗓️ Generating chart for date range: " + 
-                                 dateFormat.format(startDate) + " to " + dateFormat.format(endDate));
-                
-                // Generate and display the chart
-                JPanel chartPanel = presentNutrientBreakdown(startDate, endDate);
-                
-                // Update the display area
-                chartDisplayPanel.removeAll();
-                chartDisplayPanel.add(chartPanel, BorderLayout.CENTER);
-                chartDisplayPanel.revalidate();
-                chartDisplayPanel.repaint();
+                if (generateChartCallback != null) {
+                    Date startDate = (Date) startDateSpinner.getValue();
+                    Date endDate = (Date) endDateSpinner.getValue();
+                    generateChartCallback.onGenerateChart(startDate, endDate);
+                }
             }
         });
         
@@ -153,90 +133,110 @@ public class NutrientBreakdownPresenter {
     /**
      * Creates quick date selection buttons.
      */
-    private JButton createQuickDateButton(String text, JSpinner startSpinner, JSpinner endSpinner, int daysBack) {
+    private JButton createQuickDateButton(String text, int daysBack) {
         JButton button = new JButton(text);
         button.setFont(button.getFont().deriveFont(10f));
+        button.setPreferredSize(new Dimension(90, 25));
+        
         button.addActionListener(e -> {
-            Calendar cal = Calendar.getInstance();
-            Date endDate = new Date();
-            
-            if (text.equals("Today")) {
-                // Today only: start and end are the same
-                startSpinner.setValue(endDate);
-                endSpinner.setValue(endDate);
-            } else if (daysBack == 0) {
-                // This month
-                cal.set(Calendar.DAY_OF_MONTH, 1);
-                Date startDate = cal.getTime();
-                startSpinner.setValue(startDate);
-                endSpinner.setValue(endDate);
-            } else {
-                // Days back
-                cal.add(Calendar.DAY_OF_MONTH, daysBack);
-                Date startDate = cal.getTime();
-                startSpinner.setValue(startDate);
-                endSpinner.setValue(endDate);
+            if (quickDateCallback != null) {
+                quickDateCallback.onQuickDateSelected(text, daysBack);
             }
         });
         return button;
     }
-
+    
+    @Override
+    public void setOnGenerateChart(GenerateChartCallback callback) {
+        this.generateChartCallback = callback;
+    }
+    
+    @Override
+    public void setOnQuickDateSelection(QuickDateCallback callback) {
+        this.quickDateCallback = callback;
+    }
+    
+    @Override
+    public void showNutrientChart(NutrientSummary summary) {
+        JPanel visualizationPanel = createVisualization(summary);
+        
+        chartDisplayPanel.removeAll();
+        chartDisplayPanel.add(visualizationPanel, BorderLayout.CENTER);
+        chartDisplayPanel.revalidate();
+        chartDisplayPanel.repaint();
+    }
+    
+    @Override
+    public void showError(String message) {
+        JPanel errorPanel = createErrorPanel(message);
+        
+        chartDisplayPanel.removeAll();
+        chartDisplayPanel.add(errorPanel, BorderLayout.CENTER);
+        chartDisplayPanel.revalidate();
+        chartDisplayPanel.repaint();
+    }
+    
+    @Override
+    public void showNoData(String message) {
+        JPanel noDataPanel = createNoDataPanel(message);
+        
+        chartDisplayPanel.removeAll();
+        chartDisplayPanel.add(noDataPanel, BorderLayout.CENTER);
+        chartDisplayPanel.revalidate();
+        chartDisplayPanel.repaint();
+    }
+    
+    @Override
+    public void showLoading() {
+        JPanel loadingPanel = new JPanel(new BorderLayout());
+        JLabel loadingLabel = new JLabel("<html><div style='text-align: center;'>" +
+                "<h2>⏳ Processing...</h2>" +
+                "<p>Calculating nutrient breakdown...</p>" +
+                "</div></html>");
+        loadingLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        loadingPanel.add(loadingLabel, BorderLayout.CENTER);
+        
+        chartDisplayPanel.removeAll();
+        chartDisplayPanel.add(loadingPanel, BorderLayout.CENTER);
+        chartDisplayPanel.revalidate();
+        chartDisplayPanel.repaint();
+    }
+    
+    @Override
+    public DateRange getSelectedDateRange() {
+        Date startDate = (Date) startDateSpinner.getValue();
+        Date endDate = (Date) endDateSpinner.getValue();
+        return new DateRange(startDate, endDate);
+    }
+    
+    @Override
+    public void setDateRange(Date startDate, Date endDate) {
+        startDateSpinner.setValue(startDate);
+        endDateSpinner.setValue(endDate);
+    }
+    
     /**
-     * Creates a nutrient breakdown visualization from meal data for the specified date range.
-     * @param startDate The start date for meal data.
-     * @param endDate The end date for meal data.
-     * @return JPanel containing the pie chart and summary.
+     * Shows initial message when no chart is displayed.
      */
-    public JPanel presentNutrientBreakdown(Date startDate, Date endDate) {
-        try {
-            // Fetch meals using the service
-            QueryMealsService.QueryMealsServiceOutput result = 
-                QueryMealsService.instance().getMealsByDate(startDate, endDate);
-            
-            if (!result.ok()) {
-                return createErrorPanel("Failed to fetch meals: " + result.errors());
-            }
-            
-            List<Meal> meals = result.getMeals();
-            
-            if (meals.isEmpty()) {
-                return createNoDataPanel("No meals found for the specified date range.");
-            }
-            
-            // Calculate nutrient totals from real meal data
-            Map<String, Double> nutrientTotals = StatisticsService.instance().calculateNutrientTotalsFromMeals(meals);
-            
-            if (nutrientTotals.isEmpty()) {
-                return createNoDataPanel("No nutrient data available for the selected meals.");
-            }
-            
-            // Create visualization
-            return createVisualization(nutrientTotals, meals.size());
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-            return createErrorPanel("Error generating nutrient breakdown: " + e.getMessage());
-        }
+    private void showInitialMessage() {
+        JLabel initialLabel = new JLabel("<html><div style='text-align: center;'>" +
+                "<h2>📊 Nutrient Breakdown</h2>" +
+                "<p>Select a date range above and click 'Generate Chart' to view nutrient analysis.</p>" +
+                "</div></html>");
+        initialLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        chartDisplayPanel.add(initialLabel, BorderLayout.CENTER);
     }
     
     /**
      * Creates the main visualization panel with pie chart and summary.
      */
-    private JPanel createVisualization(Map<String, Double> nutrientTotals, int mealCount) {
+    private JPanel createVisualization(NutrientSummary summary) {
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBorder(BorderFactory.createTitledBorder("Nutrient Breakdown for Selected Meals"));
         
-        // Calculate percentages for pie chart
-        double totalWeight = nutrientTotals.values().stream().mapToDouble(Double::doubleValue).sum();
-        Map<String, Double> percentages = new HashMap<>();
-        for (Map.Entry<String, Double> entry : nutrientTotals.entrySet()) {
-            double percentage = (entry.getValue() / totalWeight) * 100.0;
-            percentages.put(entry.getKey(), percentage);
-        }
-        
         // Create pie chart
         DefaultPieDataset<String> dataset = new DefaultPieDataset<>();
-        for (Map.Entry<String, Double> entry : percentages.entrySet()) {
+        for (Map.Entry<String, Double> entry : summary.getNutrientPercentages().entrySet()) {
             dataset.setValue(entry.getKey(), entry.getValue());
         }
         
@@ -250,7 +250,7 @@ public class NutrientBreakdownPresenter {
         chartPanel.setPreferredSize(new Dimension(600, 500));
         
         mainPanel.add(chartPanel, BorderLayout.CENTER);
-        mainPanel.add(createSummaryPanel(nutrientTotals, percentages, mealCount), BorderLayout.SOUTH);
+        mainPanel.add(createSummaryPanel(summary), BorderLayout.SOUTH);
         
         return mainPanel;
     }
@@ -258,14 +258,14 @@ public class NutrientBreakdownPresenter {
     /**
      * Creates a summary panel showing top nutrients and meal information.
      */
-    private JPanel createSummaryPanel(Map<String, Double> totals, Map<String, Double> percentages, int mealCount) {
+    private JPanel createSummaryPanel(NutrientSummary summary) {
         JPanel summaryPanel = new JPanel();
         summaryPanel.setLayout(new BoxLayout(summaryPanel, BoxLayout.X_AXIS));
         summaryPanel.setBorder(BorderFactory.createTitledBorder("Summary"));
         summaryPanel.setPreferredSize(new Dimension(600, 90));
         
         // Show top 4 nutrients by weight
-        List<Map.Entry<String, Double>> topNutrients = totals.entrySet().stream()
+        List<Map.Entry<String, Double>> topNutrients = summary.getNutrientTotals().entrySet().stream()
                 .filter(entry -> !entry.getKey().equals("Other nutrients"))
                 .sorted((e1, e2) -> Double.compare(e2.getValue(), e1.getValue()))
                 .limit(4)
@@ -273,7 +273,7 @@ public class NutrientBreakdownPresenter {
         
         for (Map.Entry<String, Double> entry : topNutrients) {
             String nutrientName = entry.getKey();
-            double percentage = percentages.get(nutrientName);
+            double percentage = summary.getNutrientPercentages().get(nutrientName);
             double weight = entry.getValue();
             
             JLabel label = new JLabel(String.format(
@@ -285,7 +285,7 @@ public class NutrientBreakdownPresenter {
         }
         
         summaryPanel.add(Box.createHorizontalStrut(20));
-        JLabel mealCountLabel = new JLabel("Total Meals: " + mealCount);
+        JLabel mealCountLabel = new JLabel("Total Meals: " + summary.getTotalMeals());
         mealCountLabel.setBorder(BorderFactory.createEmptyBorder(5, 20, 5, 20));
         summaryPanel.add(mealCountLabel);
         
@@ -326,4 +326,4 @@ public class NutrientBreakdownPresenter {
         
         return panel;
     }
-}
+} 

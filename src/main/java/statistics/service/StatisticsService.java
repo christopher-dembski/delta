@@ -1,17 +1,20 @@
 package statistics.service;
 
+import statistics.model.NutrientSummary;
 import meals.models.food.Food;
 import meals.models.food.Measure;
 import meals.models.meal.Meal;
 import meals.models.meal.MealItem;
 import meals.models.nutrient.Nutrient;
+import meals.services.QueryMealsService;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class StatisticsService {
+public class StatisticsService implements IStatisticsService {
     /**
      * Singleton instance of the service.
      */
@@ -33,9 +36,44 @@ public class StatisticsService {
         return instance;
     }
     
-    /**
-     * Converts nutrient amounts to grams for consistent comparison.
-     */
+    @Override
+    public NutrientSummary calculateNutrientBreakdown(List<Meal> meals) {
+        Map<String, Double> nutrientTotals = calculateNutrientTotalsFromMeals(meals);
+        
+        if (nutrientTotals.isEmpty()) {
+            return new NutrientSummary(Map.of(), Map.of(), meals.size(), 0.0);
+        }
+        
+        // Calculate percentages
+        double totalWeight = nutrientTotals.values().stream().mapToDouble(Double::doubleValue).sum();
+        Map<String, Double> percentages = new HashMap<>();
+        
+        for (Map.Entry<String, Double> entry : nutrientTotals.entrySet()) {
+            double percentage = (entry.getValue() / totalWeight) * 100.0;
+            percentages.put(entry.getKey(), percentage);
+        }
+        
+        return new NutrientSummary(nutrientTotals, percentages, meals.size(), totalWeight);
+    }
+    
+    @Override
+    public List<Meal> getMealsByDateRange(Date startDate, Date endDate) throws StatisticsException {
+        try {
+            QueryMealsService.QueryMealsServiceOutput result = 
+                QueryMealsService.instance().getMealsByDate(startDate, endDate);
+            
+            if (!result.ok()) {
+                throw new StatisticsException("Failed to fetch meals: " + result.errors());
+            }
+            
+            return result.getMeals();
+            
+        } catch (Exception e) {
+            throw new StatisticsException("Error fetching meals from database", e);
+        }
+    }
+    
+    @Override
     public double convertToGrams(double value, String unit) {
         if (unit == null) return value;
         
@@ -51,28 +89,21 @@ public class StatisticsService {
             case "kcal" -> value / 1000.0;             // Kilocalories (treat as grams for visualization)
             case "kj" -> value / 4184.0;               // Kilojoules to grams (rough energy conversion)
             case "ne" -> value / 1000.0;               // Niacin Equivalent (mg to g)
-            default -> {
-                System.out.println("⚠️  Unknown unit '" + unit + "', treating as grams");
-                yield value;
-            }
+            default -> value;
         };
     }
     
-    /**
-     * Filters out water and bulk nutrients that would dominate the visualization.
-     */
+    @Override
     public boolean isWaterOrBulk(String nutrientName) {
         String name = nutrientName.toLowerCase();
         return name.contains("moisture") || 
                name.contains("ash") || 
                name.contains("alcohol") ||
-               name.contains("caffeine") ||
+               // name.contains("caffeine") ||
                name.contains("theobromine");
     }
     
-    /**
-     * Calculates total nutrients from all meals, converting units to grams for comparison.
-     */
+    @Override
     public Map<String, Double> calculateNutrientTotalsFromMeals(List<Meal> meals) {
         Map<String, Double> allNutrientTotals = new HashMap<>();
         

@@ -18,8 +18,10 @@ import profile.view.EditProfileView;
 import profile.view.SignUpView;
 import profile.view.SplashView;
 
-import statistics.presenter.NutrientBreakdownPresenter;
+import statistics.presenter.NutrientBreakdownPresenterV2;
 import statistics.presenter.SwapComparisonPresenter;
+import statistics.view.INutrientBreakdownView;
+import statistics.view.NutrientBreakdownView;
 
 import shared.ServiceFactory;
 import shared.navigation.INavElement;
@@ -137,8 +139,11 @@ public class AppMainPresenter {
      */
     private JComponent initializeNutrientBreakdownView() {
         try {
-            NutrientBreakdownPresenter presenter = new NutrientBreakdownPresenter();
-            return presenter.createNutrientBreakdownUI();
+            INutrientBreakdownView view = new NutrientBreakdownView();
+            NutrientBreakdownPresenterV2 presenter = new NutrientBreakdownPresenterV2(
+                view, ServiceFactory.getStatisticsService());
+            presenter.initialize();
+            return (JComponent) view;
         } catch (Exception e) {
             System.err.println("Failed to initialize nutrient breakdown view: " + e.getMessage());
             return new PlaceholderView("Error loading Nutrient Breakdown");
