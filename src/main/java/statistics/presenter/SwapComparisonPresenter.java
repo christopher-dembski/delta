@@ -119,6 +119,27 @@ public class SwapComparisonPresenter {
         }
     }
     
+    /**
+     * NEW: Enhanced version that prioritizes user's goal nutrients in the chart.
+     * @param beforeSwapMeals The meals before the swap
+     * @param afterSwapMeals The meals after the swap
+     * @param goalNutrientNames List of nutrient names from user's goals (1-2 items)
+     * @return JPanel containing the comparison bar chart with goal nutrients prioritized
+     */
+    public JPanel presentSwapComparison(List<Meal> beforeSwapMeals, List<Meal> afterSwapMeals, List<String> goalNutrientNames) {
+        try {
+            // Calculate nutrition totals for both meal lists
+            Map<String, Double> beforeTotals = StatisticsService.instance().calculateNutrientTotalsFromMeals(beforeSwapMeals);
+            Map<String, Double> afterTotals = StatisticsService.instance().calculateNutrientTotalsFromMeals(afterSwapMeals);
+            
+            // Create bar chart comparing the totals with goal nutrients prioritized
+            return createBarChartPanelWithGoals(beforeTotals, afterTotals, goalNutrientNames);
+            
+        } catch (Exception e) {
+            return createErrorPanel("Error calculating swap comparison: " + e.getMessage());
+        }
+    }
+    
     private JPanel createBarChartPanel(Map<String, Double> before, Map<String, Double> after) {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         
@@ -151,6 +172,106 @@ public class SwapComparisonPresenter {
         panel.add(summaryLabel, BorderLayout.SOUTH);
         
         return panel;
+    }
+    
+    /**
+     * NEW: Creates a bar chart panel with goal nutrients prioritized.
+     */
+    private JPanel createBarChartPanelWithGoals(Map<String, Double> before, Map<String, Double> after, List<String> goalNutrientNames) {
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        
+        // Get prioritized nutrients (goals first, then top by amount)
+        Map<String, Double> prioritizedBefore = getPrioritizedNutrientsForGoals(before, goalNutrientNames, 7);
+        Map<String, Double> prioritizedAfter = getPrioritizedNutrientsForGoals(after, goalNutrientNames, 7);
+        
+        // Add all nutrients from both prioritized maps
+        Set<String> allNutrients = new HashSet<>(prioritizedBefore.keySet());
+        allNutrients.addAll(prioritizedAfter.keySet());
+        
+        // Add data to dataset in the order they appear in prioritizedBefore (goals first)
+        for (String nutrient : prioritizedBefore.keySet()) {
+            double beforeVal = prioritizedBefore.getOrDefault(nutrient, 0.0);
+            double afterVal = prioritizedAfter.getOrDefault(nutrient, 0.0);
+            dataset.addValue(beforeVal, "Before Swap", nutrient);
+            dataset.addValue(afterVal, "After Swap", nutrient);
+        }
+        
+        // Add any nutrients that are only in prioritizedAfter
+        for (String nutrient : prioritizedAfter.keySet()) {
+            if (!prioritizedBefore.containsKey(nutrient)) {
+                double beforeVal = 0.0;
+                double afterVal = prioritizedAfter.get(nutrient);
+                dataset.addValue(beforeVal, "Before Swap", nutrient);
+                dataset.addValue(afterVal, "After Swap", nutrient);
+            }
+        }
+        
+        JFreeChart barChart = ChartFactory.createBarChart(
+            "Meal List Impact: Before vs After Swap (Goal Nutrients Prioritized)",
+            "Nutrient",
+            "Amount (g)",
+            dataset
+        );
+        
+        ChartPanel chartPanel = new ChartPanel(barChart);
+        chartPanel.setPreferredSize(new Dimension(800, 600));
+        
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(chartPanel, BorderLayout.CENTER);
+        
+        // Add summary label with goal highlighting
+        JLabel summaryLabel = createGoalAwareSummaryLabel(before, after, goalNutrientNames);
+        panel.add(summaryLabel, BorderLayout.SOUTH);
+        
+        return panel;
+    }
+    
+    /**
+     * NEW: Creates a summary label that highlights the impact on goal nutrients.
+     */
+    private JLabel createGoalAwareSummaryLabel(Map<String, Double> before, Map<String, Double> after, List<String> goalNutrientNames) {
+        double beforeTotal = before.values().stream().mapToDouble(Double::doubleValue).sum();
+        double afterTotal = after.values().stream().mapToDouble(Double::doubleValue).sum();
+        double change = afterTotal - beforeTotal;
+        
+        StringBuilder html = new StringBuilder("<html><div style='text-align: center;'>");
+        html.append("<b>Total Nutrition Change: ");
+        
+        if (change > 0) {
+            html.append("<font color='green'>+").append(String.format("%.2f", change)).append("g</font>");
+        } else if (change < 0) {
+            html.append("<font color='red'>").append(String.format("%.2f", change)).append("g</font>");
+        } else {
+            html.append("<font color='gray'>No change</font>");
+        }
+        
+        html.append("</b><br/>");
+        
+        // Add goal nutrient specific changes
+        if (!goalNutrientNames.isEmpty()) {
+            html.append("<br/><b>Goal Nutrient Changes:</b><br/>");
+            for (String goalNutrient : goalNutrientNames) {
+                double beforeGoal = before.getOrDefault(goalNutrient, 0.0);
+                double afterGoal = after.getOrDefault(goalNutrient, 0.0);
+                double goalChange = afterGoal - beforeGoal;
+                
+                html.append(goalNutrient).append(": ");
+                if (goalChange > 0) {
+                    html.append("<font color='green'>+").append(String.format("%.2f", goalChange)).append("g</font>");
+                } else if (goalChange < 0) {
+                    html.append("<font color='red'>").append(String.format("%.2f", goalChange)).append("g</font>");
+                } else {
+                    html.append("<font color='gray'>No change</font>");
+                }
+                html.append("<br/>");
+            }
+        }
+        
+        html.append("</div></html>");
+        
+        JLabel label = new JLabel(html.toString());
+        label.setHorizontalAlignment(JLabel.CENTER);
+        return label;
     }
     
     private JLabel createSummaryLabel(Map<String, Double> before, Map<String, Double> after) {
@@ -346,6 +467,67 @@ public class SwapComparisonPresenter {
             result.put("Other nutrients", otherSum);
         }
         
+        return result;
+    }
+    
+    /**
+     * NEW: Prioritizes user's goal nutrients first, then shows top nutrients by amount.
+     * This makes the chart more relevant to what the user actually cares about.
+     * 
+     * @param allNutrients All available nutrients with their amounts
+     * @param goalNutrientNames List of nutrient names from user's goals (1-2 items)
+     * @param totalCount Total number of nutrients to show (including goals)
+     * @return Map with goal nutrients first, then top nutrients, then "Others"
+     */
+    private Map<String, Double> getPrioritizedNutrientsForGoals(
+            Map<String, Double> allNutrients, 
+            List<String> goalNutrientNames, 
+            int totalCount) {
+        
+        Map<String, Double> result = new LinkedHashMap<>(); // Preserve insertion order
+        double otherSum = 0.0;
+        Set<String> processedNutrients = new HashSet<>();
+        
+        System.out.println("🎯 Prioritizing goal nutrients: " + goalNutrientNames);
+        
+        // Step 1: Add goal nutrients first (if they exist in the data)
+        for (String goalNutrient : goalNutrientNames) {
+            if (allNutrients.containsKey(goalNutrient)) {
+                result.put(goalNutrient, allNutrients.get(goalNutrient));
+                processedNutrients.add(goalNutrient);
+                System.out.println("🏆 Goal nutrient: " + goalNutrient + " = " + 
+                                 String.format("%.3f", allNutrients.get(goalNutrient)) + "g");
+            }
+        }
+        
+        // Step 2: Fill remaining slots with top nutrients by amount (excluding goal nutrients)
+        int remainingSlots = totalCount - result.size();
+        List<Map.Entry<String, Double>> sortedEntries = allNutrients.entrySet().stream()
+                .filter(entry -> !processedNutrients.contains(entry.getKey())) // Exclude already processed goal nutrients
+                .sorted((e1, e2) -> Double.compare(e2.getValue(), e1.getValue())) // Sort by amount descending
+                .collect(Collectors.toList());
+        
+        // Add top nutrients to fill remaining slots
+        for (int i = 0; i < sortedEntries.size(); i++) {
+            Map.Entry<String, Double> entry = sortedEntries.get(i);
+            
+            if (i < remainingSlots) {
+                result.put(entry.getKey(), entry.getValue());
+                processedNutrients.add(entry.getKey());
+                System.out.println("📊 Top nutrient: " + entry.getKey() + " = " + 
+                                 String.format("%.3f", entry.getValue()) + "g");
+            } else {
+                otherSum += entry.getValue();
+            }
+        }
+        
+        // Step 3: Add "Other nutrients" if there are any remaining
+        if (otherSum > 0) {
+            result.put("Other nutrients", otherSum);
+            System.out.println("📦 Other nutrients: " + String.format("%.3f", otherSum) + "g");
+        }
+        
+        System.out.println("✅ Final chart will show " + result.size() + " categories");
         return result;
     }
     

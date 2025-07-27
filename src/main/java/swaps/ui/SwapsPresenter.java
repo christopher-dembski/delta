@@ -303,7 +303,173 @@ public class SwapsPresenter {
      */
     private void prepareStatisticsView() {
         SwapWithMealContext selectedSwap = selectSwapPresenter.getSelectedSwap();
+        
+        // Update the individual food comparison (existing functionality)
         view.getSwapStatisticsView().updateSwapComparison(selectedSwap);
+        
+        // NEW: Update the meal list comparison
+        updateMealListComparison(selectedSwap);
+    }
+    
+    /**
+     * NEW: Updates the meal list comparison by fetching meals from the selected date range
+     * and simulating the swap to create before/after meal lists.
+     */
+    private void updateMealListComparison(SwapWithMealContext selectedSwap) {
+        if (selectedSwap == null) {
+            return;
+        }
+        
+        try {
+            // Get the date range from the goals form
+            Date fromDate = goal1Presenter.getFromDate();
+            Date toDate = goal1Presenter.getToDate();
+            
+            if (fromDate == null || toDate == null) {
+                System.out.println("⚠️  No valid date range selected for meal list comparison");
+                return;
+            }
+            
+            System.out.println("📅 Fetching meals for date range: " + fromDate + " to " + toDate);
+            
+            // Import required service
+            meals.services.QueryMealsService.QueryMealsServiceOutput mealsResult = 
+                meals.services.QueryMealsService.instance().getMealsByDate(fromDate, toDate);
+            
+            if (!mealsResult.ok()) {
+                System.err.println("❌ Failed to fetch meals: " + mealsResult.errors());
+                return;
+            }
+            
+            List<meals.models.meal.Meal> originalMeals = mealsResult.getMeals();
+            System.out.println("✅ Found " + originalMeals.size() + " meals in date range");
+            
+            if (originalMeals.isEmpty()) {
+                System.out.println("⚠️  No meals found in the selected date range");
+                return;
+            }
+            
+            // NEW: Extract goal nutrients from the goals forms
+            List<String> goalNutrientNames = extractGoalNutrientNames();
+            
+            // Create "after swap" meals by simulating the swap
+            List<meals.models.meal.Meal> afterSwapMeals = simulateSwapInMeals(originalMeals, selectedSwap);
+            
+            // Update the meal list comparison view with goal nutrients prioritized
+            // Delegate UI creation to the view layer (proper MVP separation)
+            view.getSwapStatisticsView().updateMealListComparisonWithGoals(originalMeals, afterSwapMeals, goalNutrientNames);
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error updating meal list comparison: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * NEW: Extracts the nutrient names from user's goals (goal1 and goal2).
+     * @return List of nutrient names from the goals (1-2 items)
+     */
+    private List<String> extractGoalNutrientNames() {
+        List<String> goalNutrients = new ArrayList<>();
+        
+        try {
+            System.out.println("🔍 Starting goal nutrient extraction...");
+            
+            // Get nutrient from goal 1
+            System.out.println("🔍 Checking Goal 1...");
+            swaps.ui.goals.create_goal_form.form_fields.DropdownOptionNutrient goal1Nutrient = goal1Presenter.getSelectedNutrient();
+            if (goal1Nutrient != null) {
+                if (goal1Nutrient.nutrient() != null) {
+                    String nutrientName = goal1Nutrient.nutrient().getNutrientName();
+                    goalNutrients.add(nutrientName);
+                    System.out.println("🎯 Goal 1 nutrient: " + nutrientName);
+                } else {
+                    System.out.println("⚠️  Goal 1 nutrient object is null");
+                }
+            } else {
+                System.out.println("⚠️  Goal 1 DropdownOptionNutrient is null");
+            }
+            
+            // Get nutrient from goal 2 (if it exists and is different)
+            System.out.println("🔍 Checking Goal 2...");
+            swaps.ui.goals.create_goal_form.form_fields.DropdownOptionNutrient goal2Nutrient = goal2Presenter.getSelectedNutrient();
+            if (goal2Nutrient != null) {
+                if (goal2Nutrient.nutrient() != null) {
+                    String nutrientName = goal2Nutrient.nutrient().getNutrientName();
+                    System.out.println("🔍 Goal 2 nutrient found: " + nutrientName);
+                    if (!goalNutrients.contains(nutrientName)) { // Avoid duplicates
+                        goalNutrients.add(nutrientName);
+                        System.out.println("🎯 Goal 2 nutrient added: " + nutrientName);
+                    } else {
+                        System.out.println("⚠️  Goal 2 nutrient '" + nutrientName + "' is same as Goal 1 - skipping duplicate");
+                    }
+                } else {
+                    System.out.println("⚠️  Goal 2 nutrient object is null");
+                }
+            } else {
+                System.out.println("⚠️  Goal 2 DropdownOptionNutrient is null - user might not have set a second goal");
+            }
+            
+        } catch (Exception e) {
+            System.err.println("⚠️  Error extracting goal nutrients: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        System.out.println("✅ Final extracted " + goalNutrients.size() + " goal nutrients: " + goalNutrients);
+        return goalNutrients;
+    }
+    
+    /**
+     * NEW: Simulates applying a swap to a list of meals, creating new meals with the swapped food.
+     * @param originalMeals The original meals before any swaps
+     * @param swap The swap to apply (oldFood -> newFood)
+     * @return A new list of meals with the swap applied
+     */
+    private List<meals.models.meal.Meal> simulateSwapInMeals(List<meals.models.meal.Meal> originalMeals, SwapWithMealContext swap) {
+        List<meals.models.meal.Meal> afterSwapMeals = new ArrayList<>();
+        
+        for (meals.models.meal.Meal originalMeal : originalMeals) {
+            // Create a new meal with potentially swapped items
+            List<meals.models.meal.MealItem> swappedItems = new ArrayList<>();
+            boolean swapApplied = false;
+            
+            for (meals.models.meal.MealItem originalItem : originalMeal.getMealItems()) {
+                // Check if this item contains the food we want to swap
+                if (originalItem.getFood().getFoodId().equals(swap.oldFood().getFoodId())) {
+                    // Apply the swap: replace with new food, keep same quantity and measure
+                    meals.models.meal.MealItem swappedItem = new meals.models.meal.MealItem(
+                        originalItem.getId(),
+                        swap.newFood(),
+                        originalItem.getQuantity(),
+                        originalItem.getSelectedMeasure()
+                    );
+                    swappedItems.add(swappedItem);
+                    swapApplied = true;
+                    System.out.println("🔄 Swapped: " + swap.oldFood().getFoodDescription() + 
+                                     " → " + swap.newFood().getFoodDescription());
+                } else {
+                    // Keep the original item unchanged
+                    swappedItems.add(originalItem);
+                }
+            }
+            
+            // Create new meal with swapped items
+            meals.models.meal.Meal swappedMeal = new meals.models.meal.Meal(
+                originalMeal.getId(),
+                originalMeal.getMealType(),
+                swappedItems,
+                originalMeal.getCreatedAt()
+            );
+            
+            afterSwapMeals.add(swappedMeal);
+            
+            if (swapApplied) {
+                System.out.println("✅ Swap applied to meal: " + originalMeal.getMealType() + 
+                                 " on " + originalMeal.getCreatedAt());
+            }
+        }
+        
+        return afterSwapMeals;
     }
 
     /**

@@ -2,22 +2,30 @@ package swaps.ui.swap_statistics;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 import statistics.presenter.SwapComparisonPresenter;
 import swaps.models.SwapWithMealContext;
+import meals.models.meal.Meal;
 
 /**
  * The view that renders statistics for meals before and after the swap.
+ * Shows both individual food comparison AND whole meal list comparison.
  */
 public class SwapStatisticsView extends JPanel {
     private SwapComparisonPresenter swapComparisonPresenter;
     private JPanel contentPanel;
+    private JTabbedPane tabbedPane;
     
     public SwapStatisticsView() {
         this.setLayout(new BorderLayout());
         this.swapComparisonPresenter = new SwapComparisonPresenter();
         
-        // Create content panel for the comparison chart
+        // Create tabbed pane for different comparison views
+        this.tabbedPane = new JTabbedPane();
+        
+        // Create content panel for the comparison charts
         this.contentPanel = new JPanel(new BorderLayout());
+        this.contentPanel.add(tabbedPane, BorderLayout.CENTER);
         this.add(contentPanel, BorderLayout.CENTER);
         
         // Initial placeholder
@@ -35,23 +43,125 @@ public class SwapStatisticsView extends JPanel {
         }
         
         try {
-            // Create comparison visualization using our SwapComparisonPresenter
-            JPanel comparisonPanel = swapComparisonPresenter.createSwapComparisonFromFoods(
+            // Clear existing tabs
+            tabbedPane.removeAll();
+            
+            // Tab 1: Individual Food Comparison (current functionality)
+            JPanel foodComparisonPanel = swapComparisonPresenter.createSwapComparisonFromFoods(
                 selectedSwap.oldFood(), 
                 selectedSwap.newFood(),
                 "Before Swap: " + selectedSwap.oldFood().getFoodDescription(),
                 "After Swap: " + selectedSwap.newFood().getFoodDescription()
             );
+            tabbedPane.addTab("🍽️ Food Comparison", foodComparisonPanel);
             
-            // Update the content
+            // Tab 2: Whole Meal List Comparison (NEW FUNCTIONALITY)
+            // Note: We'll need the beforeSwapMeals and afterSwapMeals from the caller
+            // For now, show a placeholder until we get the meal lists
+            JPanel mealListPlaceholder = createMealListPlaceholder();
+            tabbedPane.addTab("📊 Meal List Impact", mealListPlaceholder);
+            
+            // Make tabs visible
             contentPanel.removeAll();
-            contentPanel.add(comparisonPanel, BorderLayout.CENTER);
+            contentPanel.add(tabbedPane, BorderLayout.CENTER);
             contentPanel.revalidate();
             contentPanel.repaint();
             
         } catch (Exception e) {
             showError("Error generating swap comparison: " + e.getMessage());
         }
+    }
+    
+    /**
+     * NEW: Updates the meal list comparison tab with before and after meals.
+     * @param beforeSwapMeals The original meals before any swaps
+     * @param afterSwapMeals The meals after applying the swap
+     */
+    public void updateMealListComparison(List<Meal> beforeSwapMeals, List<Meal> afterSwapMeals) {
+        if (beforeSwapMeals == null || afterSwapMeals == null) {
+            return;
+        }
+        
+        try {
+            // Create the meal list comparison using our existing method
+            JPanel mealComparisonPanel = swapComparisonPresenter.presentSwapComparison(beforeSwapMeals, afterSwapMeals);
+            
+            // Update the second tab (index 1) if it exists
+            if (tabbedPane.getTabCount() > 1) {
+                tabbedPane.setComponentAt(1, mealComparisonPanel);
+                tabbedPane.setTitleAt(1, "📊 Meal List Impact (" + beforeSwapMeals.size() + " vs " + afterSwapMeals.size() + " meals)");
+            }
+            
+        } catch (Exception e) {
+            System.err.println("Error updating meal list comparison: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * NEW: Updates the meal list comparison tab with a pre-built panel.
+     * This version is used when goal nutrients are prioritized.
+     * @param comparisonPanel Pre-built comparison panel with goal nutrients prioritized
+     */
+    public void updateMealListComparisonWithPanel(JPanel comparisonPanel) {
+        if (comparisonPanel == null) {
+            return;
+        }
+        
+        try {
+            // Update the second tab (index 1) if it exists
+            if (tabbedPane.getTabCount() > 1) {
+                tabbedPane.setComponentAt(1, comparisonPanel);
+                tabbedPane.setTitleAt(1, "📊 Meal List Impact (Goal Nutrients Prioritized)");
+            }
+            
+        } catch (Exception e) {
+            System.err.println("Error updating meal list comparison with panel: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * NEW: Updates the meal list comparison with goal nutrients prioritized.
+     * This is the proper MVP approach - view creates UI, presenter provides data.
+     * @param beforeSwapMeals The original meals before any swaps
+     * @param afterSwapMeals The meals after applying the swap
+     * @param goalNutrientNames List of nutrient names from user's goals
+     */
+    public void updateMealListComparisonWithGoals(List<Meal> beforeSwapMeals, List<Meal> afterSwapMeals, List<String> goalNutrientNames) {
+        if (beforeSwapMeals == null || afterSwapMeals == null) {
+            return;
+        }
+        
+        try {
+            // Create the goal-prioritized meal list comparison using our enhanced method
+            JPanel mealComparisonPanel = swapComparisonPresenter.presentSwapComparison(beforeSwapMeals, afterSwapMeals, goalNutrientNames);
+            
+            // Update the second tab (index 1) if it exists
+            if (tabbedPane.getTabCount() > 1) {
+                tabbedPane.setComponentAt(1, mealComparisonPanel);
+                tabbedPane.setTitleAt(1, "📊 Meal List Impact (Goal Nutrients Prioritized)");
+            }
+            
+        } catch (Exception e) {
+            System.err.println("Error updating meal list comparison with goals: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Creates a placeholder for the meal list comparison tab.
+     */
+    private JPanel createMealListPlaceholder() {
+        JPanel panel = new JPanel(new BorderLayout());
+        JLabel label = new JLabel(
+            "<html><center>" +
+            "<h3>Whole Meal List Comparison</h3>" +
+            "<p>This will show the nutritional impact of your swap across all selected meals.</p>" +
+            "<p><i>Waiting for meal data...</i></p>" +
+            "</center></html>", 
+            JLabel.CENTER
+        );
+        label.setFont(label.getFont().deriveFont(Font.PLAIN, 12f));
+        panel.add(label, BorderLayout.CENTER);
+        return panel;
     }
     
     /**
