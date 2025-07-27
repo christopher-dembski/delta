@@ -531,4 +531,233 @@ public class SwapComparisonPresenter {
         
         return summaryPanel;
     }
+    
+    /**
+     * NEW: Creates a goal-focused line graph showing daily trends for the user's chosen goal nutrients.
+     * This visualizes how the swap impacts the specific nutrients the user cares about over time.
+     * 
+     * @param beforeSwapMeals The meals before the swap
+     * @param afterSwapMeals The meals after the swap  
+     * @param goalNutrientNames List of nutrient names from user's goals (1-2 items)
+     * @return JPanel containing the line chart
+     */
+    public JPanel presentGoalNutrientLineChart(List<Meal> beforeSwapMeals, List<Meal> afterSwapMeals, List<String> goalNutrientNames) {
+        if (goalNutrientNames == null || goalNutrientNames.isEmpty()) {
+            return createErrorPanel("No goal nutrients specified for line chart");
+        }
+        
+        try {
+            // Check if we have multiple days of data
+            Set<String> allDates = new HashSet<>();
+            allDates.addAll(groupMealsByDate(beforeSwapMeals).keySet());
+            allDates.addAll(groupMealsByDate(afterSwapMeals).keySet());
+            
+            if (allDates.size() <= 1) {
+                // Single day or no data - show a bar chart instead
+                return createSingleDayGoalNutrientChart(beforeSwapMeals, afterSwapMeals, goalNutrientNames);
+            }
+            
+            // Multiple days - create the line chart dataset using category dataset for better date handling
+            DefaultCategoryDataset dataset = createGoalNutrientLineDataset(beforeSwapMeals, afterSwapMeals, goalNutrientNames);
+            
+            // Create the line chart
+            JFreeChart lineChart = ChartFactory.createLineChart(
+                "Daily Goal Nutrient Trends",           // Chart title
+                "Date",                                 // X-axis label
+                "Amount (g)",                           // Y-axis label
+                dataset,                                // Dataset
+                org.jfree.chart.plot.PlotOrientation.VERTICAL,
+                true,                                   // Show legend
+                true,                                   // Show tooltips
+                false                                   // Generate URLs
+            );
+            
+            // Customize the chart appearance
+            lineChart.setBackgroundPaint(Color.WHITE);
+            
+            // Customize the plot
+            org.jfree.chart.plot.CategoryPlot plot = (org.jfree.chart.plot.CategoryPlot) lineChart.getPlot();
+            plot.setBackgroundPaint(new Color(245, 245, 245)); // Light gray background
+            plot.setDomainGridlinePaint(Color.WHITE);
+            plot.setRangeGridlinePaint(Color.WHITE);
+            
+            // Create the chart panel
+            ChartPanel chartPanel = new ChartPanel(lineChart);
+            chartPanel.setPreferredSize(new Dimension(800, 400));
+            
+            // Create the main panel
+            JPanel mainPanel = new JPanel(new BorderLayout());
+            mainPanel.setBorder(BorderFactory.createTitledBorder("Goal Nutrient Daily Trends"));
+            
+            // Add the chart
+            mainPanel.add(chartPanel, BorderLayout.CENTER);
+            
+            // Add a summary label
+            JLabel summaryLabel = createGoalNutrientLineSummary(beforeSwapMeals, afterSwapMeals, goalNutrientNames);
+            mainPanel.add(summaryLabel, BorderLayout.SOUTH);
+            
+            return mainPanel;
+            
+        } catch (Exception e) {
+            return createErrorPanel("Error creating goal nutrient line chart: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Creates a bar chart for single-day goal nutrient comparison.
+     * This is used when there's only one day of data, making a line chart inappropriate.
+     */
+    private JPanel createSingleDayGoalNutrientChart(List<Meal> beforeSwapMeals, List<Meal> afterSwapMeals, List<String> goalNutrientNames) {
+        try {
+            // Calculate nutrition totals for both meal lists
+            Map<String, Double> beforeTotals = StatisticsService.instance().calculateNutrientTotalsFromMeals(beforeSwapMeals);
+            Map<String, Double> afterTotals = StatisticsService.instance().calculateNutrientTotalsFromMeals(afterSwapMeals);
+            
+            // Create dataset with only goal nutrients
+            DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+            
+            for (String goalNutrient : goalNutrientNames) {
+                double beforeAmount = beforeTotals.getOrDefault(goalNutrient, 0.0);
+                double afterAmount = afterTotals.getOrDefault(goalNutrient, 0.0);
+                
+                dataset.addValue(beforeAmount, "Before Swap", goalNutrient);
+                dataset.addValue(afterAmount, "After Swap", goalNutrient);
+            }
+            
+            // Create the bar chart
+            JFreeChart barChart = ChartFactory.createBarChart(
+                "Single Day Goal Nutrient Comparison",  // Chart title
+                "Nutrient",                             // X-axis label
+                "Amount (g)",                           // Y-axis label
+                dataset,                                // Dataset
+                org.jfree.chart.plot.PlotOrientation.VERTICAL,
+                true,                                   // Show legend
+                true,                                   // Show tooltips
+                false                                   // Generate URLs
+            );
+            
+            // Customize the chart appearance
+            barChart.setBackgroundPaint(Color.WHITE);
+            
+            // Customize the plot
+            org.jfree.chart.plot.CategoryPlot plot = (org.jfree.chart.plot.CategoryPlot) barChart.getPlot();
+            plot.setBackgroundPaint(new Color(245, 245, 245)); // Light gray background
+            plot.setDomainGridlinePaint(Color.WHITE);
+            plot.setRangeGridlinePaint(Color.WHITE);
+            
+            // Create the chart panel
+            ChartPanel chartPanel = new ChartPanel(barChart);
+            chartPanel.setPreferredSize(new Dimension(800, 400));
+            
+            // Create the main panel
+            JPanel mainPanel = new JPanel(new BorderLayout());
+            mainPanel.setBorder(BorderFactory.createTitledBorder("Goal Nutrient Comparison (Single Day)"));
+            
+            // Add the chart
+            mainPanel.add(chartPanel, BorderLayout.CENTER);
+            
+            // Add a summary label
+            JLabel summaryLabel = createGoalNutrientLineSummary(beforeSwapMeals, afterSwapMeals, goalNutrientNames);
+            mainPanel.add(summaryLabel, BorderLayout.SOUTH);
+            
+            return mainPanel;
+            
+        } catch (Exception e) {
+            return createErrorPanel("Error creating single day goal nutrient chart: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Creates the dataset for the goal nutrient line chart using category dataset.
+     * Groups meals by date and calculates daily totals for goal nutrients.
+     */
+    private DefaultCategoryDataset createGoalNutrientLineDataset(List<Meal> beforeSwapMeals, List<Meal> afterSwapMeals, List<String> goalNutrientNames) {
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        
+        // Group meals by date for both before and after
+        Map<String, List<Meal>> beforeByDate = groupMealsByDate(beforeSwapMeals);
+        Map<String, List<Meal>> afterByDate = groupMealsByDate(afterSwapMeals);
+        
+        // Get all unique dates
+        Set<String> allDates = new HashSet<>();
+        allDates.addAll(beforeByDate.keySet());
+        allDates.addAll(afterByDate.keySet());
+        
+        // Sort dates for proper X-axis ordering
+        List<String> sortedDates = allDates.stream().sorted().collect(Collectors.toList());
+        
+        // If no dates, add a placeholder
+        if (sortedDates.isEmpty()) {
+            sortedDates.add("No Data");
+        }
+        
+        // Create series for each goal nutrient
+        for (String goalNutrient : goalNutrientNames) {
+            // Add data points for each date
+            for (String date : sortedDates) {
+                if ("No Data".equals(date)) {
+                    dataset.addValue(0.0, "Before Swap - " + goalNutrient, "No Data");
+                    dataset.addValue(0.0, "After Swap - " + goalNutrient, "No Data");
+                    continue;
+                }
+                
+                // Calculate before swap total for this date
+                double beforeTotal = 0.0;
+                if (beforeByDate.containsKey(date)) {
+                    Map<String, Double> dailyNutrients = StatisticsService.instance().calculateNutrientTotalsFromMeals(beforeByDate.get(date));
+                    beforeTotal = dailyNutrients.getOrDefault(goalNutrient, 0.0);
+                }
+                dataset.addValue(beforeTotal, "Before Swap - " + goalNutrient, date);
+                
+                // Calculate after swap total for this date
+                double afterTotal = 0.0;
+                if (afterByDate.containsKey(date)) {
+                    Map<String, Double> dailyNutrients = StatisticsService.instance().calculateNutrientTotalsFromMeals(afterByDate.get(date));
+                    afterTotal = dailyNutrients.getOrDefault(goalNutrient, 0.0);
+                }
+                dataset.addValue(afterTotal, "After Swap - " + goalNutrient, date);
+            }
+        }
+        
+        return dataset;
+    }
+    
+    /**
+     * Groups meals by their date for daily analysis.
+     */
+    private Map<String, List<Meal>> groupMealsByDate(List<Meal> meals) {
+        return meals.stream()
+                .collect(Collectors.groupingBy(
+                    meal -> meal.getCreatedAt().toString().substring(0, 10), // Get YYYY-MM-DD part
+                    Collectors.toList()
+                ));
+    }
+    
+    /**
+     * Creates a summary label for the goal nutrient line chart.
+     */
+    private JLabel createGoalNutrientLineSummary(List<Meal> beforeSwapMeals, List<Meal> afterSwapMeals, List<String> goalNutrientNames) {
+        // Calculate overall totals for goal nutrients
+        Map<String, Double> beforeTotals = StatisticsService.instance().calculateNutrientTotalsFromMeals(beforeSwapMeals);
+        Map<String, Double> afterTotals = StatisticsService.instance().calculateNutrientTotalsFromMeals(afterSwapMeals);
+        
+        StringBuilder summary = new StringBuilder("<html><center><h4>Goal Nutrient Impact Summary</h4>");
+        
+        for (String goalNutrient : goalNutrientNames) {
+            double beforeAmount = beforeTotals.getOrDefault(goalNutrient, 0.0);
+            double afterAmount = afterTotals.getOrDefault(goalNutrient, 0.0);
+            double difference = afterAmount - beforeAmount;
+            String changeIndicator = difference > 0 ? "↗️ +" : difference < 0 ? "↘️ " : "→ ";
+            
+            summary.append(String.format("<p><b>%s:</b> %.2fg → %.2fg (%s%.2fg)</p>", 
+                goalNutrient, beforeAmount, afterAmount, changeIndicator, Math.abs(difference)));
+        }
+        
+        summary.append("</center></html>");
+        
+        JLabel label = new JLabel(summary.toString());
+        label.setHorizontalAlignment(JLabel.CENTER);
+        label.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        return label;
+    }
 } 

@@ -61,6 +61,10 @@ public class SwapStatisticsView extends JPanel {
             JPanel mealListPlaceholder = createMealListPlaceholder();
             tabbedPane.addTab("📊 Meal List Impact", mealListPlaceholder);
             
+            // Tab 3: Goal Nutrient Daily Trends (NEW FUNCTIONALITY)
+            JPanel lineChartPlaceholder = createLineChartPlaceholder();
+            tabbedPane.addTab("📈 Goal Nutrient Trends", lineChartPlaceholder);
+            
             // Make tabs visible
             contentPanel.removeAll();
             contentPanel.add(tabbedPane, BorderLayout.CENTER);
@@ -141,6 +145,13 @@ public class SwapStatisticsView extends JPanel {
                 tabbedPane.setTitleAt(1, "📊 Meal List Impact (Goal Nutrients Prioritized)");
             }
             
+            // Update the third tab (index 2) with the line chart
+            if (tabbedPane.getTabCount() > 2) {
+                JPanel lineChartPanel = swapComparisonPresenter.presentGoalNutrientLineChart(beforeSwapMeals, afterSwapMeals, goalNutrientNames);
+                tabbedPane.setComponentAt(2, lineChartPanel);
+                tabbedPane.setTitleAt(2, "📈 Goal Nutrient Trends");
+            }
+            
         } catch (Exception e) {
             System.err.println("Error updating meal list comparison with goals: " + e.getMessage());
         }
@@ -156,6 +167,24 @@ public class SwapStatisticsView extends JPanel {
             "<h3>Whole Meal List Comparison</h3>" +
             "<p>This will show the nutritional impact of your swap across all selected meals.</p>" +
             "<p><i>Waiting for meal data...</i></p>" +
+            "</center></html>", 
+            JLabel.CENTER
+        );
+        label.setFont(label.getFont().deriveFont(Font.PLAIN, 12f));
+        panel.add(label, BorderLayout.CENTER);
+        return panel;
+    }
+    
+    /**
+     * Creates a placeholder for the line chart tab.
+     */
+    private JPanel createLineChartPlaceholder() {
+        JPanel panel = new JPanel(new BorderLayout());
+        JLabel label = new JLabel(
+            "<html><center>" +
+            "<h3>Goal Nutrient Daily Trends</h3>" +
+            "<p>This will show how your swap affects your chosen goal nutrients over time.</p>" +
+            "<p><i>Waiting for goal data...</i></p>" +
             "</center></html>", 
             JLabel.CENTER
         );
