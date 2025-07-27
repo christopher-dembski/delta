@@ -7,17 +7,23 @@ import meals.ui.LogMealPresenter;
 import meals.ui.LogMealView;
 import meals.ui.MealListPresenter;
 import meals.ui.MealListView;
+
 import profile.presenter.EditProfilePresenter;
 import profile.presenter.ProfileSelectorPresenter;
 import profile.presenter.UserSignUpPresenter;
 import profile.view.EditProfileView;
 import profile.view.SignUpView;
 import profile.view.SplashView;
+
+import statistics.presenter.NutrientBreakdownPresenter;
+import statistics.presenter.SwapComparisonPresenter;
+
 import shared.navigation.INavElement;
 import shared.navigation.NavItem;
 import shared.navigation.NavSubMenu;
 import shared.navigation.NavigationPresenter;
 import shared.navigation.NavigationView;
+
 import swaps.ui.SwapsPresenter;
 import swaps.ui.SwapsView;
 import swaps.ui.goals.CreateGoalsView;
@@ -68,10 +74,10 @@ public class AppMainPresenter {
         return switch (item) {
             case LOG_MEAL,
                     VIEW_MULTIPLE_MEALS,
-                    VIEW_MEAL_STATISTICS,
-                    EXPLORE_INGREDIENT_SWAPS,
-                    VIEW_SINGLE_MEAL ->
-                true;
+                    VIEW_SINGLE_MEAL,
+                    VIEW_NUTRIENT_BREAKDOWN,
+                    VIEW_SWAP_COMPARISON,
+                    EXPLORE_INGREDIENT_SWAPS -> true;
             default -> false;
         };
     }
@@ -80,24 +86,8 @@ public class AppMainPresenter {
      * Constructs a new view/presenter corresponding to the given navigation item.
      * We construct a new view each time navigation happens and only have one active
      * at a time.
-     * Otherwise, the data for the entire app would load at once on initial load.
-     * And, we would have to update the data for each view if the user say switched
-     * to a new profile.
-     * Building a new view each time avoids this complexity and is similar to
-     * loading a new page after navigating
-     * to a new URL in a web application, where most of the data is re-fetched.
-     *
-     * @param navItem The navigation item to build the view for.
-     * @return The view corresponding to the navigation item wired up to the
-     *         presenter,
-     *         or {@code null} if a submenu heading is clicked or the specified view
-     *         does not exist.
      */
     private JComponent buildView(LeftNavItem navItem) {
-        boolean sessionActive = shared.ServiceFactory.getProfileService()
-                .getCurrentSession()
-                .isPresent();
-
         return switch (navItem) {
 
             case SELECT_PROFILE -> {
@@ -111,6 +101,7 @@ public class AppMainPresenter {
                     yield new PlaceholderView("Error loading Profile Selection");
                 }
             }
+
             case EDIT_PROFILE -> {
                 try {
                     EditProfileView view = new EditProfileView();
@@ -122,6 +113,7 @@ public class AppMainPresenter {
                     yield new PlaceholderView("Error loading Edit Profile form");
                 }
             }
+
             case CREATE_PROFILE -> {
                 try {
                     SignUpView view = new SignUpView();
@@ -134,23 +126,12 @@ public class AppMainPresenter {
                 }
             }
 
-            case LOG_MEAL,
-                    VIEW_MULTIPLE_MEALS,
-                    VIEW_MEAL_STATISTICS,
-                    EXPLORE_INGREDIENT_SWAPS -> {
-                if (!sessionActive) {
-                    yield new PlaceholderView("Please select a profile to access this feature.");
-                } else {
-                    yield switch (navItem) {
-                        case LOG_MEAL -> initializeLogMealView();
-                        case VIEW_MULTIPLE_MEALS -> initializeMealListView();
-                        case VIEW_MEAL_STATISTICS -> new PlaceholderView("Meal Statistics View");
-                        case EXPLORE_INGREDIENT_SWAPS -> initializeSwapsView();
-                        // This inner switch is exhaustive, VIEW_SINGLE_MEAL is unreachable here.
-                        default -> null;
-                    };
-                }
-            }
+            case LOG_MEAL -> initializeLogMealView();
+            case VIEW_MULTIPLE_MEALS -> initializeMealListView();
+            case VIEW_SINGLE_MEAL -> new PlaceholderView("Single Meal View");
+            case VIEW_NUTRIENT_BREAKDOWN -> initializeNutrientBreakdownView();
+            case VIEW_SWAP_COMPARISON -> initializeSwapComparisonView();
+            case EXPLORE_INGREDIENT_SWAPS -> initializeSwapsView();
 
             default -> null;
         };
@@ -158,7 +139,6 @@ public class AppMainPresenter {
 
     /**
      * Creates the view to log meals initialized with the corresponding presenter.
-     * 
      * @return The view enabling the user to log meals through the UI.
      */
     private LogMealView initializeLogMealView() {
@@ -179,12 +159,40 @@ public class AppMainPresenter {
         return mealListView;
     }
 
+    /**
+     * Creates the view for nutrient breakdown statistics with date selection UI.
+     * @return The panel containing the nutrient breakdown visualization with date controls.
+     */
+    private JComponent initializeNutrientBreakdownView() {
+        try {
+            NutrientBreakdownPresenter presenter = new NutrientBreakdownPresenter();
+            return presenter.createNutrientBreakdownUI();
+        } catch (Exception e) {
+            System.err.println("Failed to initialize nutrient breakdown view: " + e.getMessage());
+            return new PlaceholderView("Error loading Nutrient Breakdown");
+        }
+    }
+
+    /**
+     * Creates the view for swap comparison statistics with date selection UI.
+     * @return The panel containing the swap comparison visualization with date controls.
+     */
+    private JComponent initializeSwapComparisonView() {
+        try {
+            SwapComparisonPresenter presenter = new SwapComparisonPresenter();
+            return presenter.createSwapComparisonUI();
+        } catch (Exception e) {
+            System.err.println("Failed to initialize swap comparison view: " + e.getMessage());
+            return new PlaceholderView("Error loading Swap Comparison");
+        }
+    }
+
     /** @return The tree representing the menu for the left navigation bar. */
     private static INavElement<LeftNavItem> buildLeftNavTree() {
         NavSubMenu<LeftNavItem> leftNavRoot = new NavSubMenu<>(LeftNavItem.MENU_ROOT);
         leftNavRoot.addNavElement(buildLeftNavProfileSubMenu());
         leftNavRoot.addNavElement(buildLeftNavMealsSubmenu());
-        leftNavRoot.addNavElement(new NavItem<>(LeftNavItem.VIEW_MEAL_STATISTICS));
+        leftNavRoot.addNavElement(buildLeftNavMealStatisticsSubmenu());
         leftNavRoot.addNavElement(new NavItem<>(LeftNavItem.EXPLORE_INGREDIENT_SWAPS));
         return leftNavRoot;
     }
@@ -208,9 +216,20 @@ public class AppMainPresenter {
     }
 
     /**
-     * Navigates to the specified view programmatically.
-     * For example, after creating a new profile, the presenter could call
-     * {@code navigateTo(LeftNavItem.LOG_MEAL);} to switch views.
+     * @return The meal statistics submenu for the left navigation bar.
+     */
+    private static INavElement<LeftNavItem> buildLeftNavMealStatisticsSubmenu() {
+        NavSubMenu<LeftNavItem> statisticsSubMenu = new NavSubMenu<>(LeftNavItem.MEAL_STATISTICS_SUBMENU);
+        statisticsSubMenu.addNavElement(new NavItem<>(LeftNavItem.VIEW_NUTRIENT_BREAKDOWN));
+        statisticsSubMenu.addNavElement(new NavItem<>(LeftNavItem.VIEW_SWAP_COMPARISON));
+        return statisticsSubMenu;
+    }
+
+    /**
+     * Navigates to the specified view.
+     * This method is useful if you want to force navigation without the user clicking on the navigation menu directly.
+     * For example, after creating a new profile and hitting "Submit", the CreateProfilePresenter could call this method
+     * to navigate to the LogMealView for example.
      *
      * @param leftNavItem The nav item for the view to navigate to.
      */
@@ -228,7 +247,6 @@ public class AppMainPresenter {
 
     /**
      * Runs the application and renders the UI.
-     * 
      * @param args Command line arguments (unused).
      */
     public static void main(String[] args) {
