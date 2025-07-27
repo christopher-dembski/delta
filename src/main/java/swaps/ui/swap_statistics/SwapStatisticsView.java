@@ -3,7 +3,10 @@ package swaps.ui.swap_statistics;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import java.util.Map;
 import statistics.presenter.SwapComparisonPresenter;
+import statistics.view.SwapComparisonView;
+import statistics.service.StatisticsService;
 import swaps.models.SwapWithMealContext;
 import meals.models.meal.Meal;
 
@@ -13,12 +16,17 @@ import meals.models.meal.Meal;
  */
 public class SwapStatisticsView extends JPanel {
     private SwapComparisonPresenter swapComparisonPresenter;
+    private SwapComparisonView swapComparisonView;
     private JPanel contentPanel;
     private JTabbedPane tabbedPane;
     
     public SwapStatisticsView() {
         this.setLayout(new BorderLayout());
-        this.swapComparisonPresenter = new SwapComparisonPresenter();
+        
+        // Create the view and presenter with proper dependency injection
+        this.swapComparisonView = new SwapComparisonView();
+        this.swapComparisonPresenter = new SwapComparisonPresenter(swapComparisonView, StatisticsService.instance());
+        this.swapComparisonPresenter.initialize();
         
         // Create tabbed pane for different comparison views
         this.tabbedPane = new JTabbedPane();
@@ -47,7 +55,7 @@ public class SwapStatisticsView extends JPanel {
             tabbedPane.removeAll();
             
             // Tab 1: Individual Food Comparison (current functionality)
-            JPanel foodComparisonPanel = swapComparisonPresenter.createSwapComparisonFromFoods(
+            JPanel foodComparisonPanel = swapComparisonView.createSwapComparisonFromFoods(
                 selectedSwap.oldFood(), 
                 selectedSwap.newFood(),
                 "Before Swap: " + selectedSwap.oldFood().getFoodDescription(),
@@ -87,8 +95,12 @@ public class SwapStatisticsView extends JPanel {
         }
         
         try {
-            // Create the meal list comparison using our existing method
-            JPanel mealComparisonPanel = swapComparisonPresenter.presentSwapComparison(beforeSwapMeals, afterSwapMeals);
+            // Calculate nutrient totals for both meal lists
+            Map<String, Double> beforeNutrients = StatisticsService.instance().calculateNutrientTotalsFromMeals(beforeSwapMeals);
+            Map<String, Double> afterNutrients = StatisticsService.instance().calculateNutrientTotalsFromMeals(afterSwapMeals);
+            
+            // Create the meal list comparison using the view
+            JPanel mealComparisonPanel = swapComparisonView.createBarChartPanel(beforeNutrients, afterNutrients);
             
             // Update the second tab (index 1) if it exists
             if (tabbedPane.getTabCount() > 1) {
@@ -129,15 +141,20 @@ public class SwapStatisticsView extends JPanel {
      * @param beforeSwapMeals The original meals before any swaps
      * @param afterSwapMeals The meals after applying the swap
      * @param goalNutrientNames List of nutrient names from user's goals
+     * @param selectedSwap The swap context to apply for the line chart
      */
-    public void updateMealListComparisonWithGoals(List<Meal> beforeSwapMeals, List<Meal> afterSwapMeals, List<String> goalNutrientNames) {
+    public void updateMealListComparisonWithGoals(List<Meal> beforeSwapMeals, List<Meal> afterSwapMeals, List<String> goalNutrientNames, swaps.models.SwapWithMealContext selectedSwap) {
         if (beforeSwapMeals == null || afterSwapMeals == null) {
             return;
         }
         
         try {
-            // Create the goal-prioritized meal list comparison using our enhanced method
-            JPanel mealComparisonPanel = swapComparisonPresenter.presentSwapComparison(beforeSwapMeals, afterSwapMeals, goalNutrientNames);
+            // Calculate nutrient totals for both meal lists
+            Map<String, Double> beforeNutrients = StatisticsService.instance().calculateNutrientTotalsFromMeals(beforeSwapMeals);
+            Map<String, Double> afterNutrients = StatisticsService.instance().calculateNutrientTotalsFromMeals(afterSwapMeals);
+            
+            // Create the goal-prioritized meal list comparison using the view
+            JPanel mealComparisonPanel = swapComparisonView.createBarChartPanelWithGoals(beforeNutrients, afterNutrients, goalNutrientNames);
             
             // Update the second tab (index 1) if it exists
             if (tabbedPane.getTabCount() > 1) {
@@ -145,15 +162,33 @@ public class SwapStatisticsView extends JPanel {
                 tabbedPane.setTitleAt(1, "📊 Meal List Impact (Goal Nutrients Prioritized)");
             }
             
-            // Update the third tab (index 2) with the line chart
+            // Update the third tab (index 2) with the goal nutrient trends
             if (tabbedPane.getTabCount() > 2) {
-                JPanel lineChartPanel = swapComparisonPresenter.presentGoalNutrientLineChart(beforeSwapMeals, afterSwapMeals, goalNutrientNames);
-                tabbedPane.setComponentAt(2, lineChartPanel);
+                JPanel goalTrendsPanel = createGoalNutrientTrendsPanel(beforeNutrients, afterNutrients, goalNutrientNames, beforeSwapMeals, selectedSwap);
+                tabbedPane.setComponentAt(2, goalTrendsPanel);
                 tabbedPane.setTitleAt(2, "📈 Goal Nutrient Trends");
             }
             
         } catch (Exception e) {
             System.err.println("Error updating meal list comparison with goals: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Creates the goal nutrient trends panel with actual meal data for dates and swap context.
+     */
+    private JPanel createGoalNutrientTrendsPanel(Map<String, Double> beforeNutrients, Map<String, Double> afterNutrients, List<String> goalNutrientNames, List<Meal> meals, swaps.models.SwapWithMealContext swapContext) {
+        try {
+            // Show the line chart with proper time-based visualization using actual meal dates and swap context
+            return swapComparisonView.createLineChartPanel(beforeNutrients, afterNutrients, goalNutrientNames, meals, swapContext);
+            
+        } catch (Exception e) {
+            // Fallback to error panel
+            JPanel errorPanel = new JPanel(new BorderLayout());
+            JLabel errorLabel = new JLabel("Error creating goal nutrient trends: " + e.getMessage());
+            errorLabel.setHorizontalAlignment(JLabel.CENTER);
+            errorPanel.add(errorLabel, BorderLayout.CENTER);
+            return errorPanel;
         }
     }
     

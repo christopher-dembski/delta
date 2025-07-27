@@ -180,8 +180,10 @@ public class AppMainPresenter {
      */
     private JComponent initializeNutrientBreakdownView() {
         try {
-            NutrientBreakdownPresenter presenter = new NutrientBreakdownPresenter();
-            return presenter.createNutrientBreakdownUI();
+            statistics.view.NutrientBreakdownView view = new statistics.view.NutrientBreakdownView();
+            NutrientBreakdownPresenter presenter = new NutrientBreakdownPresenter(view, statistics.service.StatisticsService.instance());
+            presenter.initialize();
+            return view.getMainPanel();
         } catch (Exception e) {
             System.err.println("Failed to initialize nutrient breakdown view: " + e.getMessage());
             return new PlaceholderView("Error loading Nutrient Breakdown");
@@ -194,8 +196,10 @@ public class AppMainPresenter {
      */
     private JComponent initializeSwapComparisonView() {
         try {
-            SwapComparisonPresenter presenter = new SwapComparisonPresenter();
-            return presenter.createSwapComparisonUI();
+            statistics.view.SwapComparisonView view = new statistics.view.SwapComparisonView();
+            SwapComparisonPresenter presenter = new SwapComparisonPresenter(view, statistics.service.StatisticsService.instance());
+            presenter.initialize();
+            return view.getMainPanel();
         } catch (Exception e) {
             System.err.println("Failed to initialize swap comparison view: " + e.getMessage());
             return new PlaceholderView("Error loading Swap Comparison");

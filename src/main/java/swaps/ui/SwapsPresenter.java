@@ -357,7 +357,7 @@ public class SwapsPresenter {
             
             // Update the meal list comparison view with goal nutrients prioritized
             // Delegate UI creation to the view layer (proper MVP separation)
-            view.getSwapStatisticsView().updateMealListComparisonWithGoals(originalMeals, afterSwapMeals, goalNutrientNames);
+            view.getSwapStatisticsView().updateMealListComparisonWithGoals(originalMeals, afterSwapMeals, goalNutrientNames, selectedSwap);
             
         } catch (Exception e) {
             System.err.println("❌ Error updating meal list comparison: " + e.getMessage());
@@ -392,22 +392,26 @@ public class SwapsPresenter {
             
             // Get nutrient from goal 2 (if it exists and is different)
             System.out.println("🔍 Checking Goal 2...");
-            swaps.ui.goals.create_goal_form.form_fields.DropdownOptionNutrient goal2Nutrient = goal2Presenter.getSelectedNutrient();
-            if (goal2Nutrient != null) {
-                if (goal2Nutrient.nutrient() != null) {
-                    String nutrientName = goal2Nutrient.nutrient().getNutrientName();
-                    System.out.println("🔍 Goal 2 nutrient found: " + nutrientName);
-                    if (!goalNutrients.contains(nutrientName)) { // Avoid duplicates
-                        goalNutrients.add(nutrientName);
-                        System.out.println("🎯 Goal 2 nutrient added: " + nutrientName);
+            if (createGoalsPresenter.isSecondGoalEnabled()) {
+                swaps.ui.goals.create_goal_form.form_fields.DropdownOptionNutrient goal2Nutrient = goal2Presenter.getSelectedNutrient();
+                if (goal2Nutrient != null) {
+                    if (goal2Nutrient.nutrient() != null) {
+                        String nutrientName = goal2Nutrient.nutrient().getNutrientName();
+                        System.out.println("🔍 Goal 2 nutrient found: " + nutrientName);
+                        if (!goalNutrients.contains(nutrientName)) { // Avoid duplicates
+                            goalNutrients.add(nutrientName);
+                            System.out.println("🎯 Goal 2 nutrient added: " + nutrientName);
+                        } else {
+                            System.out.println("⚠️  Goal 2 nutrient '" + nutrientName + "' is same as Goal 1 - skipping duplicate");
+                        }
                     } else {
-                        System.out.println("⚠️  Goal 2 nutrient '" + nutrientName + "' is same as Goal 1 - skipping duplicate");
+                        System.out.println("⚠️  Goal 2 nutrient object is null");
                     }
                 } else {
-                    System.out.println("⚠️  Goal 2 nutrient object is null");
+                    System.out.println("⚠️  Goal 2 DropdownOptionNutrient is null - user might not have set a second goal");
                 }
             } else {
-                System.out.println("⚠️  Goal 2 DropdownOptionNutrient is null - user might not have set a second goal");
+                System.out.println("⚠️  Goal 2 is not enabled - skipping");
             }
             
         } catch (Exception e) {
