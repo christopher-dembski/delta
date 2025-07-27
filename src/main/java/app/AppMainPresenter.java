@@ -23,7 +23,6 @@ import profile.view.EditProfileView;
 import profile.view.SignUpView;
 import profile.view.SplashView;
 
-import shared.ServiceFactory;
 import shared.navigation.INavElement;
 import shared.navigation.NavItem;
 import shared.navigation.NavSubMenu;
