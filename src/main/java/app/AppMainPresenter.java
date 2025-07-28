@@ -80,7 +80,6 @@ public class AppMainPresenter {
                     VIEW_MULTIPLE_MEALS,
                     VIEW_SINGLE_MEAL,
                     VIEW_NUTRIENT_BREAKDOWN,
-                    VIEW_SWAP_COMPARISON,
                     EXPLORE_INGREDIENT_SWAPS -> true;
             default -> false;
         };
@@ -134,7 +133,6 @@ public class AppMainPresenter {
             case VIEW_MULTIPLE_MEALS -> initializeMealListView();
             case VIEW_SINGLE_MEAL -> initializeMealDetailView();
             case VIEW_NUTRIENT_BREAKDOWN -> initializeNutrientBreakdownView();
-            case VIEW_SWAP_COMPARISON -> initializeSwapComparisonView();
             case EXPLORE_INGREDIENT_SWAPS -> initializeSwapsView();
 
             default -> null;
@@ -182,8 +180,10 @@ public class AppMainPresenter {
      */
     private JComponent initializeNutrientBreakdownView() {
         try {
-            NutrientBreakdownPresenter presenter = new NutrientBreakdownPresenter();
-            return presenter.createNutrientBreakdownUI();
+            statistics.view.NutrientBreakdownView view = new statistics.view.NutrientBreakdownView();
+            NutrientBreakdownPresenter presenter = new NutrientBreakdownPresenter(view, statistics.service.StatisticsService.instance());
+            presenter.initialize();
+            return view.getMainPanel();
         } catch (Exception e) {
             System.err.println("Failed to initialize nutrient breakdown view: " + e.getMessage());
             return new PlaceholderView("Error loading Nutrient Breakdown");
@@ -196,8 +196,10 @@ public class AppMainPresenter {
      */
     private JComponent initializeSwapComparisonView() {
         try {
-            SwapComparisonPresenter presenter = new SwapComparisonPresenter();
-            return presenter.createSwapComparisonUI();
+            statistics.view.SwapComparisonView view = new statistics.view.SwapComparisonView();
+            SwapComparisonPresenter presenter = new SwapComparisonPresenter(view, statistics.service.StatisticsService.instance());
+            presenter.initialize();
+            return view.getMainPanel();
         } catch (Exception e) {
             System.err.println("Failed to initialize swap comparison view: " + e.getMessage());
             return new PlaceholderView("Error loading Swap Comparison");
@@ -209,7 +211,6 @@ public class AppMainPresenter {
         NavSubMenu<LeftNavItem> leftNavRoot = new NavSubMenu<>(LeftNavItem.MENU_ROOT);
         leftNavRoot.addNavElement(buildLeftNavProfileSubMenu());
         leftNavRoot.addNavElement(buildLeftNavMealsSubmenu());
-        leftNavRoot.addNavElement(buildLeftNavMealStatisticsSubmenu());
         leftNavRoot.addNavElement(new NavItem<>(LeftNavItem.EXPLORE_INGREDIENT_SWAPS));
         return leftNavRoot;
     }
@@ -229,17 +230,8 @@ public class AppMainPresenter {
         mealsSubMenu.addNavElement(new NavItem<>(LeftNavItem.LOG_MEAL));
         mealsSubMenu.addNavElement(new NavItem<>(LeftNavItem.VIEW_MULTIPLE_MEALS));
         mealsSubMenu.addNavElement(new NavItem<>(LeftNavItem.VIEW_SINGLE_MEAL));
+        mealsSubMenu.addNavElement(new NavItem<>(LeftNavItem.VIEW_NUTRIENT_BREAKDOWN));
         return mealsSubMenu;
-    }
-
-    /**
-     * @return The meal statistics submenu for the left navigation bar.
-     */
-    private static INavElement<LeftNavItem> buildLeftNavMealStatisticsSubmenu() {
-        NavSubMenu<LeftNavItem> statisticsSubMenu = new NavSubMenu<>(LeftNavItem.MEAL_STATISTICS_SUBMENU);
-        statisticsSubMenu.addNavElement(new NavItem<>(LeftNavItem.VIEW_NUTRIENT_BREAKDOWN));
-        statisticsSubMenu.addNavElement(new NavItem<>(LeftNavItem.VIEW_SWAP_COMPARISON));
-        return statisticsSubMenu;
     }
 
     /**

@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class StatisticsService {
+public class StatisticsService implements IStatisticsService {
     /**
      * Singleton instance of the service.
      */
@@ -33,9 +33,7 @@ public class StatisticsService {
         return instance;
     }
     
-    /**
-     * Converts nutrient amounts to grams for consistent comparison.
-     */
+    @Override
     public double convertToGrams(double value, String unit) {
         if (unit == null) return value;
         
@@ -55,9 +53,7 @@ public class StatisticsService {
         };
     }
     
-    /**
-     * Filters out water and bulk nutrients that would dominate the visualization.
-     */
+    @Override
     public boolean isWaterOrBulk(String nutrientName) {
         String name = nutrientName.toLowerCase();
         return name.contains("moisture") || 
@@ -68,9 +64,7 @@ public class StatisticsService {
                name.contains("energy") || name.contains("kcal");
     }
     
-    /**
-     * Checks if a nutrient is a bioactive compound that we track separately.
-     */
+    @Override
     public boolean isBioactiveCompound(String nutrientName) {
         String name = nutrientName.toLowerCase();
         return name.contains("alcohol") ||
@@ -80,10 +74,7 @@ public class StatisticsService {
                name.contains("kcal");
     }
     
-    /**
-     * Calculates totals for excluded bioactive compounds (alcohol, caffeine, theobromine, calories).
-     * These are tracked separately from main nutrition visualization.
-     */
+    @Override
     public Map<String, Double> calculateExcludedCompounds(List<Meal> meals) {
         Map<String, Double> excludedTotals = new HashMap<>();
         excludedTotals.put("alcohol", 0.0);
@@ -156,16 +147,12 @@ public class StatisticsService {
         return excludedTotals;
     }
     
-    /**
-     * Creates a formatted summary message for excluded compounds.
-     */
+    @Override
     public String getExcludedCompoundsSummary(Map<String, Double> excludedCompounds) {
         return getExcludedCompoundsSummary(excludedCompounds, 1.0);
     }
     
-    /**
-     * Creates a formatted summary message for excluded compounds with daily averaging.
-     */
+    @Override
     public String getExcludedCompoundsSummary(Map<String, Double> excludedCompounds, double numberOfDays) {
         double alcohol = excludedCompounds.getOrDefault("alcohol", 0.0);
         double caffeine = excludedCompounds.getOrDefault("caffeine", 0.0);
@@ -185,9 +172,7 @@ public class StatisticsService {
         }
     }
     
-    /**
-     * Calculates total nutrients from all meals, converting units to grams for comparison.
-     */
+    @Override
     public Map<String, Double> calculateNutrientTotalsFromMeals(List<Meal> meals) {
         Map<String, Double> allNutrientTotals = new HashMap<>();
         
@@ -260,12 +245,7 @@ public class StatisticsService {
         return getTopNutrientsWithOthers(allNutrientTotals, 7);
     }
     
-    /**
-     * Converts cumulative nutrient totals to daily averages.
-     * @param totals Cumulative nutrient totals
-     * @param numberOfDays Number of days in the selected range
-     * @return Daily average nutrient amounts
-     */
+    @Override
     public Map<String, Double> convertToDailyAverages(Map<String, Double> totals, double numberOfDays) {
         if (numberOfDays <= 0) {
             return totals; // Fallback to totals if invalid days
