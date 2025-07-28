@@ -3,6 +3,9 @@ Course project for EECS-3311 (Software Design) at York University.
 
 A comprehensive Java Swing desktop application for nutrition tracking, meal logging, and food swap recommendations built with clean MVP architecture and extensive design pattern implementation.
 
+> [!WARNING]
+> This software was developed as part of an academic project focused on software design principles. It is not intended for production use and may contain known errors and security risks.
+
 ## Table of Contents
 - [Features](#features)
 - [System Requirements](#system-requirements)
@@ -24,8 +27,8 @@ A comprehensive Java Swing desktop application for nutrition tracking, meal logg
 ## System Requirements
 - Java 17 or higher
 - Maven 3.6+
-- Docker and Docker Compose
-- MySQL 8.0+ (via Docker)
+- MySQL 8.0+ (local installation or Docker)
+- Docker and Docker Compose (optional - for containerized database)
 
 ## Setup Instructions
 
@@ -36,11 +39,22 @@ cd delta
 ```
 
 ### 2. Database Setup
+
+#### Option A: Using Docker (Recommended for Development)
 Start the MySQL server and initialize the database:
 ```bash
 docker compose up -d
 ./scripts/reset-database.sh
 ```
+
+#### Option B: Using Local MySQL
+If you have MySQL running locally on your machine:
+```bash
+./scripts/reset-database.sh
+```
+
+> [!NOTE]
+> The reset script will automatically detect your MySQL setup and configure the database accordingly. No additional Docker setup is required if you're using a local MySQL installation.
 
 ### 3. Install Dependencies
 ```bash
