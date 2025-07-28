@@ -473,7 +473,7 @@ public class StatisticsService implements IStatisticsService {
             categoryTotals.put(category, 0.0);
         }
         
-        System.out.println("🍎 Analyzing " + meals.size() + " meals for Canada Food Guide alignment...");
+        System.out.println("Analyzing " + meals.size() + " meals for Canada Food Guide alignment...");
         
         for (Meal meal : meals) {
             for (MealItem item : meal.getMealItems()) {
@@ -485,10 +485,10 @@ public class StatisticsService implements IStatisticsService {
                 
                 if (category != null) {
                     categoryTotals.merge(category, grams, Double::sum);
-                    System.out.println("✅ " + food.getFoodDescription() + " -> " + category.getDisplayName() + " (" + grams + "g)");
+                    System.out.println("MAPPED: " + food.getFoodDescription() + " -> " + category.getDisplayName() + " (" + grams + "g)");
                 } else {
                     unrecognizedFoods.add(food.getFoodDescription() + " (" + food.getFoodGroup().getFoodGroupName() + ")");
-                    System.out.println("⚠️  Unrecognized: " + food.getFoodDescription() + " in group: " + food.getFoodGroup().getFoodGroupName());
+                    System.out.println("UNRECOGNIZED: " + food.getFoodDescription() + " in group: " + food.getFoodGroup().getFoodGroupName());
                 }
                 
                 totalGrams += grams;
@@ -509,7 +509,7 @@ public class StatisticsService implements IStatisticsService {
             targets.put(category, category.getTargetPercentage() * 100);
         }
         
-        System.out.println("📊 CFG Analysis complete: " + totalGrams + "g total, " + unrecognizedFoods.size() + " unrecognized foods");
+        System.out.println("CFG Analysis complete: " + totalGrams + "g total, " + unrecognizedFoods.size() + " unrecognized foods");
         
         return new CFGAnalysisResult(percentages, targets, categoryTotals, totalGrams, unrecognizedFoods);
     }

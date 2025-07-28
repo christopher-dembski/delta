@@ -42,7 +42,7 @@ public class FoodGuideAlignmentPresenter {
         
         // Show initial message
         JLabel initialLabel = new JLabel("<html><div style='text-align: center;'>" +
-            "<h2>🥗 Canada Food Guide Analysis</h2>" +
+            "<h2>Canada Food Guide Analysis</h2>" +
             "<p>Select a date range to analyze how well your meals align with Canada Food Guide recommendations.</p>" +
             "<p><b>Target:</b> 50% Vegetables & Fruits, 25% Whole Grains, 25% Protein Foods</p>" +
             "</div></html>");
@@ -91,7 +91,8 @@ public class FoodGuideAlignmentPresenter {
         generateButton.setFont(generateButton.getFont().deriveFont(Font.BOLD, 11f));
         generateButton.setBackground(new Color(76, 175, 80)); // Green
         generateButton.setForeground(Color.WHITE);
-        generateButton.setPreferredSize(new Dimension(90, 25));
+        generateButton.setPreferredSize(new Dimension(100, 30));
+        generateButton.setMinimumSize(new Dimension(100, 30));
         
         // Today quick button
         JButton todayButton = createQuickDateButton("Today", startDateSpinner, endDateSpinner, 0);
@@ -135,15 +136,16 @@ public class FoodGuideAlignmentPresenter {
         // Layout components
         mainRow.add(startLabel);
         mainRow.add(startDateSpinner);
-        mainRow.add(Box.createRigidArea(new Dimension(10, 0)));
+        mainRow.add(Box.createRigidArea(new Dimension(15, 0)));
         mainRow.add(endLabel);
         mainRow.add(endDateSpinner);
-        mainRow.add(Box.createRigidArea(new Dimension(15, 0)));
+        mainRow.add(Box.createRigidArea(new Dimension(20, 0)));
         mainRow.add(generateButton);
         
         // Quick date buttons row
-        JPanel quickButtonsRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        JPanel quickButtonsRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
         quickButtonsRow.add(new JLabel("Quick select:"));
+        quickButtonsRow.add(Box.createRigidArea(new Dimension(5, 0)));
         quickButtonsRow.add(todayButton);
         quickButtonsRow.add(weekButton);
         quickButtonsRow.add(monthButton);
@@ -157,7 +159,8 @@ public class FoodGuideAlignmentPresenter {
     private JButton createQuickDateButton(String text, JSpinner startSpinner, JSpinner endSpinner, int daysFromToday) {
         JButton button = new JButton(text);
         button.setFont(button.getFont().deriveFont(10f));
-        button.setPreferredSize(new Dimension(85, 20));
+        button.setPreferredSize(new Dimension(100, 25));
+        button.setMinimumSize(new Dimension(100, 25));
         
         button.addActionListener(e -> {
             Calendar cal = Calendar.getInstance();
@@ -278,11 +281,11 @@ public class FoodGuideAlignmentPresenter {
         summaryText.setBackground(summaryPanel.getBackground());
         
         StringBuilder text = new StringBuilder();
-        text.append("📊 Canada Food Guide Analysis Summary:\n\n");
+        text.append("Canada Food Guide Analysis Summary:\n\n");
         
         // Add dataset limitation warning
         if (analysis.hasDatasetLimitations()) {
-            text.append("⚠️  DATASET LIMITATION: Our database contains only 9 out of 22 official CNF food groups.\n");
+            text.append("DATASET LIMITATION: Our database contains only 9 out of 22 official CNF food groups.\n");
             text.append("   Missing: Grains/Breads, Fruits, Fish, Nuts, etc. This affects analysis accuracy.\n\n");
         }
         
@@ -298,13 +301,13 @@ public class FoodGuideAlignmentPresenter {
                 text.append(" (not part of CFG recommendations)");
             } else {
                 double difference = actual - target;
-                if (Math.abs(difference) <= 5) {
-                    text.append(" ✅ On target");
-                } else if (difference > 0) {
-                    text.append(String.format(" ⬆️ %.1f%% above target", difference));
-                } else {
-                    text.append(String.format(" ⬇️ %.1f%% below target", Math.abs(difference)));
-                }
+                            if (Math.abs(difference) <= 5) {
+                text.append(" [ON TARGET]");
+            } else if (difference > 0) {
+                text.append(String.format(" [+%.1f%% above target]", difference));
+            } else {
+                text.append(String.format(" [-%.1f%% below target]", Math.abs(difference)));
+            }
             }
             text.append("\n");
         }
@@ -312,7 +315,7 @@ public class FoodGuideAlignmentPresenter {
         text.append(String.format("\nTotal food analyzed: %.0fg", analysis.getTotalGrams()));
         
         if (!analysis.getUnrecognizedFoods().isEmpty()) {
-            text.append(String.format("\n\n⚠️  %d unrecognized foods (not included in analysis):\n", 
+            text.append(String.format("\n\n%d unrecognized foods (not included in analysis):\n", 
                 analysis.getUnrecognizedFoods().size()));
             for (String food : analysis.getUnrecognizedFoods()) {
                 text.append("   • ").append(food).append("\n");
@@ -333,7 +336,7 @@ public class FoodGuideAlignmentPresenter {
     private JPanel createErrorPanel(String errorMessage) {
         JPanel errorPanel = new JPanel(new BorderLayout());
         JLabel errorLabel = new JLabel("<html><div style='text-align: center;'>" +
-            "<h3 style='color: red;'>❌ Error</h3>" +
+            "<h3 style='color: red;'>Error</h3>" +
             "<p>" + errorMessage + "</p>" +
             "</div></html>");
         errorLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -344,7 +347,7 @@ public class FoodGuideAlignmentPresenter {
     private JPanel createNoDataPanel(String message) {
         JPanel noDataPanel = new JPanel(new BorderLayout());
         JLabel noDataLabel = new JLabel("<html><div style='text-align: center;'>" +
-            "<h3>📊 No Data</h3>" +
+            "<h3>No Data</h3>" +
             "<p>" + message + "</p>" +
             "</div></html>");
         noDataLabel.setHorizontalAlignment(SwingConstants.CENTER);
