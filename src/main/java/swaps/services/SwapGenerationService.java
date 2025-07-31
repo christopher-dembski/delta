@@ -130,23 +130,9 @@ public class SwapGenerationService {
                 List<String> errors = List.of("No meals logged for the selected date. Please log some meals first before generating swaps.");
                 return new SwapWithMealContextResult(Collections.emptyList(), errors);
             }
-            
-            // Get all available foods for finding alternatives
-            List<Food> allFoods = QueryFoodsService.instance().fetchAll();
-            
-            // Generate potential swaps with meal context
-            List<SwapWithMealContext> potentialSwaps = new ArrayList<>();
-            
-            // For each meal, find better alternatives for its foods
-            for (Meal meal : meals) {
-                Date mealDate = meal.getCreatedAt();
-                for (MealItem item : meal.getMealItems()) {
-                    Food loggedFood = item.getFood();
-                    List<SwapWithMealContext> swapsForFood = findBetterAlternativesWithContext(loggedFood, allFoods, goals, mealDate);
-                    potentialSwaps.addAll(swapsForFood);
-                }
-            }
-            
+
+            List<SwapWithMealContext> potentialSwaps = determinePotentialSwaps(meals, goals);
+
             // Sort swaps by effectiveness and limit results
             List<SwapWithMealContext> topSwaps = potentialSwaps.stream()
                     .distinct()
@@ -194,30 +180,14 @@ public class SwapGenerationService {
                 List<String> errors = List.of("No meals logged for the selected date range. Please log some meals first before generating swaps.");
                 return new SwapWithMealContextResult(Collections.emptyList(), errors);
             }
-            
-            // Get all available foods for finding alternatives
-            List<Food> allFoods = QueryFoodsService.instance().fetchAll();
-            
-            // Generate potential swaps with meal context
-            List<SwapWithMealContext> potentialSwaps = new ArrayList<>();
-            
-            // For each meal, find better alternatives for its foods
-            for (Meal meal : meals) {
-                Date mealDate = meal.getCreatedAt();
-                for (MealItem mealItem : meal.getMealItems()) {
-                    Food oldFood = mealItem.getFood();
-                    List<SwapWithMealContext> alternatives = findBetterAlternativesWithContext(oldFood, allFoods, goals, mealDate);
-                    
-                    potentialSwaps.addAll(alternatives);
-                }
-            }
-            
+
+            List<SwapWithMealContext> potentialSwaps = determinePotentialSwaps(meals, goals);
+
             // Remove duplicates and limit results
             List<SwapWithMealContext> uniqueSwaps = potentialSwaps.stream()
-                    .distinct()
-                    .limit(50) // Limit to top 50 swaps 
-                    .collect(Collectors.toList());
-            
+                    .limit(50) // Limit to top 50 swaps
+                    .toList();
+
             if (uniqueSwaps.isEmpty()) {
                 List<String> errors = List.of("No suitable food swaps found for your logged meals in the selected date range.");
                 return new SwapWithMealContextResult(Collections.emptyList(), errors);
@@ -232,6 +202,23 @@ public class SwapGenerationService {
             List<String> errors = List.of("Error generating swaps: " + e.getMessage());
             return new SwapWithMealContextResult(Collections.emptyList(), errors);
         }
+    }
+
+    private List<SwapWithMealContext> determinePotentialSwaps(List<Meal> meals, List<Goal> goals)
+            throws QueryFoodsService.QueryFoodsServiceException {
+        List<SwapWithMealContext> potentialSwaps = new ArrayList<>();
+        List<Food> allFoods = QueryFoodsService.instance().fetchAll();
+        // for each meal, find better alternatives for its foods
+        for (Meal meal : meals) {
+            Date mealDate = meal.getCreatedAt();
+            for (MealItem mealItem : meal.getMealItems()) {
+                Food oldFood = mealItem.getFood();
+                List<SwapWithMealContext> alternatives =
+                        findBetterAlternativesWithContext(oldFood, allFoods, goals, mealDate);
+                potentialSwaps.addAll(alternatives);
+            }
+        }
+        return potentialSwaps.stream().distinct().toList();
     }
 
     /**
