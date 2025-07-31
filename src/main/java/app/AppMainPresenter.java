@@ -93,43 +93,9 @@ public class AppMainPresenter {
      */
     private JComponent buildView(LeftNavItem navItem) {
         return switch (navItem) {
-
-            case SELECT_PROFILE -> {
-                try {
-                    SplashView view = new SplashView();
-                    new ProfileSelectorPresenter(view, shared.ServiceFactory.getProfileService())
-                            .initialize();
-                    yield view;
-                } catch (Exception e) {
-                    System.err.println("Failed to initialize profile selector: " + e.getMessage());
-                    yield new PlaceholderView("Error loading Profile Selection");
-                }
-            }
-
-            case EDIT_PROFILE -> {
-                try {
-                    EditProfileView view = new EditProfileView();
-                    new EditProfilePresenter(view, shared.ServiceFactory.getProfileService())
-                            .initialize();
-                    yield view;
-                } catch (Exception e) {
-                    System.err.println("Failed to initialize edit profile: " + e.getMessage());
-                    yield new PlaceholderView("Error loading Edit Profile form");
-                }
-            }
-
-            case CREATE_PROFILE -> {
-                try {
-                    SignUpView view = new SignUpView();
-                    new UserSignUpPresenter(view, shared.ServiceFactory.getProfileService())
-                            .initialize();
-                    yield view;
-                } catch (Exception e) {
-                    System.err.println("Failed to initialize sign up panel: " + e.getMessage());
-                    yield new PlaceholderView("Error loading Create Profile form");
-                }
-            }
-
+            case SELECT_PROFILE -> initializeSplashView();
+            case EDIT_PROFILE -> initializeEditProfileView();
+            case CREATE_PROFILE -> initializeSignUpView();
             case LOG_MEAL -> initializeLogMealView();
             case VIEW_MULTIPLE_MEALS -> initializeMealListView();
             case VIEW_SINGLE_MEAL -> initializeMealDetailView();
@@ -138,6 +104,39 @@ public class AppMainPresenter {
             case EXPLORE_INGREDIENT_SWAPS -> initializeSwapsView();
             default -> null;
         };
+    }
+
+    /**
+     * Creates the view to select a profile initialized with the corresponding presenter.
+     * @return The view enabling the user to select an account.
+     */
+    private SplashView initializeSplashView() {
+        SplashView view = new SplashView();
+        new ProfileSelectorPresenter(view, shared.ServiceFactory.getProfileService())
+                .initialize();
+        return view;
+    }
+
+    /**
+     * Creates the view to edit a profile initialized with the corresponding presenter.
+     * @return The view enabling the user to edit their account details.
+     */
+    private EditProfileView initializeEditProfileView() {
+        EditProfileView view = new EditProfileView();
+        new EditProfilePresenter(view, shared.ServiceFactory.getProfileService())
+                .initialize();
+        return view;
+    }
+
+    /**
+     * Creates the view to create a profile initialized with the corresponding presenter.
+     * @return The view enabling the user to create a profile.
+     */
+    private SignUpView initializeSignUpView() {
+        SignUpView view = new SignUpView();
+        new UserSignUpPresenter(view, shared.ServiceFactory.getProfileService())
+                .initialize();
+        return view;
     }
 
     /**
