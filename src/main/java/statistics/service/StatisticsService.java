@@ -1,17 +1,17 @@
 package statistics.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import meals.models.food.Food;
 import meals.models.food.FoodGroup;
 import meals.models.food.Measure;
 import meals.models.meal.Meal;
 import meals.models.meal.MealItem;
 import meals.models.nutrient.Nutrient;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.ArrayList;
 
 
 public class StatisticsService implements IStatisticsService {
@@ -530,5 +530,39 @@ public class StatisticsService implements IStatisticsService {
             System.err.println("Error converting meal item to grams: " + e.getMessage());
             return item.getQuantity(); // Fallback
         }
+    }
+    
+    @Override
+    public Map<String, Double> calculateNutrientTotalsFromFood(meals.models.food.Food food) {
+        Map<String, Double> nutrientTotals = new java.util.HashMap<>();
+        
+        if (food == null || food.getNutrientAmounts() == null) {
+            return nutrientTotals;
+        }
+        
+        // Sum up all nutrients for this food, excluding bioactive compounds and moisture/ash
+        for (Map.Entry<meals.models.nutrient.Nutrient, Float> entry : food.getNutrientAmounts().entrySet()) {
+            String nutrientName = entry.getKey().getNutrientName();
+            String nutrientUnit = entry.getKey().getNutrientUnit();
+            Float amount = entry.getValue();
+            
+            if (amount != null && amount > 0) {
+                // Skip water and bulk nutrients that would skew visualization
+                if (isWaterOrBulk(nutrientName)) {
+                    continue;
+                }
+                
+                // Skip bioactive compounds (alcohol, caffeine, theobromine, calories)
+                if (isBioactiveCompound(nutrientName)) {
+                    continue;
+                }
+                
+                // Convert to grams for consistent comparison
+                double amountInGrams = convertToGrams(amount, nutrientUnit);
+                nutrientTotals.put(nutrientName, amountInGrams);
+            }
+        }
+        
+        return nutrientTotals;
     }
 }
