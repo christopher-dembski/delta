@@ -221,7 +221,12 @@ public class SwapsPresenter {
             return null; // Can't create goal without nutrient
         }
         
-        var selectedNutrient = selectedNutrientOption.nutrient();
+        var selectedNutrient = getNutrientFromOption(selectedNutrientOption);
+        // invalid
+        if (selectedNutrient == null) {
+            return null; 
+        }
+        
         DropdownOptionGoalDirection direction = presenter.getDirection();
         DropdownOptionGoalType type = presenter.getType();
         
@@ -239,6 +244,15 @@ public class SwapsPresenter {
             }
             return new Goal(selectedNutrient, direction, intensity);
         }
+    }
+
+    /**
+     * Helper method to safely extract nutrient from dropdown option.
+     * Encapsulates the message chain to avoid Law of Demeter violations.
+     */
+    private meals.models.nutrient.Nutrient getNutrientFromOption(
+            swaps.ui.goals.create_goal_form.form_fields.DropdownOptionNutrient option) {
+        return option != null ? option.nutrient() : null;
     }
 
     /**
@@ -375,40 +389,21 @@ public class SwapsPresenter {
         try {
             System.out.println("🔍 Starting goal nutrient extraction...");
             
-            // Get nutrient from goal 1
-            System.out.println("🔍 Checking Goal 1...");
-            swaps.ui.goals.create_goal_form.form_fields.DropdownOptionNutrient goal1Nutrient = goal1Presenter.getSelectedNutrient();
-            if (goal1Nutrient != null) {
-                if (goal1Nutrient.nutrient() != null) {
-                    String nutrientName = goal1Nutrient.nutrient().getNutrientName();
-                    goalNutrients.add(nutrientName);
-                    System.out.println("🎯 Goal 1 nutrient: " + nutrientName);
-                } else {
-                    System.out.println("⚠️  Goal 1 nutrient object is null");
-                }
-            } else {
-                System.out.println("⚠️  Goal 1 DropdownOptionNutrient is null");
+            // Extract nutrient from goal 1
+            String goal1NutrientName = extractNutrientNameFromGoal(goal1Presenter, "Goal 1");
+            if (goal1NutrientName != null) {
+                goalNutrients.add(goal1NutrientName);
+                System.out.println("Goal 1 nutrient: " + goal1NutrientName);
             }
             
-            // Get nutrient from goal 2 (if it exists and is different)
-            System.out.println("🔍 Checking Goal 2...");
+            // Extract nutrient from goal 2 (if enabled and different)
             if (createGoalsPresenter.isSecondGoalEnabled()) {
-                swaps.ui.goals.create_goal_form.form_fields.DropdownOptionNutrient goal2Nutrient = goal2Presenter.getSelectedNutrient();
-                if (goal2Nutrient != null) {
-                    if (goal2Nutrient.nutrient() != null) {
-                        String nutrientName = goal2Nutrient.nutrient().getNutrientName();
-                        System.out.println("🔍 Goal 2 nutrient found: " + nutrientName);
-                        if (!goalNutrients.contains(nutrientName)) { // Avoid duplicates
-                            goalNutrients.add(nutrientName);
-                            System.out.println("🎯 Goal 2 nutrient added: " + nutrientName);
-                        } else {
-                            System.out.println("⚠️  Goal 2 nutrient '" + nutrientName + "' is same as Goal 1 - skipping duplicate");
-                        }
-                    } else {
-                        System.out.println("⚠️  Goal 2 nutrient object is null");
-                    }
-                } else {
-                    System.out.println("⚠️  Goal 2 DropdownOptionNutrient is null - user might not have set a second goal");
+                String goal2NutrientName = extractNutrientNameFromGoal(goal2Presenter, "Goal 2");
+                if (goal2NutrientName != null && !goalNutrients.contains(goal2NutrientName)) {
+                    goalNutrients.add(goal2NutrientName);
+                    System.out.println("Goal 2 nutrient added: " + goal2NutrientName);
+                } else if (goal2NutrientName != null) {
+                    System.out.println("Goal 2 nutrient '" + goal2NutrientName + "' is same as Goal 1 - skipping duplicate");
                 }
             } else {
                 System.out.println("⚠️  Goal 2 is not enabled - skipping");
@@ -421,6 +416,28 @@ public class SwapsPresenter {
         
         System.out.println("✅ Final extracted " + goalNutrients.size() + " goal nutrients: " + goalNutrients);
         return goalNutrients;
+    }
+
+    /**
+     * Helper method to extract nutrient name from a single goal presenter.
+     * Encapsulates the message chain to avoid Law of Demeter violations.
+     * @param presenter The goals form presenter to extract from
+     * @param goalLabel Label for logging purposes
+     * @return The nutrient name, or null if not available
+     */
+    private String extractNutrientNameFromGoal(GoalsFormPresenter presenter, String goalLabel) {
+        
+        var selectedNutrientOption = presenter.getSelectedNutrient();
+        if (selectedNutrientOption == null) {
+            return null;
+        }
+        
+        var nutrient = selectedNutrientOption.nutrient();
+        if (nutrient == null) {
+            return null;
+        }
+        
+        return nutrient.getNutrientName();
     }
     
     /**
@@ -438,19 +455,13 @@ public class SwapsPresenter {
             boolean swapApplied = false;
             
             for (meals.models.meal.MealItem originalItem : originalMeal.getMealItems()) {
-                // Check if this item contains the food we want to swap
-                if (originalItem.getFood().getFoodId().equals(swap.oldFood().getFoodId())) {
+                // Check if this item should be swapped
+                if (shouldSwapMealItem(originalItem, swap)) {
                     // Apply the swap: replace with new food, keep same quantity and measure
-                    meals.models.meal.MealItem swappedItem = new meals.models.meal.MealItem(
-                        originalItem.getId(),
-                        swap.newFood(),
-                        originalItem.getQuantity(),
-                        originalItem.getSelectedMeasure()
-                    );
+                    meals.models.meal.MealItem swappedItem = createSwappedMealItem(originalItem, swap);
                     swappedItems.add(swappedItem);
                     swapApplied = true;
-                    System.out.println("🔄 Swapped: " + swap.oldFood().getFoodDescription() + 
-                                     " → " + swap.newFood().getFoodDescription());
+                    logSwapApplication(swap);
                 } else {
                     // Keep the original item unchanged
                     swappedItems.add(originalItem);
@@ -475,6 +486,38 @@ public class SwapsPresenter {
         }
         
         return afterSwapMeals;
+    }
+
+    /**
+     * Helper method to determine if a meal item should be swapped.
+     * Encapsulates the food ID comparison logic.
+     */
+    private boolean shouldSwapMealItem(meals.models.meal.MealItem mealItem, SwapWithMealContext swap) {
+        Integer itemFoodId = mealItem.getFood().getFoodId();
+        Integer swapOldFoodId = swap.oldFood().getFoodId();
+        return itemFoodId != null && itemFoodId.equals(swapOldFoodId);
+    }
+
+    /**
+     * Helper method to create a swapped meal item.
+     * Encapsulates the meal item creation logic.
+     */
+    private meals.models.meal.MealItem createSwappedMealItem(meals.models.meal.MealItem originalItem, SwapWithMealContext swap) {
+        return new meals.models.meal.MealItem(
+            originalItem.getId(),
+            swap.newFood(),
+            originalItem.getQuantity(),
+            originalItem.getSelectedMeasure()
+        );
+    }
+
+    /**
+     * Helper method to log swap application.
+     * Encapsulates the logging logic to avoid message chains in main method.
+     */
+    private void logSwapApplication(SwapWithMealContext swap) {
+        String oldFoodDescription = swap.oldFood().getFoodDescription();
+        String newFoodDescription = swap.newFood().getFoodDescription();
     }
 
     /**
@@ -564,7 +607,10 @@ public class SwapsPresenter {
                 return null;
             }
             
-            var selectedNutrient = selectedNutrientOption.nutrient();
+            var selectedNutrient = getNutrientFromOption(selectedNutrientOption);
+            if (selectedNutrient == null) {
+                return null;
+            }
             
             DropdownOptionGoalDirection direction = presenter.getDirection();
             DropdownOptionGoalType type = presenter.getType();
