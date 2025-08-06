@@ -1,8 +1,9 @@
 package statistics.service;
 
-import meals.models.meal.Meal;
 import java.util.List;
 import java.util.Map;
+
+import meals.models.meal.Meal;
 
 /**
  * Interface for statistics service operations.
@@ -77,4 +78,13 @@ public interface IStatisticsService {
      * @return Daily average nutrient amounts
      */
     Map<String, Double> convertToDailyAverages(Map<String, Double> totals, double numberOfDays);
+    
+    /**
+     * Calculates nutrient totals from a single Food object.
+     * This excludes water/bulk nutrients and bioactive compounds for better visualization.
+     * 
+     * @param food The food to analyze
+     * @return Map of nutrient names to amounts in grams
+     */
+    Map<String, Double> calculateNutrientTotalsFromFood(meals.models.food.Food food);
 } 
