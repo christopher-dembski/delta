@@ -108,30 +108,79 @@ public class SwapsPresenter {
         view.addNextButtonActionListener(() -> {
             if (currentCardIndex == lastCardIndex) return;
             
-            // Validate goals before moving from goals to select swap
-            if (currentCardIndex == 0 && CARD_IDS[1].equals(SELECT_SWAPS_CARD_ID)) {
-                if (!validateGoalsBeforeProceeding()) {
-                    return; // Don't proceed if validation fails
-                }
-                generateAndLoadSwaps();
-            }
-            
-            // Validate swap selection before moving from select swap to meal details
-            if (currentCardIndex == 1 && CARD_IDS[2].equals(SWAP_MEAL_DETAILS_CARD_ID)) {
-                if (!validateSwapSelectionBeforeProceeding()) {
-                    return; // Don't proceed if no swap is selected
-                }
-                prepareMealDetailsView();
-            }
-            
-            // Update statistics view when moving to statistics card
-            if (currentCardIndex == 2 && CARD_IDS[3].equals(SWAP_STATISTICS_CARD_ID)) {
-                prepareStatisticsView();
+            if (!handleCardTransition()) {
+                return; // Don't proceed if transition validation fails
             }
             
             currentCardIndex++;
             updateVisibleCardAndNavigationControls();
         });
+    }
+    
+    /**
+     * Handles the transition logic between different cards.
+     * @return true if transition should proceed, false otherwise
+     */
+    private boolean handleCardTransition() {
+        // Validate goals before moving from goals to select swap
+        if (isTransitioningFromGoalsToSwaps()) {
+            return handleGoalsToSwapsTransition();
+        }
+        
+        // Validate swap selection before moving from select swap to meal details
+        if (isTransitioningFromSwapsToMealDetails()) {
+            return handleSwapsToMealDetailsTransition();
+        }
+        
+        // Update statistics view when moving to statistics card
+        if (isTransitioningToStatistics()) {
+            prepareStatisticsView();
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Checks if transitioning from goals card to swaps card.
+     */
+    private boolean isTransitioningFromGoalsToSwaps() {
+        return currentCardIndex == 0 && CARD_IDS[1].equals(SELECT_SWAPS_CARD_ID);
+    }
+    
+    /**
+     * Checks if transitioning from swaps card to meal details card.
+     */
+    private boolean isTransitioningFromSwapsToMealDetails() {
+        return currentCardIndex == 1 && CARD_IDS[2].equals(SWAP_MEAL_DETAILS_CARD_ID);
+    }
+    
+    /**
+     * Checks if transitioning to statistics card.
+     */
+    private boolean isTransitioningToStatistics() {
+        return currentCardIndex == 2 && CARD_IDS[3].equals(SWAP_STATISTICS_CARD_ID);
+    }
+    
+    /**
+     * Handles transition from goals to swaps with validation.
+     */
+    private boolean handleGoalsToSwapsTransition() {
+        if (!validateGoalsBeforeProceeding()) {
+            return false; // Don't proceed if validation fails
+        }
+        generateAndLoadSwaps();
+        return true;
+    }
+    
+    /**
+     * Handles transition from swaps to meal details with validation.
+     */
+    private boolean handleSwapsToMealDetailsTransition() {
+        if (!validateSwapSelectionBeforeProceeding()) {
+            return false; // Don't proceed if no swap is selected
+        }
+        prepareMealDetailsView();
+        return true;
     }
 
     /**
