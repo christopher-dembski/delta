@@ -18,6 +18,7 @@ import swaps.ui.goals.create_goal_form.form_fields.DropdownOptionGoalType;
 import swaps.ui.select_swap.SelectSwapPresenter;
 import swaps.ui.select_swap.SelectSwapView;
 import swaps.ui.swap_meal_details.SwapMealDetailsPresenter;
+import swaps.ui.swap_statistics.MealComparisonWithGoalsData;
 
 /**
  * The presenter that handles the logic and manages state for navigating between different steps in the swap workflow.
@@ -357,7 +358,10 @@ public class SwapsPresenter {
             
             // Update the meal list comparison view with goal nutrients prioritized
             // Delegate UI creation to the view layer (proper MVP separation)
-            view.getSwapStatisticsView().updateMealListComparisonWithGoals(originalMeals, afterSwapMeals, goalNutrientNames, selectedSwap);
+            // Using refactored parameter object to reduce long parameter list
+            MealComparisonWithGoalsData comparisonData = new MealComparisonWithGoalsData(
+                originalMeals, afterSwapMeals, goalNutrientNames, selectedSwap);
+            view.getSwapStatisticsView().updateMealListComparisonWithGoals(comparisonData);
             
         } catch (Exception e) {
             System.err.println("❌ Error updating meal list comparison: " + e.getMessage());
