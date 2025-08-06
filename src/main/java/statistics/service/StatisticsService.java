@@ -228,80 +228,60 @@ public class StatisticsService implements IStatisticsService {
                                calories, alcohol, caffeine, theobromine);
         }
     }
-    
+
     @Override
     public Map<String, Double> calculateNutrientTotalsFromMeals(List<Meal> meals) {
         Map<String, Double> allNutrientTotals = new HashMap<>();
-        
-        System.out.println("🧮 Calculating nutrient totals from " + meals.size() + " meals...");
-        
+
         for (Meal meal : meals) {
-            System.out.println("🔍 Processing meal: " + meal.getMealType() + " on " + meal.getCreatedAt());
-            
             for (MealItem mealItem : meal.getMealItems()) {
-                Food food = mealItem.getFood();
-                Float quantity = mealItem.getQuantity();
-                Measure measure = mealItem.getSelectedMeasure();
-                Float conversionFactor = measure.getConversionValue();
-                
-                System.out.println("   FOOD: Processing food: " + food.getFoodDescription());
-                System.out.println("        Quantity: " + quantity + " x " + measure.getName());
-                System.out.println("        Conversion factor: " + conversionFactor);
-                
-                Map<Nutrient, Float> nutrients = food.getNutrientAmounts();
-                System.out.println("        Found " + nutrients.size() + " nutrients for this food");
-                
-                for (Map.Entry<Nutrient, Float> entry : nutrients.entrySet()) {
-                    Nutrient nutrient = entry.getKey();
-                    Float amount = entry.getValue();
-                    
-                    if (amount != null && amount > 0) {
-                        String nutrientName = nutrient.getNutrientName();
-                        String nutrientUnit = nutrient.getNutrientUnit();
-                        
-                        System.out.println("      DEBUG: Processing nutrient '" + nutrientName + "' (" + nutrientUnit + ")");
-                        
-                        // Skip water and bulk nutrients that would skew visualization
-                        if (StatisticsService.instance().isWaterOrBulk(nutrientName)) {
-                            continue;
-                        }
-                        
-                        // Correct scaling: base_amount × conversion_factor × quantity
-                        double scaledAmount = amount * conversionFactor * quantity;
-                        
-                        // Convert to grams for consistent comparison
-                        double amountInGrams = StatisticsService.instance().convertToGrams(scaledAmount, nutrientUnit);
-                        
-                        // Debug for carbohydrate specifically
-                        if (nutrientName.toUpperCase().contains("CARBOHYDRATE")) {
-                            System.out.println("      >>> CARB DEBUG: '" + nutrientName + "'");
-                            System.out.println("          Base amount: " + amount + " " + nutrientUnit);
-                            System.out.println("          Conversion factor: " + conversionFactor);
-                            System.out.println("          Quantity: " + quantity);
-                            System.out.println("          Scaled amount: " + scaledAmount + " " + nutrientUnit + " (= " + amount + " × " + conversionFactor + " × " + quantity + ")");
-                            System.out.println("          Converted to grams: " + amountInGrams + "g");
-                        }
-                        
-                        // Accumulate totals
-                        System.out.println("      DEBUG: Adding nutrient '" + nutrientName + "' = " + amountInGrams + "g");
-                        allNutrientTotals.merge(nutrientName, amountInGrams, Double::sum);
-                    }
-                }
+                processMealItemForNutrientTotals(mealItem, allNutrientTotals);
             }
         }
-        
-        System.out.println("TOTAL: Total unique nutrients collected: " + allNutrientTotals.size());
-        
-        // DEBUG: Show what's actually in the map
-        System.out.println("DEBUG: Final nutrient map contents:");
-        for (Map.Entry<String, Double> entry : allNutrientTotals.entrySet()) {
-            System.out.println("  '" + entry.getKey() + "' = " + entry.getValue() + "g");
-        }
-        
-        // Get top 7 nutrients and group the rest
         return getTopNutrientsWithOthers(allNutrientTotals, 7);
     }
-    
+
+    /**
+     * Processes a single MealItem to find and accumulate all valid nutrient totals.
+     * This was extracted from the inner loop of the original method.
+     * @param mealItem The meal item to process.
+     * @param allNutrientTotals The map to accumulate totals into.
+     */
+    private void processMealItemForNutrientTotals(MealItem mealItem, Map<String, Double> allNutrientTotals) {
+        Map<Nutrient, Float> nutrients = mealItem.getFood().getNutrientAmounts();
+
+        for (Map.Entry<Nutrient, Float> entry : nutrients.entrySet()) {
+            Nutrient nutrient = entry.getKey();
+            Float amount = entry.getValue();
+
+            if (amount != null && amount > 0) {
+                accumulateNutrientTotal(nutrient, amount, mealItem, allNutrientTotals);
+            }
+        }
+    }
+
+    /**
+     * Calculates the scaled amount for a single nutrient and adds it to the totals map,
+     * after ensuring it's not a bulk compound that should be ignored.
+     * @param nutrient The nutrient to process.
+     * @param baseAmount The base amount from the food's nutrient map.
+     * @param mealItem The parent meal item, needed for quantity and measure.
+     * @param allNutrientTotals The map to accumulate totals into.
+     */
+    private void accumulateNutrientTotal(Nutrient nutrient, float baseAmount, MealItem mealItem, Map<String, Double> allNutrientTotals) {
+        if (isWaterOrBulk(nutrient.getNutrientName())) {
+            return;
+        }
+
+        float quantity = mealItem.getQuantity();
+        float conversionFactor = mealItem.getSelectedMeasure().getConversionValue();
+
+        double scaledAmount = baseAmount * conversionFactor * quantity;
+        double amountInGrams = convertToGrams(scaledAmount, nutrient.getNutrientUnit());
+
+        allNutrientTotals.merge(nutrient.getNutrientName(), amountInGrams, Double::sum);
+    }
+
     @Override
     public Map<String, Double> convertToDailyAverages(Map<String, Double> totals, double numberOfDays) {
         if (numberOfDays <= 0) {
