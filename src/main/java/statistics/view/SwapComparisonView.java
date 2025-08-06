@@ -1,23 +1,29 @@
 package statistics.view;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.SwingConstants;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.renderer.category.LineAndShapeRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
 
-import javax.swing.*;
-import java.awt.*;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 import meals.models.food.Food;
-import meals.models.meal.Meal;
-import meals.services.QueryFoodsService;
 
 public class SwapComparisonView implements ISwapComparisonView {
     private JPanel mainPanel;
@@ -351,8 +357,8 @@ public class SwapComparisonView implements ISwapComparisonView {
         
         try {
             // Calculate nutrient totals for each food (using standard serving size)
-            Map<String, Double> beforeNutrients = calculateNutrientTotalsFromFood(beforeFood);
-            Map<String, Double> afterNutrients = calculateNutrientTotalsFromFood(afterFood);
+            Map<String, Double> beforeNutrients = statistics.service.StatisticsService.instance().calculateNutrientTotalsFromFood(beforeFood);
+            Map<String, Double> afterNutrients = statistics.service.StatisticsService.instance().calculateNutrientTotalsFromFood(afterFood);
             
             // Get top 7 nutrients for better visualization
             Map<String, Double> prioritizedBefore = getPrioritizedNutrientsForGoals(beforeNutrients, new java.util.ArrayList<>(), 7);
@@ -373,42 +379,6 @@ public class SwapComparisonView implements ISwapComparisonView {
         }
         
         return mainPanel;
-    }
-    
-    /**
-     * Calculates nutrient totals from a Food object.
-     */
-    private Map<String, Double> calculateNutrientTotalsFromFood(Food food) {
-        Map<String, Double> nutrientTotals = new java.util.HashMap<>();
-        
-        if (food == null || food.getNutrientAmounts() == null) {
-            return nutrientTotals;
-        }
-        
-        // Sum up all nutrients for this food, excluding bioactive compounds and moisture/ash
-        for (Map.Entry<meals.models.nutrient.Nutrient, Float> entry : food.getNutrientAmounts().entrySet()) {
-            String nutrientName = entry.getKey().getNutrientName();
-            String nutrientUnit = entry.getKey().getNutrientUnit();
-            Float amount = entry.getValue();
-            
-            if (amount != null && amount > 0) {
-                // Skip water and bulk nutrients that would skew visualization
-                if (statistics.service.StatisticsService.instance().isWaterOrBulk(nutrientName)) {
-                    continue;
-                }
-                
-                // Skip bioactive compounds (alcohol, caffeine, theobromine, calories)
-                if (statistics.service.StatisticsService.instance().isBioactiveCompound(nutrientName)) {
-                    continue;
-                }
-                
-                // Convert to grams for consistent comparison
-                double amountInGrams = statistics.service.StatisticsService.instance().convertToGrams(amount, nutrientUnit);
-                nutrientTotals.put(nutrientName, amountInGrams);
-            }
-        }
-        
-        return nutrientTotals;
     }
     
     /**

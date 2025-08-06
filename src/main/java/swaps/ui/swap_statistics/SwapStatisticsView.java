@@ -1,14 +1,20 @@
 package swaps.ui.swap_statistics;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
 import java.util.List;
 import java.util.Map;
-import statistics.presenter.SwapComparisonPresenter;
-import statistics.view.SwapComparisonView;
-import statistics.service.StatisticsService;
-import swaps.models.SwapWithMealContext;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+
 import meals.models.meal.Meal;
+import statistics.presenter.SwapComparisonPresenter;
+import statistics.service.StatisticsService;
+import statistics.view.SwapComparisonView;
+import swaps.models.SwapWithMealContext;
 
 /**
  * The view that renders statistics for meals before and after the swap.
@@ -136,25 +142,22 @@ public class SwapStatisticsView extends JPanel {
     }
     
     /**
-     * NEW: Updates the meal list comparison with goal nutrients prioritized.
+     * NEW: Refactored version using parameter object to reduce long parameter list.
      * This is the proper MVP approach - view creates UI, presenter provides data.
-     * @param beforeSwapMeals The original meals before any swaps
-     * @param afterSwapMeals The meals after applying the swap
-     * @param goalNutrientNames List of nutrient names from user's goals
-     * @param selectedSwap The swap context to apply for the line chart
+     * @param data Encapsulated meal comparison data with goals
      */
-    public void updateMealListComparisonWithGoals(List<Meal> beforeSwapMeals, List<Meal> afterSwapMeals, List<String> goalNutrientNames, swaps.models.SwapWithMealContext selectedSwap) {
-        if (beforeSwapMeals == null || afterSwapMeals == null) {
+    public void updateMealListComparisonWithGoals(MealComparisonWithGoalsData data) {
+        if (!data.isValid()) {
             return;
         }
         
         try {
             // Calculate nutrient totals for both meal lists
-            Map<String, Double> beforeNutrients = StatisticsService.instance().calculateNutrientTotalsFromMeals(beforeSwapMeals);
-            Map<String, Double> afterNutrients = StatisticsService.instance().calculateNutrientTotalsFromMeals(afterSwapMeals);
+            Map<String, Double> beforeNutrients = StatisticsService.instance().calculateNutrientTotalsFromMeals(data.getBeforeSwapMeals());
+            Map<String, Double> afterNutrients = StatisticsService.instance().calculateNutrientTotalsFromMeals(data.getAfterSwapMeals());
             
             // Create the goal-prioritized meal list comparison using the view
-            JPanel mealComparisonPanel = swapComparisonView.createBarChartPanelWithGoals(beforeNutrients, afterNutrients, goalNutrientNames);
+            JPanel mealComparisonPanel = swapComparisonView.createBarChartPanelWithGoals(beforeNutrients, afterNutrients, data.getGoalNutrientNames());
             
             // Update the second tab (index 1) if it exists
             if (tabbedPane.getTabCount() > 1) {
@@ -164,7 +167,7 @@ public class SwapStatisticsView extends JPanel {
             
             // Update the third tab (index 2) with the goal nutrient trends
             if (tabbedPane.getTabCount() > 2) {
-                JPanel goalTrendsPanel = createGoalNutrientTrendsPanel(beforeNutrients, afterNutrients, goalNutrientNames, beforeSwapMeals, selectedSwap);
+                JPanel goalTrendsPanel = createGoalNutrientTrendsPanel(beforeNutrients, afterNutrients, data.getGoalNutrientNames(), data.getBeforeSwapMeals(), data.getSelectedSwap());
                 tabbedPane.setComponentAt(2, goalTrendsPanel);
                 tabbedPane.setTitleAt(2, "📈 Goal Nutrient Trends");
             }
@@ -173,6 +176,8 @@ public class SwapStatisticsView extends JPanel {
             System.err.println("Error updating meal list comparison with goals: " + e.getMessage());
         }
     }
+
+
     
     /**
      * Creates the goal nutrient trends panel with actual meal data for dates and swap context.

@@ -1,17 +1,17 @@
 package statistics.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import meals.models.food.Food;
 import meals.models.food.FoodGroup;
 import meals.models.food.Measure;
 import meals.models.meal.Meal;
 import meals.models.meal.MealItem;
 import meals.models.nutrient.Nutrient;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.ArrayList;
 
 
 public class StatisticsService implements IStatisticsService {
@@ -130,80 +130,80 @@ public class StatisticsService implements IStatisticsService {
                (name.contains("energy") && name.contains("kilocalories")) ||
                name.contains("kcal");
     }
-    
+
     @Override
     public Map<String, Double> calculateExcludedCompounds(List<Meal> meals) {
+        Map<String, Double> excludedTotals = initializeExcludedTotals();
+
+        for (Meal meal : meals) {
+            for (MealItem mealItem : meal.getMealItems()) {
+                processMealItemForExcludedCompounds(mealItem, excludedTotals);
+            }
+        }
+
+        return excludedTotals;
+    }
+
+    /**
+     * Processes a single MealItem to find and accumulate excluded compounds.
+     * @param mealItem The meal item to process.
+     * @param excludedTotals The map to accumulate totals into.
+     */
+    private void processMealItemForExcludedCompounds(MealItem mealItem, Map<String, Double> excludedTotals) {
+        Map<Nutrient, Float> nutrients = mealItem.getFood().getNutrientAmounts();
+
+        for (Map.Entry<Nutrient, Float> entry : nutrients.entrySet()) {
+            Nutrient nutrient = entry.getKey();
+            Float amount = entry.getValue();
+
+            if (amount != null && amount > 0 && isBioactiveCompound(nutrient.getNutrientName())) {
+                accumulateBioactiveCompound(nutrient, amount, mealItem, excludedTotals);
+            }
+        }
+    }
+
+    /**
+     * Calculates the scaled amount for a single nutrient and adds it to the totals map.
+     * @param nutrient The nutrient to process.
+     * @param baseAmount The base amount from the food's nutrient map.
+     * @param mealItem The parent meal item, needed for quantity and measure.
+     * @param excludedTotals The map to accumulate totals into.
+     */
+    private void accumulateBioactiveCompound(Nutrient nutrient, float baseAmount, MealItem mealItem, Map<String, Double> excludedTotals) {
+        float quantity = mealItem.getQuantity();
+        float conversionFactor = mealItem.getSelectedMeasure().getConversionValue();
+        double scaledAmount = baseAmount * conversionFactor * quantity;
+
+        String nutrientName = nutrient.getNutrientName().toLowerCase();
+        String nutrientUnit = nutrient.getNutrientUnit();
+
+        if (nutrientName.contains("alcohol")) {
+            double amountInGrams = convertToGrams(scaledAmount, nutrientUnit);
+            excludedTotals.merge("alcohol", amountInGrams, Double::sum);
+        } else if (nutrientName.contains("caffeine")) {
+            double amountInGrams = convertToGrams(scaledAmount, nutrientUnit);
+            excludedTotals.merge("caffeine", amountInGrams, Double::sum);
+        } else if (nutrientName.contains("theobromine")) {
+            double amountInGrams = convertToGrams(scaledAmount, nutrientUnit);
+            excludedTotals.merge("theobromine", amountInGrams, Double::sum);
+        } else if (nutrientName.contains("energy") || nutrientName.contains("kcal")) {
+            excludedTotals.merge("calories", scaledAmount, Double::sum);
+        }
+    }
+
+    /**
+     * Initializes the map for storing totals of excluded compounds.
+     * @return A new map with keys for each compound, initialized to 0.0.
+     */
+    private Map<String, Double> initializeExcludedTotals() {
         Map<String, Double> excludedTotals = new HashMap<>();
         excludedTotals.put("alcohol", 0.0);
         excludedTotals.put("caffeine", 0.0);
         excludedTotals.put("theobromine", 0.0);
         excludedTotals.put("calories", 0.0);
-        
-        System.out.println("🧪 Calculating excluded compound totals from " + meals.size() + " meals...");
-        
-        for (Meal meal : meals) {
-            for (MealItem mealItem : meal.getMealItems()) {
-                Food food = mealItem.getFood();
-                Float quantity = mealItem.getQuantity();
-                Measure measure = mealItem.getSelectedMeasure();
-                Float conversionFactor = measure.getConversionValue();
-                
-                Map<Nutrient, Float> nutrients = food.getNutrientAmounts();
-                
-                for (Map.Entry<Nutrient, Float> entry : nutrients.entrySet()) {
-                    Nutrient nutrient = entry.getKey();
-                    Float amount = entry.getValue();
-                    
-                    if (amount != null && amount > 0) {
-                        String nutrientName = nutrient.getNutrientName();
-                        String nutrientUnit = nutrient.getNutrientUnit();
-                        
-                        // Only process bioactive compounds
-                        if (isBioactiveCompound(nutrientName)) {
-                            // Correct scaling: base_amount × conversion_factor × quantity
-                            double scaledAmount = amount * conversionFactor * quantity;
-                            
-                            // Convert to grams for consistent comparison
-                            double amountInGrams = convertToGrams(scaledAmount, nutrientUnit);
-                            
-                            // Categorize the compound
-                            String name = nutrientName.toLowerCase();
-                            if (name.contains("alcohol")) {
-                                excludedTotals.merge("alcohol", amountInGrams, Double::sum);
-                                System.out.println("🍷 Found alcohol: " + amountInGrams + "g");
-                            } else if (name.contains("caffeine")) {
-                                excludedTotals.merge("caffeine", amountInGrams, Double::sum);
-                                System.out.println("☕ Found caffeine: " + amountInGrams + "g");
-                            } else if (name.contains("theobromine")) {
-                                excludedTotals.merge("theobromine", amountInGrams, Double::sum);
-                                System.out.println("🍫 Found theobromine: " + amountInGrams + "g");
-                            } else if (name.contains("energy") || name.contains("kcal")) {
-                                // Only process kcal/kilocalories (kJ is filtered out by isBioactiveCompound)
-                                excludedTotals.merge("calories", scaledAmount, Double::sum);
-                                System.out.println("🔥 CALORIE DEBUG for '" + nutrientName + "':");
-                                System.out.println("    Base amount: " + amount + " " + nutrientUnit);
-                                System.out.println("    Conversion factor: " + conversionFactor);
-                                System.out.println("    Quantity: " + quantity);
-                                System.out.println("    Scaled amount: " + scaledAmount + " " + nutrientUnit + " (= " + amount + " × " + conversionFactor + " × " + quantity + ")");
-                                System.out.println("    Final calories: " + scaledAmount + " kcal");
-                                System.out.println("    Food: " + food.getFoodDescription());
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
-        System.out.println("🧪 EXCLUDED COMPOUNDS SUMMARY:");
-        System.out.println("   Alcohol: " + String.format("%.3f", excludedTotals.get("alcohol")) + "g");
-        System.out.println("   Caffeine: " + String.format("%.3f", excludedTotals.get("caffeine")) + "g");
-        System.out.println("   Theobromine: " + String.format("%.3f", excludedTotals.get("theobromine")) + "g");
-        System.out.println("   Calories: " + String.format("%.2f", excludedTotals.get("calories")) + "kcal");
-        System.out.println("🔥 TOTAL CALORIES ACCUMULATED: " + String.format("%.2f", excludedTotals.get("calories")) + "kcal");
-        
         return excludedTotals;
     }
-    
+
     @Override
     public String getExcludedCompoundsSummary(Map<String, Double> excludedCompounds) {
         return getExcludedCompoundsSummary(excludedCompounds, 1.0);
@@ -228,80 +228,60 @@ public class StatisticsService implements IStatisticsService {
                                calories, alcohol, caffeine, theobromine);
         }
     }
-    
+
     @Override
     public Map<String, Double> calculateNutrientTotalsFromMeals(List<Meal> meals) {
         Map<String, Double> allNutrientTotals = new HashMap<>();
-        
-        System.out.println("🧮 Calculating nutrient totals from " + meals.size() + " meals...");
-        
+
         for (Meal meal : meals) {
-            System.out.println("🔍 Processing meal: " + meal.getMealType() + " on " + meal.getCreatedAt());
-            
             for (MealItem mealItem : meal.getMealItems()) {
-                Food food = mealItem.getFood();
-                Float quantity = mealItem.getQuantity();
-                Measure measure = mealItem.getSelectedMeasure();
-                Float conversionFactor = measure.getConversionValue();
-                
-                System.out.println("   FOOD: Processing food: " + food.getFoodDescription());
-                System.out.println("        Quantity: " + quantity + " x " + measure.getName());
-                System.out.println("        Conversion factor: " + conversionFactor);
-                
-                Map<Nutrient, Float> nutrients = food.getNutrientAmounts();
-                System.out.println("        Found " + nutrients.size() + " nutrients for this food");
-                
-                for (Map.Entry<Nutrient, Float> entry : nutrients.entrySet()) {
-                    Nutrient nutrient = entry.getKey();
-                    Float amount = entry.getValue();
-                    
-                    if (amount != null && amount > 0) {
-                        String nutrientName = nutrient.getNutrientName();
-                        String nutrientUnit = nutrient.getNutrientUnit();
-                        
-                        System.out.println("      DEBUG: Processing nutrient '" + nutrientName + "' (" + nutrientUnit + ")");
-                        
-                        // Skip water and bulk nutrients that would skew visualization
-                        if (StatisticsService.instance().isWaterOrBulk(nutrientName)) {
-                            continue;
-                        }
-                        
-                        // Correct scaling: base_amount × conversion_factor × quantity
-                        double scaledAmount = amount * conversionFactor * quantity;
-                        
-                        // Convert to grams for consistent comparison
-                        double amountInGrams = StatisticsService.instance().convertToGrams(scaledAmount, nutrientUnit);
-                        
-                        // Debug for carbohydrate specifically
-                        if (nutrientName.toUpperCase().contains("CARBOHYDRATE")) {
-                            System.out.println("      >>> CARB DEBUG: '" + nutrientName + "'");
-                            System.out.println("          Base amount: " + amount + " " + nutrientUnit);
-                            System.out.println("          Conversion factor: " + conversionFactor);
-                            System.out.println("          Quantity: " + quantity);
-                            System.out.println("          Scaled amount: " + scaledAmount + " " + nutrientUnit + " (= " + amount + " × " + conversionFactor + " × " + quantity + ")");
-                            System.out.println("          Converted to grams: " + amountInGrams + "g");
-                        }
-                        
-                        // Accumulate totals
-                        System.out.println("      DEBUG: Adding nutrient '" + nutrientName + "' = " + amountInGrams + "g");
-                        allNutrientTotals.merge(nutrientName, amountInGrams, Double::sum);
-                    }
-                }
+                processMealItemForNutrientTotals(mealItem, allNutrientTotals);
             }
         }
-        
-        System.out.println("TOTAL: Total unique nutrients collected: " + allNutrientTotals.size());
-        
-        // DEBUG: Show what's actually in the map
-        System.out.println("DEBUG: Final nutrient map contents:");
-        for (Map.Entry<String, Double> entry : allNutrientTotals.entrySet()) {
-            System.out.println("  '" + entry.getKey() + "' = " + entry.getValue() + "g");
-        }
-        
-        // Get top 7 nutrients and group the rest
         return getTopNutrientsWithOthers(allNutrientTotals, 7);
     }
-    
+
+    /**
+     * Processes a single MealItem to find and accumulate all valid nutrient totals.
+     * This was extracted from the inner loop of the original method.
+     * @param mealItem The meal item to process.
+     * @param allNutrientTotals The map to accumulate totals into.
+     */
+    private void processMealItemForNutrientTotals(MealItem mealItem, Map<String, Double> allNutrientTotals) {
+        Map<Nutrient, Float> nutrients = mealItem.getFood().getNutrientAmounts();
+
+        for (Map.Entry<Nutrient, Float> entry : nutrients.entrySet()) {
+            Nutrient nutrient = entry.getKey();
+            Float amount = entry.getValue();
+
+            if (amount != null && amount > 0) {
+                accumulateNutrientTotal(nutrient, amount, mealItem, allNutrientTotals);
+            }
+        }
+    }
+
+    /**
+     * Calculates the scaled amount for a single nutrient and adds it to the totals map,
+     * after ensuring it's not a bulk compound that should be ignored.
+     * @param nutrient The nutrient to process.
+     * @param baseAmount The base amount from the food's nutrient map.
+     * @param mealItem The parent meal item, needed for quantity and measure.
+     * @param allNutrientTotals The map to accumulate totals into.
+     */
+    private void accumulateNutrientTotal(Nutrient nutrient, float baseAmount, MealItem mealItem, Map<String, Double> allNutrientTotals) {
+        if (isWaterOrBulk(nutrient.getNutrientName())) {
+            return;
+        }
+
+        float quantity = mealItem.getQuantity();
+        float conversionFactor = mealItem.getSelectedMeasure().getConversionValue();
+
+        double scaledAmount = baseAmount * conversionFactor * quantity;
+        double amountInGrams = convertToGrams(scaledAmount, nutrient.getNutrientUnit());
+
+        allNutrientTotals.merge(nutrient.getNutrientName(), amountInGrams, Double::sum);
+    }
+
     @Override
     public Map<String, Double> convertToDailyAverages(Map<String, Double> totals, double numberOfDays) {
         if (numberOfDays <= 0) {
@@ -530,5 +510,39 @@ public class StatisticsService implements IStatisticsService {
             System.err.println("Error converting meal item to grams: " + e.getMessage());
             return item.getQuantity(); // Fallback
         }
+    }
+    
+    @Override
+    public Map<String, Double> calculateNutrientTotalsFromFood(meals.models.food.Food food) {
+        Map<String, Double> nutrientTotals = new java.util.HashMap<>();
+        
+        if (food == null || food.getNutrientAmounts() == null) {
+            return nutrientTotals;
+        }
+        
+        // Sum up all nutrients for this food, excluding bioactive compounds and moisture/ash
+        for (Map.Entry<meals.models.nutrient.Nutrient, Float> entry : food.getNutrientAmounts().entrySet()) {
+            String nutrientName = entry.getKey().getNutrientName();
+            String nutrientUnit = entry.getKey().getNutrientUnit();
+            Float amount = entry.getValue();
+            
+            if (amount != null && amount > 0) {
+                // Skip water and bulk nutrients that would skew visualization
+                if (isWaterOrBulk(nutrientName)) {
+                    continue;
+                }
+                
+                // Skip bioactive compounds (alcohol, caffeine, theobromine, calories)
+                if (isBioactiveCompound(nutrientName)) {
+                    continue;
+                }
+                
+                // Convert to grams for consistent comparison
+                double amountInGrams = convertToGrams(amount, nutrientUnit);
+                nutrientTotals.put(nutrientName, amountInGrams);
+            }
+        }
+        
+        return nutrientTotals;
     }
 }
